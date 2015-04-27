@@ -1,2 +1,2 @@
 # gulp-cmd-build
-gulp plugin for cmd transport and concat
+A gulp plugin for cmd transport and concat
