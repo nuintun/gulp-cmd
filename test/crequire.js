@@ -14,7 +14,7 @@ function parseDependencies(s, replace, includeAsync){
     return replace ? s : [];
   }
 
-  var index = 0, peek, length = s.length, isReg = 1, modName = 0, res = [];
+  var index = 0, peek = '', length = s.length, isReg = 1, modName = 0, res = [];
   var parentheseState = 0, parentheseStack = [];
   var braceState, braceStack = [], isReturn;
   var last;
