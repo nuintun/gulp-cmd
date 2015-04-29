@@ -10,7 +10,7 @@ function parseDependencies(s, replace, includeAsync){
     replace = null;
   }
 
-  if (s.indexOf('require') == -1) {
+  if (s.indexOf('require') === -1) {
     return replace ? s : [];
   }
 
@@ -24,7 +24,7 @@ function parseDependencies(s, replace, includeAsync){
     readch();
 
     if (isBlank()) {
-      if (isReturn && (peek == '\n' || peek == '\r')) {
+      if (isReturn && (peek === '\n' || peek === '\r')) {
         braceState = 0;
         isReturn = 0;
       }
@@ -34,19 +34,19 @@ function parseDependencies(s, replace, includeAsync){
       isReg = 1;
       isReturn = 0;
       braceState = 0;
-    } else if (peek == '/') {
+    } else if (peek === '/') {
       readch();
 
-      if (peek == '/') {
+      if (peek === '/') {
         index = s.indexOf('\n', index);
-        if (index == -1) {
+        if (index === -1) {
           index = s.length;
         }
-      } else if (peek == '*') {
+      } else if (peek === '*') {
         var i = s.indexOf('\n', index);
         index = s.indexOf('*/', index);
 
-        if (index == -1) {
+        if (index === -1) {
           index = length;
         } else {
           index += 2;
@@ -75,17 +75,17 @@ function parseDependencies(s, replace, includeAsync){
 
       isReturn = 0;
       braceState = 0;
-    } else if (peek == '(') {
+    } else if (peek === '(') {
       parentheseStack.push(parentheseState);
 
       isReg = 1;
       isReturn = 0;
       braceState = 1;
-    } else if (peek == ')') {
+    } else if (peek === ')') {
       isReg = parentheseStack.pop();
       isReturn = 0;
       braceState = 0;
-    } else if (peek == '{') {
+    } else if (peek === '{') {
       if (isReturn) {
         braceState = 1
       }
@@ -94,7 +94,7 @@ function parseDependencies(s, replace, includeAsync){
 
       isReturn = 0;
       isReg = 1;
-    } else if (peek == '}') {
+    } else if (peek === '}') {
       braceState = braceStack.pop();
 
       isReg = !braceState;
@@ -102,9 +102,9 @@ function parseDependencies(s, replace, includeAsync){
     } else {
       var next = s.charAt(index);
 
-      if (peek == ';') {
+      if (peek === ';') {
         braceState = 0
-      } else if (peek == '-' && next == '-' || peek == '+' && next == '+' || peek == '=' && next == '>') {
+      } else if (peek === '-' && next === '-' || peek === '+' && next === '+' || peek === '=' && next === '>') {
         braceState = 0;
         index++;
       } else {
@@ -127,7 +127,7 @@ function parseDependencies(s, replace, includeAsync){
   }
 
   function isQuote(){
-    return peek == '"' || peek == "'";
+    return peek === '"' || peek === "'";
   }
 
   function dealQuote(){
@@ -135,7 +135,7 @@ function parseDependencies(s, replace, includeAsync){
     var c = peek;
     var end = s.indexOf(c, start);
 
-    if (end == -1) {
+    if (end === -1) {
       index = length
     } else if (s.charAt(end - 1) != '\\') {
       index = end + 1;
@@ -143,9 +143,9 @@ function parseDependencies(s, replace, includeAsync){
       while (index < length) {
         readch();
 
-        if (peek == '\\') {
+        if (peek === '\\') {
           index++;
-        } else if (peek == c) {
+        } else if (peek === c) {
           break;
         }
       }
@@ -181,17 +181,17 @@ function parseDependencies(s, replace, includeAsync){
     while (index < length) {
       readch();
 
-      if (peek == '\\') {
+      if (peek === '\\') {
         index++;
-      } else if (peek == '/') {
+      } else if (peek === '/') {
         break;
-      } else if (peek == '[') {
+      } else if (peek === '[') {
         while (index < length) {
           readch();
 
-          if (peek == '\\') {
+          if (peek === '\\') {
             index++;
-          } else if (peek == ']') {
+          } else if (peek === ']') {
             break;
           }
         }
@@ -229,7 +229,7 @@ function parseDependencies(s, replace, includeAsync){
       'typeof': 1,
       'void': 1
     }[r];
-    isReturn = r == 'return';
+    isReturn = r === 'return';
     braceState = {
       'instanceof': 1,
       'delete': 1,
@@ -252,14 +252,14 @@ function parseDependencies(s, replace, includeAsync){
   }
 
   function isNumber(){
-    return /\d/.test(peek) || peek == '.' && /\d/.test(s.charAt(index));
+    return /\d/.test(peek) || peek === '.' && /\d/.test(s.charAt(index));
   }
 
   function dealNumber(){
     var s2 = s.slice(index - 1);
     var r;
 
-    if (peek == '.') {
+    if (peek === '.') {
       r = /^\.\d+(?:E[+-]?\d*)?\s*/i.exec(s2)[0];
     } else if (/^0x[\da-f]*/i.test(s2)) {
       r = /^0x[\da-f]*\s*/i.exec(s2)[0];
