@@ -8,6 +8,6 @@ var fs = require('fs'),
   urequire = require('./urequire');
 
 var code = fs.readFileSync('./selectize.js', { encoding: 'utf8' });
-console.time('my-crequire');
+console.time('urequire');
 console.log(JSON.stringify(urequire.parse(code), null, 2));
-console.timeEnd('my-crequire');
+console.timeEnd('urequire');
