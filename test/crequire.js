@@ -14,6 +14,7 @@ function getAst(ast, options){
 
   return ast;
 }
+exports.getAst = getAst;
 
 /**
  * Parse everything in `define`.
