@@ -52,13 +52,6 @@ function parse(ast){
 exports.parse = parse;
 
 /**
- * The first meta data returned by `parse`.
- */
-exports.parseFirst = function (ast){
-  return parse(ast)[0];
-};
-
-/**
  * Modify `define` and `require` of the given code.
  *
  * Example:
