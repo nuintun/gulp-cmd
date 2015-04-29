@@ -5,9 +5,9 @@
 'use strict';
 
 var fs = require('fs'),
-  crequire = require('./crequire');
+  urequire = require('./urequire');
 
 var code = fs.readFileSync('./selectize.js', { encoding: 'utf8' });
 console.time('my-crequire');
-console.log(JSON.stringify(crequire.parse(code), null, 2));
+console.log(JSON.stringify(urequire.parse(code), null, 2));
 console.timeEnd('my-crequire');
