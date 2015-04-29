@@ -9,5 +9,5 @@ var fs = require('fs'),
 
 var code = fs.readFileSync('./selectize.js', { encoding: 'utf8' });
 console.time('crequire');
-console.log(JSON.stringify(crequire.parse(code), null, 2));
+console.log(JSON.stringify(crequire(code, true), null, 2));
 console.timeEnd('crequire');
