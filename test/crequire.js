@@ -32,22 +32,28 @@ function parse(ast){
 
   ast = getAst(ast);
 
-  walker = new UglifyJS.TreeWalker(function (node){
-    var define;
+  //walker = new UglifyJS.TreeWalker(function (node){
+  //  //var define;
+  //
+  //  //// don't collect dependencies in the define in define
+  //  //if (node instanceof UglifyJS.AST_Call && node.expression.name === 'define' && node.args.length) {
+  //  //  define = getDefine(node);
+  //  //
+  //  //  if (define) meta.push(define);
+  //  //
+  //  //  return true;
+  //  //}
+  //
+  //  //meta = getDefine(node);
+  //
+  //  return true;
+  //});
 
-    // don't collect dependencies in the define in define
-    if (node instanceof UglifyJS.AST_Call && node.expression.name === 'define' && node.args.length) {
-      define = getDefine(node);
+  //ast.walk(walker);
 
-      if (define) meta.push(define);
+  return getRequires(ast);
 
-      return true;
-    }
-  });
-
-  ast.walk(walker);
-
-  return meta;
+  //return meta;
 }
 exports.parse = parse;
 
@@ -235,19 +241,38 @@ function getDefine(node){
  *   ['jquery', 'lodash']
  */
 function getRequires(ast){
-  var walker, deps = [];
+  var walker,
+    meta = {
+      async: [],
+      dependencies: []
+    };
 
   ast = getAst(ast);
 
   walker = new UglifyJS.TreeWalker(function (node){
+    var child, args;
+
     if (node instanceof UglifyJS.AST_Call && node.expression.name === 'require') {
-      var child, args = node.expression.args || node.args;
+      args = node.expression.args || node.args;
 
       if (args && args.length === 1) {
         child = args[0];
 
-        if (child instanceof UglifyJS.AST_String) deps.push(child.getValue());
+        child instanceof UglifyJS.AST_String && meta.dependencies.push(child.getValue());
       }
+
+      return true;
+    }
+
+    if (node instanceof UglifyJS.AST_Call && node.start.value === 'require'
+      && node.expression.property === 'async' && node.args.length) {
+
+      args = node.args[0];
+      child = args instanceof UglifyJS.AST_Array ? args.elements : [args];
+
+      child.forEach(function (node){
+        node instanceof UglifyJS.AST_String && meta.async.push(node.getValue());
+      });
 
       return true;
     }
@@ -255,7 +280,7 @@ function getRequires(ast){
 
   ast.walk(walker);
 
-  return deps;
+  return meta;
 }
 
 /**
