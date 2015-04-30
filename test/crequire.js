@@ -136,7 +136,7 @@ function parseDependencies(s, replace, includeAsync){
     var end = s.indexOf(c, start);
 
     if (end === -1) {
-      index = length
+      index = length;
     } else if (s.charAt(end - 1) != '\\') {
       index = end + 1;
     } else {

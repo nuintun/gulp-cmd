@@ -10,5 +10,5 @@ var fs = require('fs'),
 var code = fs.readFileSync('./cmd.js', { encoding: 'utf8' });
 console.time('crequire');
 code = JSON.stringify(crequire(code, true), null, 2);
-console.log(code);
+//console.log(code);
 console.timeEnd('crequire');
