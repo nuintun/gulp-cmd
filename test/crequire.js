@@ -153,8 +153,9 @@ function parseDependencies(s, replace, includeAsync){
     }
 
     if (modName) {
+      var close = s.indexOf(')', index) + 1;
       var d = {
-        'string': s.slice(last, s.indexOf(')', index) + 1),
+        'string': s.slice(last, close),
         'path': s.slice(start, index - 1),
         'index': last,
         'flag': flag
@@ -172,7 +173,9 @@ function parseDependencies(s, replace, includeAsync){
         }
       }
 
-      modName = 0;
+      if (close <= index) {
+        modName = 0;
+      }
     }
   }
 
