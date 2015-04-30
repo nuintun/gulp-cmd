@@ -244,17 +244,17 @@ function parseDependencies(s, replace, includeAsync){
 
     if (r === 'require') {
       modName = includeAsync
-        ? /^require\s*(?:(?:\.[a-zA-Z_$][\w$]*)|(?:\[\s*(['"]).*?\1\s*\]))?\s*\(\s*(?:(?:(['"]).+?\2)|\[.*?\])\s*[),]/.test(s2)
+        ? /^require\s*(?:(?:\.\s*[a-zA-Z_$][\w$]*)|(?:\[\s*(['"]).*?\1\s*\]))?\s*\(\s*(?:(?:(['"]).+?\2)|\[.*?\])\s*[),]/.test(s2)
         : /^require\s*\(\s*(['"]).+?\1\s*[),]/.test(s2);
     }
 
     if (r === 'require' && modName) {
       last = index - 1;
       r = includeAsync ?
-        /^require\s*(?:(?:\.[a-zA-Z_$][\w$]*)|(?:\[\s*(['"]).*?\1\s*\]))?\s*\(\s*(?:['"]|\[)/.exec(s2)[0]
+        /^require\s*(?:(?:\.\s*[a-zA-Z_$][\w$]*)|(?:\[\s*(['"]).*?\1\s*\]))?\s*\(\s*(?:['"]|\[)/.exec(s2)[0]
         : /^require\s*\(\s*['"]/.exec(s2)[0];
       index += r.length - 2;
-      flag = /^require\s*(?:(?:\.([a-zA-Z_$][\w$]*))|(?:\[\s*(['"])(.*)?\2\s*\]))/.exec(s2);
+      flag = /^require\s*(?:(?:\.\s*([a-zA-Z_$][\w$]*))|(?:\[\s*(['"])(.*)?\2\s*\]))/.exec(s2);
       flag = flag ? flag[1] || flag[3] : null;
     } else {
       index += /^[\w$]+(?:\s*\.\s*[\w$]+)*/.exec(s2)[0].length - 1;
