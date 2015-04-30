@@ -88,7 +88,7 @@ function parseDependencies(s, replace, includeAsync){
       braceState = 0;
     } else if (peek === '{') {
       if (isReturn) {
-        braceState = 1
+        braceState = 1;
       }
 
       braceStack.push(braceState);
@@ -104,7 +104,7 @@ function parseDependencies(s, replace, includeAsync){
       var next = s.charAt(index);
 
       if (peek === ';') {
-        braceState = 0
+        braceState = 0;
       } else if (peek === '-' && next === '-' || peek === '+' && next === '+' || peek === '=' && next === '>') {
         braceState = 0;
         index++;
