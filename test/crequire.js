@@ -39,6 +39,7 @@ function parseDependencies(s, replace, includeAsync){
 
       if (peek === '/') {
         index = s.indexOf('\n', index);
+
         if (index === -1) {
           index = s.length;
         }

@@ -5,13 +5,14 @@
 'use strict';
 
 define(function (require, exports, module){
-  //var fork = true,
+  var fork = 'pause';
   //  path = require('{{path}}'),
   //  jquery = require('jquery');
 
-  require.async('async');
+  //require.async('async');
   //require['async']('async');
   require.async(['start', 'stop']);
+  require.async([fork, 'start', 'stop']);
   require.async(['start', 'stop'], function (init){});
   //require.async(fork ? 'fork' : 'unfork', function (){});
 });
