@@ -238,9 +238,14 @@ function parseDependencies(s, replace, includeAsync){
       'typeof': 1,
       'return': 1
     }.hasOwnProperty(r);
-    modName = includeAsync
-      ? /^require\s*(?:(?:\.[a-zA-Z_$][a-zA-Z0-9_$]*)|(?:\[\s*(['"]).*?\1\s*\]))?\s*\(\s*(?:(?:(['"]).+?\2)|\[.*?\])\s*[),]/.test(s2)
-      : /^require\s*\(\s*(['"]).+?\1\s*[),]/.test(s2);
+    
+    if (r === 'require') {
+      modName = includeAsync
+        ? /^require\s*(?:(?:\.[a-zA-Z_$][a-zA-Z0-9_$]*)|(?:\[\s*(['"]).*?\1\s*\]))?\s*\(\s*(?:(?:(['"]).+?\2)|\[.*?\])\s*[),]/.test(s2)
+        : /^require\s*\(\s*(['"]).+?\1\s*[),]/.test(s2);
+    } else {
+      modName = false;
+    }
 
     if (modName) {
       last = index - 1;
