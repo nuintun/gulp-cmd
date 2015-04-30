@@ -53,7 +53,7 @@ function parseDependencies(s, replace, includeAsync){
           index += 2;
         }
 
-        if (isReturn && i != -1 && i < index) {
+        if (isReturn && i !== -1 && i < index) {
           braceState = 0;
           isReturn = 0;
         }
@@ -112,7 +112,7 @@ function parseDependencies(s, replace, includeAsync){
         braceState = 1;
       }
 
-      isReg = peek != ']';
+      isReg = peek !== ']';
       isReturn = 0;
     }
   }
@@ -138,7 +138,7 @@ function parseDependencies(s, replace, includeAsync){
 
     if (end === -1) {
       index = length;
-    } else if (s.charAt(end - 1) != '\\') {
+    } else if (s.charAt(end - 1) !== '\\') {
       index = end + 1;
     } else {
       while (index < length) {
@@ -166,7 +166,7 @@ function parseDependencies(s, replace, includeAsync){
         var rep = replace(d);
         s = s.slice(0, last) + rep + s.slice(last + d.string.length);
 
-        if (rep.length != d.string.length) {
+        if (rep.length !== d.string.length) {
           index = last + rep.length;
           length = s.length;
         }
