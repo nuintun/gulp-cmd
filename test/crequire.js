@@ -243,8 +243,6 @@ function parseDependencies(s, replace, includeAsync){
       modName = includeAsync
         ? /^require\s*(?:(?:\.[a-zA-Z_$][\w$]*)|(?:\[\s*(['"]).*?\1\s*\]))?\s*\(\s*(?:(?:(['"]).+?\2)|\[.*?\])\s*[),]/.test(s2)
         : /^require\s*\(\s*(['"]).+?\1\s*[),]/.test(s2);
-    } else {
-      modName = 0;
     }
 
     if (modName) {
