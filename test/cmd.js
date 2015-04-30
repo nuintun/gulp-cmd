@@ -10,6 +10,7 @@ define(function (require, exports, module){
     jquery = require('jquery');
 
   require.async('async');
+  require['async']('async');
   require.async(['init', 'aaa'], function (init){});
   require.async(fork ? 'fork' : 'unfork', function (){});
 });
