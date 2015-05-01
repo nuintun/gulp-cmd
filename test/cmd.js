@@ -9,7 +9,7 @@ define(function (require, exports, module){
     path = require('{{path}}'),
     jquery = require('jquery');
 
-  require.async('async');
+  require.async('asyc');
   require['async']('async');
   require.async(['start', 'stop']);
   require.async([fork, 'start', 'stop']);

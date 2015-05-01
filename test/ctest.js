@@ -7,7 +7,7 @@
 var fs = require('fs'),
   crequire = require('./crequire');
 
-var code = fs.readFileSync('./cmd.js', { encoding: 'utf8' });
+var code = fs.readFileSync('./selectize.js', { encoding: 'utf8' });
 console.time('crequire');
 code = JSON.stringify(crequire(code, true), null, 2);
 console.log(code);

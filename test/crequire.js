@@ -14,11 +14,16 @@ function parseDependencies(s, replace, includeAsync){
     return replace ? s : [];
   }
 
-  var index = 0, peek = '', length = s.length, isReg = 1, modName = 0, res = [];
+  var REQUIRERE = includeAsync
+    ? /^require\s*(?:(?:\.\s*[a-zA-Z_$][\w$]*)|(?:\[\s*(['"]).*?\1\s*\]))?\s*\(\s*(?:['"]|\[)/
+    : /^require\s*\(\s*['"]/;
+  var FLAGRE = /^require\s*(?:(?:\.\s*([a-zA-Z_$][\w$]*))|(?:\[\s*(['"])(.*)?\2\s*\]))/;
+  var CHAINRE = /^[\w$]+(?:\s*\.\s*[\w$]+)*/;
+
+  var index = 0, peek = '', length = s.length, isReg = 1, modName = 0, modBrace = [], res = [];
   var parentheseState = 0, parentheseStack = [];
   var braceState, braceStack = [], isReturn;
-  var last;
-  var flag;
+  var last, flag;
 
   while (index < length) {
     readch();
@@ -82,10 +87,23 @@ function parseDependencies(s, replace, includeAsync){
       isReg = 1;
       isReturn = 0;
       braceState = 1;
+
+      if (modName) {
+        modBrace.push(1);
+      }
     } else if (peek === ')') {
       isReg = parentheseStack.pop();
       isReturn = 0;
       braceState = 0;
+
+      if (modName) {
+        modBrace.pop();
+
+        if (!modBrace.length) {
+          modName = 0;
+          console.log(s.substring(last, index));
+        }
+      }
     } else if (peek === '{') {
       if (isReturn) {
         braceState = 1;
@@ -153,12 +171,10 @@ function parseDependencies(s, replace, includeAsync){
     }
 
     if (modName) {
-      var close = s.indexOf(')', index) + 1;
       var d = {
-        'string': s.slice(last, close),
-        'path': s.slice(start, index - 1),
-        'index': last,
-        'flag': flag
+        'flag': flag,
+        'pos': [start, index - 1],
+        'path': s.slice(start, index - 1)
       };
 
       res.push(d);
@@ -171,10 +187,6 @@ function parseDependencies(s, replace, includeAsync){
           index = last + rep.length;
           length = s.length;
         }
-      }
-
-      if (close <= index) {
-        modName = 0;
       }
     }
   }
@@ -243,21 +255,17 @@ function parseDependencies(s, replace, includeAsync){
     }.hasOwnProperty(r);
 
     if (r === 'require') {
-      modName = includeAsync
-        ? /^require\s*(?:(?:\.\s*[a-zA-Z_$][\w$]*)|(?:\[\s*(['"]).*?\1\s*\]))?\s*\(\s*(?:(?:(['"]).+?\2)|\[.*?\])\s*[),]/.test(s2)
-        : /^require\s*\(\s*(['"]).+?\1\s*[),]/.test(s2);
+      modName = REQUIRERE.test(s2);
     }
 
     if (r === 'require' && modName) {
       last = index - 1;
-      r = includeAsync ?
-        /^require\s*(?:(?:\.\s*[a-zA-Z_$][\w$]*)|(?:\[\s*(['"]).*?\1\s*\]))?\s*\(\s*(?:['"]|\[)/.exec(s2)[0]
-        : /^require\s*\(\s*['"]/.exec(s2)[0];
-      index += r.length - 2;
-      flag = /^require\s*(?:(?:\.\s*([a-zA-Z_$][\w$]*))|(?:\[\s*(['"])(.*)?\2\s*\]))/.exec(s2);
+      r = REQUIRERE.exec(s2)[0];
+      index += r.length - 3;
+      flag = FLAGRE.exec(s2);
       flag = flag ? flag[1] || flag[3] : null;
     } else {
-      index += /^[\w$]+(?:\s*\.\s*[\w$]+)*/.exec(s2)[0].length - 1;
+      index += CHAINRE.exec(s2)[0].length - 1;
     }
   }
 
