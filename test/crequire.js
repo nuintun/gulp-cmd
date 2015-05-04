@@ -23,7 +23,7 @@ function parseDependencies(s, replace, includeAsync){
   var index = 0, peek = '', length = s.length, isReg = 1, modName = 0, modBrace = [], res = [];
   var parentheseState = 0, parentheseStack = [];
   var braceState, braceStack = [], isReturn;
-  var last, flag;
+  var modStart = 0, modEnd = 0, flag;
 
   while (index < length) {
     readch();
@@ -101,7 +101,8 @@ function parseDependencies(s, replace, includeAsync){
 
         if (!modBrace.length) {
           modName = 0;
-          console.log(s.substring(last, index));
+          modEnd = index;
+          console.log(s.substring(modStart, modEnd));
         }
       }
     } else if (peek === '{') {
@@ -181,10 +182,10 @@ function parseDependencies(s, replace, includeAsync){
 
       if (replace) {
         var rep = replace(d);
-        s = s.slice(0, last) + rep + s.slice(last + d.string.length);
+        s = s.slice(0, modStart) + rep + s.slice(modStart + d.string.length);
 
         if (rep.length !== d.string.length) {
-          index = last + rep.length;
+          index = modStart + rep.length;
           length = s.length;
         }
       }
@@ -259,7 +260,7 @@ function parseDependencies(s, replace, includeAsync){
     }
 
     if (r === 'require' && modName) {
-      last = index - 1;
+      modStart = index - 1;
       r = REQUIRERE.exec(s2)[0];
       index += r.length - 3;
       flag = FLAGRE.exec(s2);
