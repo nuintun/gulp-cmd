@@ -90,10 +90,11 @@ function replaceChild(node, fn, flag){
 // Replace requires
 function replaceRequire(code, flag, replace){
   var ast = UglifyJS.parse(code);
+  var stream = UglifyJS.OutputStream();
 
   replace = makeFunction(replace);
 
-  return ast.transform(new UglifyJS.TreeTransformer(function (node){
+  ast.transform(new UglifyJS.TreeTransformer(function (node){
     // Replace require('path')
     if (node instanceof UglifyJS.AST_Call
       && node.expression.name === 'require' && node.args.length) {
@@ -106,7 +107,11 @@ function replaceRequire(code, flag, replace){
       && node.args.length) {
       return replaceChild(node, replace, flag);
     }
-  })).print_to_string();
+  }));
+
+  ast.print(stream);
+
+  return stream.toString();
 }
 
 // Parse dependencies

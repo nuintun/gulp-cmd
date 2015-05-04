@@ -9,12 +9,8 @@ define(function (require, exports, module){
     path = require('{{path}}'),
     jquery = require('jquery');
 
-  require.async('as,yc');
-  require['async']('async');
-  require.async(['start', 'stop']);
-  require.async([fork, 'start', 'stop']);
-  require.async(['start', 'stop'], function (init){});
+  require.async('sizzle');
+  require['async']('zepto');
+  require.async(['start', fork, 'stop']);
   require.async(fork ? 'fork' : 'unfork', function (){});
-
-  require.async('async', function (path, base){if (a) {var b = ['a', 'b'];}}, 'test');
 });
