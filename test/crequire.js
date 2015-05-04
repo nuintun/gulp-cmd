@@ -22,7 +22,7 @@ function parseDependencies(s, replace, includeAsync){
 
   var index = 0, peek = '', length = s.length, isReg = 1, isReturn = 0, res = [];
   var parentheseState = 0, parentheseStack = [], braceState = 0, braceStack = [];
-  var modStart = 0, modEnd = 0, modName = 0, modBrace = [], flag = null;
+  var modStart = 0, modEnd = 0, modName = 0, modParenthese = [], flag = null;
 
   while (index < length) {
     readch();
@@ -88,7 +88,7 @@ function parseDependencies(s, replace, includeAsync){
       braceState = 1;
 
       if (modName) {
-        modBrace.push(1);
+        modParenthese.push(index);
       }
     } else if (peek === ')') {
       isReg = parentheseStack.pop();
@@ -96,9 +96,9 @@ function parseDependencies(s, replace, includeAsync){
       braceState = 0;
 
       if (modName) {
-        modBrace.pop();
+        modParenthese.pop();
 
-        if (!modBrace.length) {
+        if (!modParenthese.length) {
           modName = 0;
           modEnd = index;
         }
