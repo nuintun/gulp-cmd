@@ -20,10 +20,9 @@ function parseDependencies(s, replace, includeAsync){
   var FLAGRE = /^require\s*(?:(?:\.\s*([a-zA-Z_$][\w$]*))|(?:\[\s*(['"])(.*)?\2\s*\]))/;
   var CHAINRE = /^[\w$]+(?:\s*\.\s*[\w$]+)*/;
 
-  var index = 0, peek = '', length = s.length, isReg = 1, modName = 0, modBrace = [], res = [];
-  var parentheseState = 0, parentheseStack = [];
-  var braceState, braceStack = [], isReturn;
-  var modStart = 0, modEnd = 0, flag;
+  var index = 0, peek = '', length = s.length, isReg = 1, isReturn = 0, res = [];
+  var parentheseState = 0, parentheseStack = [], braceState = 0, braceStack = [];
+  var modStart = 0, modEnd = 0, modName = 0, modBrace = [], flag = null;
 
   while (index < length) {
     readch();
@@ -102,7 +101,6 @@ function parseDependencies(s, replace, includeAsync){
         if (!modBrace.length) {
           modName = 0;
           modEnd = index;
-          console.log(s.substring(modStart, modEnd));
         }
       }
     } else if (peek === '{') {
