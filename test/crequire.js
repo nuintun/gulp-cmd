@@ -4,6 +4,112 @@
 
 'use strict';
 
+var UglifyJS = require('uglify-js');
+
+// Get requires
+function getRequires(code, flag){
+  var meta = [];
+  var ast = UglifyJS.parse(code);
+
+  ast.walk(new UglifyJS.TreeWalker(function (node){
+    var child, args;
+
+    // Get require
+    if (node instanceof UglifyJS.AST_Call && node.expression.name === 'require' && node.args.length) {
+      child = node.args[0];
+
+      if (child instanceof UglifyJS.AST_String) {
+        meta.push({
+          flag: flag,
+          path: child.getValue()
+        })
+      }
+
+      return true;
+    }
+
+    // Get require.flag or require['flag']
+    if (node instanceof UglifyJS.AST_Call && node.start.value === 'require'
+      && (node.expression.property === flag || node.expression.property.value === flag)
+      && node.args.length) {
+
+      args = node.args[0];
+      child = args instanceof UglifyJS.AST_Array ? args.elements : [args];
+
+      child.forEach(function (node){
+        if (node instanceof UglifyJS.AST_String) {
+          meta.push({
+            flag: flag,
+            path: node.getValue()
+          });
+        }
+      });
+
+      return true;
+    }
+  }));
+
+  return meta;
+}
+
+// Make function
+function makeFunction(fn){
+  if (typeof fn === 'function') return fn;
+
+  if (typeof fn === 'object' && !Array.isArray(fn)) {
+    var alias = fn;
+
+    return function (value){
+      if (alias.hasOwnProperty(value)) {
+        return alias[value];
+      } else {
+        return value;
+      }
+    };
+  }
+
+  return function (value){
+    return value;
+  };
+}
+
+// Create replace child function
+function replaceChild(node, fn, flag){
+  var child, args = node.args[0],
+    children = args instanceof UglifyJS.AST_Array ? args.elements : [args];
+
+  for (var i = 0, len = children.length; i < len; i++) {
+    child = children[i];
+
+    if (child instanceof UglifyJS.AST_String) {
+      child.value = fn(child.getValue(), flag);
+    }
+  }
+}
+
+// Replace requires
+function replaceRequire(code, flag, replace){
+  var ast = UglifyJS.parse(code);
+
+  replace = makeFunction(replace);
+
+  return ast.transform(new UglifyJS.TreeTransformer(function (node){
+    // Replace require('path')
+    if (node instanceof UglifyJS.AST_Call
+      && node.expression.name === 'require' && node.args.length) {
+      return replaceChild(node, replace, flag);
+    }
+
+    // Replace require.flag('path') or require['flag']('path')
+    if (node instanceof UglifyJS.AST_Call && node.start.value === 'require'
+      && (node.expression.property === flag || node.expression.property.value === flag)
+      && node.args.length) {
+      return replaceChild(node, replace, flag);
+    }
+  })).print_to_string();
+}
+
+// Parse dependencies
 function parseDependencies(s, replace, includeAsync){
   if (replace === true) {
     includeAsync = true;
@@ -20,9 +126,9 @@ function parseDependencies(s, replace, includeAsync){
   var FLAGRE = /^require\s*(?:(?:\.\s*([a-zA-Z_$][\w$]*))|(?:\[\s*(['"])(.*)?\2\s*\]))/;
   var CHAINRE = /^[\w$]+(?:\s*\.\s*[\w$]+)*/;
 
-  var index = 0, peek = '', length = s.length, isReg = 1, isReturn = 0, res = [];
+  var index = 0, peek = '', length = s.length, isReg = 1, isReturn = 0, meta = [];
   var parentheseState = 0, parentheseStack = [], braceState = 0, braceStack = [];
-  var modStart = 0, modEnd = 0, modName = 0, modParenthese = [], flag = null;
+  var mod = '', modStart = 0, modEnd = 0, modName = 0, modParenthese = [], flag = null;
 
   while (index < length) {
     readch();
@@ -101,6 +207,21 @@ function parseDependencies(s, replace, includeAsync){
         if (!modParenthese.length) {
           modName = 0;
           modEnd = index;
+
+          mod = s.substring(modStart, modEnd);
+
+          if (replace) {
+            var replaced = replaceRequire(mod, flag, replace);
+
+            s = s.slice(0, modStart) + replaced + s.slice(modEnd);
+
+            if (replaced.length != mod.length) {
+              index = modStart + replaced.length;
+              length = s.length;
+            }
+          } else {
+            meta = meta.concat(getRequires(mod, flag));
+          }
         }
       }
     } else if (peek === '{') {
@@ -134,7 +255,7 @@ function parseDependencies(s, replace, includeAsync){
     }
   }
 
-  return replace ? s : res;
+  return replace ? s : meta;
 
   function readch(){
     peek = s.charAt(index++);
@@ -165,26 +286,6 @@ function parseDependencies(s, replace, includeAsync){
           index++;
         } else if (peek === c) {
           break;
-        }
-      }
-    }
-
-    if (modName) {
-      var d = {
-        'flag': flag,
-        'pos': [start, index - 1],
-        'path': s.slice(start, index - 1)
-      };
-
-      res.push(d);
-
-      if (replace) {
-        var rep = replace(d);
-        s = s.slice(0, modStart) + rep + s.slice(modStart + d.string.length);
-
-        if (rep.length !== d.string.length) {
-          index = modStart + rep.length;
-          length = s.length;
         }
       }
     }
