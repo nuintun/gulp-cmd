@@ -16,7 +16,7 @@ function listen(){
     //
     //console.log(file.path);
 
-    console.log(common.transportId(file, {}));
+    common.transportId(file);
 
     this.push(file);
     done();
