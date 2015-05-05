@@ -18,7 +18,7 @@ function listen(){
       return done(new Error('Streaming not supported.'));
     }
 
-    common.transportId(file);
+    common.transportDeps(file, { alias: { 'class': 'base/class/1.2.0/class' } });
 
     this.push(file);
     done();
@@ -27,5 +27,6 @@ function listen(){
 
 gulp.task('default', function (){
   gulp.src('base/base/1.2.0/base.js', { base: process.cwd() })
-    .pipe(listen());
+    .pipe(listen())
+    .pipe(gulp.dest('build'));
 });
