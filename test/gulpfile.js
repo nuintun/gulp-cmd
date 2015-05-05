@@ -18,7 +18,7 @@ function listen(){
       return done(new Error('Streaming not supported.'));
     }
 
-    common.transportDeps(file);
+    common.transportId(file);
 
     this.push(file);
     done();
