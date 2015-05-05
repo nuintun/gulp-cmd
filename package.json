@@ -33,6 +33,7 @@
     "transport"
   ],
   "dependencies": {
+    "mixarg": "^0.2.0",
     "gulp-util": "^3.0.4",
     "through2": "^0.6.5",
     "debug": "^2.1.3",
