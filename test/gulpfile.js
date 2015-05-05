@@ -10,13 +10,15 @@ var common = require('../lib/common');
 
 function listen(){
   return through.obj(function (file, encoding, done){
-    //Object.keys(file).forEach(function (key){
-    //  key !== '_contents' && console.log(key, ' --- ', JSON.stringify(file[key], null, 2));
-    //});
-    //
-    //console.log(file.path);
+    if (file.isNull()) {
+      return done(null, file);
+    }
 
-    common.transportId(file);
+    if (file.isStream()) {
+      return done(new Error('Streaming not supported.'));
+    }
+
+    common.transportDeps(file);
 
     this.push(file);
     done();
