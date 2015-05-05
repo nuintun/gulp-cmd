@@ -31,3 +31,7 @@ gulp.task('default', function (){
     .pipe(listen())
     .pipe(gulp.dest('build'));
 });
+
+gulp.task('watch', function() {
+  gulp.watch('base/base/1.2.0/base.js', ['default']);
+});
