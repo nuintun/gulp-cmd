@@ -55,7 +55,7 @@ function listen(){
 
 gulp.task('default', function (){
   gulp.src('base/**/base.js', { base: process.cwd() })
-    .pipe(listen());
+    .pipe(listen()).pipe(gulp.dest('dist'));
 });
 
 gulp.task('watch', function (){
