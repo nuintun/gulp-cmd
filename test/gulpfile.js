@@ -43,10 +43,12 @@ function listen(){
       return done(new Error('Streaming not supported.'));
     }
 
-    //console.time('transport');
+    console.time('transport');
     common.transportId(file, extendOption());
     common.transportDeps(file, extendOption());
-    //console.timeEnd('transport');
+    console.timeEnd('transport');
+
+    console.log('\n' + JSON.stringify(file.package, null, 2));
 
     this.push(file);
     done();
