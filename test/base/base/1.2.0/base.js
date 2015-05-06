@@ -8,6 +8,7 @@ var Aspect = require('./aspect');
 var Attribute = require('./attribute');
 
 require.async('async');
+require('base.css');
 
 module.exports = Class.create({
   Implements: [Events, Aspect, Attribute],
