@@ -20,7 +20,7 @@ function listen(){
     }
 
     common.transportId(file, { rename: { debug: true } });
-    common.transportDeps(file, { alias: { 'class': 'base/class/1.2.0/class' } });
+    common.transportDeps(file, { alias: { 'class': 'base/class/1.2.0/class' }, rename: { debug: true } });
 
     this.push(file);
     done();
@@ -28,11 +28,10 @@ function listen(){
 }
 
 gulp.task('default', function (){
-  gulp.src('base/base/1.2.0/base.js', { base: process.cwd() })
-    .pipe(listen())
-    .pipe(gulp.dest('build'));
+  gulp.src('base/**/*.js', { base: process.cwd() })
+    .pipe(listen());
 });
 
 gulp.task('watch', function (){
-  gulp.watch('base/base/1.2.0/base.js', ['default']);
+  gulp.watch('base/**/*.js', ['default']);
 });
