@@ -2,7 +2,7 @@
 // ---------
 // Base 是一个基础类，提供 Class、Events、Attrs 和 Aspect 支持。
 
-var Class = require('class.js#');
+var Class = require('class#');
 var Events = require('events?version=1.0.0');
 var Aspect = require('./aspect#');
 var Attribute = require('./attribute?version=1.0.0');
