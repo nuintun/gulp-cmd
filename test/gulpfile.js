@@ -19,8 +19,10 @@ function listen(){
       return done(new Error('Streaming not supported.'));
     }
 
+    console.time('transport');
     common.transportId(file, { rename: { debug: true } });
     common.transportDeps(file, { alias: { 'class': 'base/class/1.2.0/class' }, rename: { debug: true } });
+    console.timeEnd('transport');
 
     this.push(file);
     done();
