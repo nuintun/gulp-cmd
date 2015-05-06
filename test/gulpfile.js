@@ -7,6 +7,7 @@
 var gulp = require('gulp');
 var through = require('through2');
 var common = require('../lib/common');
+var util = require('../lib/util');
 
 function listen(){
   return through.obj(function (file, encoding, done){
@@ -32,6 +33,6 @@ gulp.task('default', function (){
     .pipe(gulp.dest('build'));
 });
 
-gulp.task('watch', function() {
+gulp.task('watch', function (){
   gulp.watch('base/base/1.2.0/base.js', ['default']);
 });
