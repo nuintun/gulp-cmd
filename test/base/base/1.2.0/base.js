@@ -7,6 +7,8 @@ var Events = require('events');
 var Aspect = require('./aspect');
 var Attribute = require('./attribute');
 
+require.async('async');
+
 module.exports = Class.create({
   Implements: [Events, Aspect, Attribute],
 
