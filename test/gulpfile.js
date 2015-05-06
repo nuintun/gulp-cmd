@@ -44,8 +44,8 @@ function listen(){
     }
 
     console.time('transport');
-    common.transportId(file, { rename: { debug: true } });
-    common.transportDeps(file, {});
+    common.transportId(file, extendOption());
+    common.transportDeps(file, extendOption());
     console.timeEnd('transport');
 
     this.push(file);
