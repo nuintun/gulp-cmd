@@ -11,7 +11,7 @@ var util = require('../lib/util');
 
 function extendOption(options){
   var opt = {
-    alias: { 'class': 'base/class/1.2.0/class' },
+    alias: { 'class': 'base/class/1.2.0/class', 'events': 'base/events/1.2.0/events' },
     rename: { debug: false },
     ignore: [], // Omit the given dependencies when transport
     idleading: '{{name}}/{{version}}/{{file}}', // The id prefix template that can use pkg as it's data
@@ -54,7 +54,7 @@ function listen(){
 }
 
 gulp.task('default', function (){
-  gulp.src('base/**/*.js', { base: process.cwd() })
+  gulp.src('base/**/base.js', { base: process.cwd() })
     .pipe(listen());
 });
 
