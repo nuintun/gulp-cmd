@@ -9,6 +9,30 @@ var through = require('through2');
 var common = require('../lib/common');
 var util = require('../lib/util');
 
+function extendOption(options){
+  var opt = {
+    alias: { 'class': 'base/class/1.2.0/class' },
+    rename: { debug: true },
+    ignore: [], // Omit the given dependencies when transport
+    idleading: '{{name}}/{{version}}/{{file}}', // The id prefix template that can use pkg as it's data
+    include: 'relative'
+  };
+
+  if (!options) return opt;
+
+  for (var key in options) {
+    if (options.hasOwnProperty(key)) {
+      var val = options[key];
+
+      if (val !== undefined && val !== null) {
+        opt[key] = val;
+      }
+    }
+  }
+
+  return opt;
+}
+
 function listen(){
   return through.obj(function (file, encoding, done){
     if (file.isNull()) {
@@ -21,7 +45,7 @@ function listen(){
 
     console.time('transport');
     common.transportId(file, { rename: { debug: true } });
-    common.transportDeps(file, { alias: { 'class': 'base/class/1.2.0/class' }, rename: { debug: true } });
+    common.transportDeps(file, {});
     console.timeEnd('transport');
 
     this.push(file);
