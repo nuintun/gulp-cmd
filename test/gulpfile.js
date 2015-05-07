@@ -59,7 +59,10 @@ function listen(options){
 }
 
 gulp.task('default', function (){
-  gulp.src('base/**/base.css', { base: process.cwd() })
+  gulp.src('js/**/*.css', { base: 'js' })
+    .pipe(transport(extendOption())); //.pipe(gulp.dest('dist'));
+
+  gulp.src('css/**/*.css', { base: 'css' })
     .pipe(transport(extendOption())); //.pipe(gulp.dest('dist'));
 });
 
