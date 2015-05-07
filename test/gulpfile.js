@@ -58,7 +58,7 @@ function listen(options){
 }
 
 gulp.task('default', function (){
-  gulp.src('base/**/base.js', { base: process.cwd() })
+  gulp.src('base/**/base.css', { base: process.cwd() })
     .pipe(css2js(extendOption())); //.pipe(gulp.dest('dist'));
 });
 
