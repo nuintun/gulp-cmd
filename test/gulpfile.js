@@ -10,7 +10,6 @@ var common = require('../lib/common');
 var util = require('../lib/util');
 var plugins = require('../lib/plugins/');
 var transport = require('../lib/transport');
-var multipipe = require('multipipe');
 
 function extendOption(options){
   var opt = {
@@ -50,9 +49,9 @@ gulp.task('default', function (){
     .pipe(transport(extendOption({ css2js: true })))
     .pipe(listen()); //.pipe(gulp.dest('dist'));
 
-  //gulp.src('assets/css/**/*.css', { base: 'assets/css' })
-  //  .pipe(transport(extendOption()))
-  //  .pipe(listen()); //.pipe(gulp.dest('dist'));
+  gulp.src('assets/css/**/*.css', { base: 'assets/css' })
+    .pipe(transport(extendOption()))
+    .pipe(listen()); //.pipe(gulp.dest('dist'));
 });
 
 gulp.task('watch', function (){
