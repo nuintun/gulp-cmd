@@ -1,6 +1,6 @@
 @import url("default.css");
 @import url("./default-1.css");
-@import url("test/css/default/default-2.css");
+@import url("/default/default-2.css");
 .ui-dialog {
   background-color: rgba(0, 0, 0, 0.3);
   border: none; outline: none;
