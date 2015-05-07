@@ -34,7 +34,7 @@ function extendOption(options){
   return opt;
 }
 
-function listen(){
+function listen(options){
   return through.obj(function (file, encoding, done){
     if (file.isNull()) {
       return done(null, file);
@@ -45,8 +45,8 @@ function listen(){
     }
 
     console.time('\ntransport');
-    common.transportId(file, extendOption());
-    common.transportDeps(file, extendOption());
+    common.transportId(file, options);
+    common.transportDeps(file, options);
     console.timeEnd('\ntransport');
 
     console.log('\n' + JSON.stringify(file.package, null, 2));
@@ -58,7 +58,7 @@ function listen(){
 
 gulp.task('default', function (){
   gulp.src('base/**/base.js', { base: process.cwd() })
-    .pipe(js()).pipe(gulp.dest('dist'));
+    .pipe(js(extendOption())); //.pipe(gulp.dest('dist'));
 });
 
 gulp.task('watch', function (){
