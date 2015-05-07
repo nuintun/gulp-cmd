@@ -38,19 +38,6 @@ function extendOption(options){
 
 function listen(options){
   return through.obj(function (file, encoding, done){
-    if (file.isNull()) {
-      return done(null, file);
-    }
-
-    if (file.isStream()) {
-      return done(new Error('Streaming not supported.'));
-    }
-
-    console.time('\ntransport');
-    common.transportId(file, options);
-    common.transportDeps(file, options);
-    console.timeEnd('\ntransport');
-
     console.log('\n' + JSON.stringify(file.package, null, 2));
 
     this.push(file);
@@ -60,10 +47,12 @@ function listen(options){
 
 gulp.task('default', function (){
   gulp.src('assets/js/**/*.css', { base: 'assets/js' })
-    .pipe(transport(extendOption())); //.pipe(gulp.dest('dist'));
+    .pipe(transport(extendOption()))
+    .pipe(listen()); //.pipe(gulp.dest('dist'));
 
   gulp.src('assets/css/**/*.css', { base: 'assets/css' })
-    .pipe(transport(extendOption())); //.pipe(gulp.dest('dist'));
+    .pipe(transport(extendOption()))
+    .pipe(listen()); //.pipe(gulp.dest('dist'));
 });
 
 gulp.task('watch', function (){
