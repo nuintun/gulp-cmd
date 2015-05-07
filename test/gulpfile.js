@@ -12,7 +12,7 @@ var util = require('../lib/util');
 function extendOption(options){
   var opt = {
     alias: { 'class': 'base/class/1.2.0/class' },
-    rename: { debug: true },
+    rename: { debug: false },
     ignore: [], // Omit the given dependencies when transport
     idleading: '{{name}}/{{version}}/{{file}}', // The id prefix template that can use pkg as it's data
     include: 'relative'
