@@ -50,9 +50,9 @@ gulp.task('default', function (){
     .pipe(transport(extendOption({ css2js: true })))
     .pipe(listen()); //.pipe(gulp.dest('dist'));
 
-  gulp.src('assets/css/**/*.css', { base: 'assets/css' })
-    .pipe(transport(extendOption()))
-    .pipe(listen()); //.pipe(gulp.dest('dist'));
+  //gulp.src('assets/css/**/*.css', { base: 'assets/css' })
+  //  .pipe(transport(extendOption()))
+  //  .pipe(listen()); //.pipe(gulp.dest('dist'));
 });
 
 gulp.task('watch', function (){
