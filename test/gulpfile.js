@@ -9,6 +9,7 @@ var through = require('through2');
 var common = require('../lib/common');
 var util = require('../lib/util');
 var js = require('../lib/plugins/js');
+var css2js = require('../lib/plugins/css2js');
 
 function extendOption(options){
   var opt = {
@@ -58,7 +59,7 @@ function listen(options){
 
 gulp.task('default', function (){
   gulp.src('base/**/base.js', { base: process.cwd() })
-    .pipe(js(extendOption())); //.pipe(gulp.dest('dist'));
+    .pipe(css2js(extendOption())); //.pipe(gulp.dest('dist'));
 });
 
 gulp.task('watch', function (){
