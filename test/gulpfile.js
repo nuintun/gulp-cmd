@@ -46,25 +46,13 @@ function listen(options){
 }
 
 gulp.task('default', function (){
-  var ops = {
-    stream: {
-      '.css': function (opions){
-        return multipipe(
-          // overide rename for this
-          plugins.css(util.extend({}, opions, { rename: function (file){ return file; }, css2js: true })),
-          plugins.css2js(opions)
-        );
-      }
-    }
-  };
-
   gulp.src('assets/js/**/*.css', { base: 'assets/js' })
-    .pipe(transport(extendOption()))
+    .pipe(transport(extendOption({ css2js: true })))
     .pipe(listen()); //.pipe(gulp.dest('dist'));
 
-  //gulp.src('assets/css/**/*.css', { base: 'assets/css' })
-  //  .pipe(transport(extendOption()))
-  //  .pipe(listen()); //.pipe(gulp.dest('dist'));
+  gulp.src('assets/css/**/*.css', { base: 'assets/css' })
+    .pipe(transport(extendOption()))
+    .pipe(listen()); //.pipe(gulp.dest('dist'));
 });
 
 gulp.task('watch', function (){
