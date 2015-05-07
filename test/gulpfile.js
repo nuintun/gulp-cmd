@@ -8,9 +8,9 @@ var gulp = require('gulp');
 var through = require('through2');
 var common = require('../lib/common');
 var util = require('../lib/util');
-var js = require('../lib/plugins/js');
-var css2js = require('../lib/plugins/css2js');
+var plugins = require('../lib/plugins/');
 var transport = require('../lib/transport');
+var multipipe = require('multipipe');
 
 function extendOption(options){
   var opt = {
@@ -46,13 +46,25 @@ function listen(options){
 }
 
 gulp.task('default', function (){
+  var ops = {
+    stream: {
+      '.css': function (opions){
+        return multipipe(
+          // overide rename for this
+          plugins.css(util.extend({}, opions, { rename: function (file){ return file; }, cssjs: true })),
+          plugins.css2js(opions)
+        );
+      }
+    }
+  };
+
   gulp.src('assets/js/**/*.css', { base: 'assets/js' })
-    .pipe(transport(extendOption({ stream: { '.css': null } })))
+    .pipe(transport(extendOption(ops)))
     .pipe(listen()); //.pipe(gulp.dest('dist'));
 
-  gulp.src('assets/css/**/*.css', { base: 'assets/css' })
-    .pipe(transport(extendOption()))
-    .pipe(listen()); //.pipe(gulp.dest('dist'));
+  //gulp.src('assets/css/**/*.css', { base: 'assets/css' })
+  //  .pipe(transport(extendOption()))
+  //  .pipe(listen()); //.pipe(gulp.dest('dist'));
 });
 
 gulp.task('watch', function (){
