@@ -35,7 +35,7 @@ function extendOption(options){
   return opt;
 }
 
-function listen(options){
+function listen(){
   return through.obj(function (file, encoding, done){
     console.log('\n' + JSON.stringify(file.package, null, 2));
 
@@ -47,11 +47,11 @@ function listen(options){
 gulp.task('default', function (){
   gulp.src('assets/js/**/*.css', { base: 'assets/js' })
     .pipe(transport(extendOption({ css2js: true })))
-    .pipe(listen()); //.pipe(gulp.dest('dist'));
+    .pipe(listen()); //.pipe(gulp.dest('dist/js'));
 
   gulp.src('assets/css/**/*.css', { base: 'assets/css' })
     .pipe(transport(extendOption()))
-    .pipe(listen()); //.pipe(gulp.dest('dist'));
+    .pipe(listen()); //.pipe(gulp.dest('dist/css'));
 });
 
 gulp.task('watch', function (){
