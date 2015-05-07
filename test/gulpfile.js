@@ -47,7 +47,7 @@ function listen(options){
 
 gulp.task('default', function (){
   gulp.src('assets/js/**/*.css', { base: 'assets/js' })
-    .pipe(transport(extendOption()))
+    .pipe(transport(extendOption({ stream: { '.css': null } })))
     .pipe(listen()); //.pipe(gulp.dest('dist'));
 
   gulp.src('assets/css/**/*.css', { base: 'assets/css' })
