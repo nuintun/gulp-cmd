@@ -51,7 +51,7 @@ gulp.task('default', function (){
       '.css': function (opions){
         return multipipe(
           // overide rename for this
-          plugins.css(util.extend({}, opions, { rename: function (file){ return file; }, cssjs: true })),
+          plugins.css(util.extend({}, opions, { rename: function (file){ return file; }, css2js: true })),
           plugins.css2js(opions)
         );
       }
@@ -59,7 +59,7 @@ gulp.task('default', function (){
   };
 
   gulp.src('assets/js/**/*.css', { base: 'assets/js' })
-    .pipe(transport(extendOption(ops)))
+    .pipe(transport(extendOption()))
     .pipe(listen()); //.pipe(gulp.dest('dist'));
 
   //gulp.src('assets/css/**/*.css', { base: 'assets/css' })
