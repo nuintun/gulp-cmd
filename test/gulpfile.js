@@ -8,6 +8,7 @@ var gulp = require('gulp');
 var through = require('through2');
 var common = require('../lib/common');
 var util = require('../lib/util');
+var js = require('../lib/plugins/js');
 
 function extendOption(options){
   var opt = {
@@ -57,7 +58,7 @@ function listen(){
 
 gulp.task('default', function (){
   gulp.src('base/**/base.js', { base: process.cwd() })
-    .pipe(listen()); //.pipe(gulp.dest('dist'));
+    .pipe(js()).pipe(gulp.dest('dist'));
 });
 
 gulp.task('watch', function (){
