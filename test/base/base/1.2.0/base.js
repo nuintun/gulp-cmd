@@ -4,7 +4,7 @@
 
 var Class = require('class');
 var Events = require('events');
-var Aspect = require('./aspect');
+var Aspect = require('./aspect.js?version=1.0.0');
 var Attribute = require('./attribute');
 
 require.async('./async');
