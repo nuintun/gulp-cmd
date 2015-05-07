@@ -3,12 +3,16 @@
 // Base 是一个基础类，提供 Class、Events、Attrs 和 Aspect 支持。
 
 var Class = require('class');
-var Events = require('events');
-var Aspect = require('./aspect.js?version=1.0.0');
-var Attribute = require('./attribute');
+var Events = require('./events.js#');
+var Aspect = require('./aspect.js/');
+var Attribute = require('./attribute.js?version=1.0.0');
 
-require.async('./async');
+require('./class');
 require('./base.css');
+require('./base.json');
+require('./base.tpl');
+require('./base.html');
+require.async('./async');
 
 module.exports = Class.create({
   Implements: [Events, Aspect, Attribute],
