@@ -59,10 +59,10 @@ function listen(options){
 }
 
 gulp.task('default', function (){
-  gulp.src('js/**/*.css', { base: 'js' })
+  gulp.src('assets/js/**/*.css', { base: 'assets/js' })
     .pipe(transport(extendOption())); //.pipe(gulp.dest('dist'));
 
-  gulp.src('css/**/*.css', { base: 'css' })
+  gulp.src('assets/css/**/*.css', { base: 'assets/css' })
     .pipe(transport(extendOption())); //.pipe(gulp.dest('dist'));
 });
 
