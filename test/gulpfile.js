@@ -10,6 +10,7 @@ var common = require('../lib/common');
 var util = require('../lib/util');
 var js = require('../lib/plugins/js');
 var css2js = require('../lib/plugins/css2js');
+var transport = require('../lib/transport');
 
 function extendOption(options){
   var opt = {
@@ -59,7 +60,7 @@ function listen(options){
 
 gulp.task('default', function (){
   gulp.src('base/**/base.css', { base: process.cwd() })
-    .pipe(css2js(extendOption())); //.pipe(gulp.dest('dist'));
+    .pipe(transport(extendOption())); //.pipe(gulp.dest('dist'));
 });
 
 gulp.task('watch', function (){
