@@ -56,10 +56,10 @@ function listen(){
 }
 
 gulp.task('default', function (){
-  gulp.src('base/**/*.js', { base: process.cwd() })
+  gulp.src('base/**/base.js', { base: process.cwd() })
     .pipe(listen()); //.pipe(gulp.dest('dist'));
 });
 
 gulp.task('watch', function (){
-  gulp.watch('base/**/*.js', ['default']);
+  gulp.watch('base/**/base.js', ['default']);
 });
