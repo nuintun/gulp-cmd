@@ -58,13 +58,13 @@ function listen(){
 }
 
 gulp.task('default', function (){
-  gulp.src('assets/js/**/*.*', { base: 'assets/js' })
+  gulp.src('assets/js/**/*.html', { base: 'assets/js' })
     .pipe(transport(extendOption({ css2js: true })))
-    .pipe(listen()); //.pipe(gulp.dest('dist/js'));
+    .pipe(listen()).pipe(gulp.dest('dist/js'));
 
-  gulp.src('assets/css/**/*.*', { base: 'assets/css' })
-    .pipe(transport(extendOption()))
-    .pipe(listen()); //.pipe(gulp.dest('dist/css'));
+  //gulp.src('assets/css/**/*.*', { base: 'assets/css' })
+  //  .pipe(transport(extendOption()))
+  //  .pipe(listen()).pipe(gulp.dest('dist/css'));
 });
 
 gulp.task('watch', function (){
