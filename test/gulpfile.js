@@ -58,7 +58,7 @@ function listen(){
 }
 
 gulp.task('default', function (){
-  gulp.src('assets/js/**/*.html', { base: 'assets/js' })
+  gulp.src('assets/js/**/*.js', { base: 'assets/js' })
     .pipe(transport(extendOption({ css2js: true })))
     .pipe(listen()).pipe(gulp.dest('dist/js'));
 
