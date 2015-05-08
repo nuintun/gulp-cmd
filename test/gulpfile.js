@@ -5,6 +5,7 @@
 'use strict';
 
 var is = require('is');
+var path = require('path');
 var gulp = require('gulp');
 var through = require('through2');
 var transport = require('../lib/transport');
@@ -15,7 +16,7 @@ function extendOption(options){
     paths: {}, // The paths info
     vars: {}, // The vars info
     ignore: [], // Omit the given dependencies when transport
-    wwwroot: null,
+    wwwroot: 'assets',
     idleading: '{{name}}/{{version}}/{{file}}', // The id prefix template that can use pkg as it's data
     rename: null,
     include: 'relative'
@@ -36,6 +37,8 @@ function extendOption(options){
   if (!is.string(defaults.wwwroot)) {
     throwError('options.wwwroot\'s value should be string');
   }
+
+  defaults.wwwroot = path.join(process.cwd(), defaults.wwwroot);
 
   return defaults;
 }
