@@ -4,8 +4,6 @@
 
 'use strict';
 
-var is = require('is');
-var path = require('path');
 var gulp = require('gulp');
 var util = require('../lib/util');
 var colors = util.colors;
