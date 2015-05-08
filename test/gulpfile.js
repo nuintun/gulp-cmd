@@ -46,6 +46,7 @@ function extendOption(options){
 function listen(){
   return through.obj(function (file, encoding, done){
     console.log('\n' + JSON.stringify(file.package, null, 2));
+    console.log(file.path);
 
     this.push(file);
     done();
