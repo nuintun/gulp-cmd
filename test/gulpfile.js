@@ -68,5 +68,5 @@ gulp.task('default', function (){
 });
 
 gulp.task('watch', function (){
-  gulp.watch('base/**/base.js', ['default']);
+  gulp.watch('assets/**/*.*', ['default']);
 });
