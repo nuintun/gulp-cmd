@@ -35,6 +35,7 @@
   "dependencies": {
     "is": "^3.0.1",
     "css": "^2.2.0",
+    "vinyl": "^0.4.6",
     "colors": "^1.1.0",
     "rename": "^1.0.3",
     "gulp-util": "^3.0.4",
