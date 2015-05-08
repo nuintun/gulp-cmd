@@ -16,7 +16,7 @@ function extendOption(options){
     paths: {}, // The paths info
     vars: {}, // The vars info
     ignore: [], // Omit the given dependencies when transport
-    wwwroot: 'assets',
+    wwwroot: '',
     idleading: '{{name}}/{{version}}/{{file}}', // The id prefix template that can use pkg as it's data
     rename: null,
     include: 'relative'
