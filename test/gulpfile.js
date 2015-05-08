@@ -4,35 +4,40 @@
 
 'use strict';
 
+var is = require('is');
 var gulp = require('gulp');
 var through = require('through2');
-var common = require('../lib/common');
-var util = require('../lib/util');
-var plugins = require('../lib/plugins/');
 var transport = require('../lib/transport');
 
 function extendOption(options){
-  var opt = {
-    alias: { 'class': 'base/class/1.2.0/class' },
-    rename: { debug: false },
+  var defaults = {
+    alias: { 'class': 'base/class/1.2.0/class' }, // The alias info
+    paths: {}, // The paths info
+    vars: {}, // The vars info
     ignore: [], // Omit the given dependencies when transport
+    wwwroot: null,
     idleading: '{{name}}/{{version}}/{{file}}', // The id prefix template that can use pkg as it's data
+    rename: null,
     include: 'relative'
   };
 
-  if (!options) return opt;
+  if (!options) return defaults;
 
   for (var key in options) {
     if (options.hasOwnProperty(key)) {
-      var val = options[key];
+      var value = options[key];
 
-      if (val !== undefined && val !== null) {
-        opt[key] = val;
+      if (value !== undefined && value !== null) {
+        defaults[key] = value;
       }
     }
   }
 
-  return opt;
+  if (!is.string(defaults.wwwroot)) {
+    throwError('options.wwwroot\'s value should be string');
+  }
+
+  return defaults;
 }
 
 function listen(){
