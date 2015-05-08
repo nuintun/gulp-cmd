@@ -7,6 +7,8 @@
 var is = require('is');
 var path = require('path');
 var gulp = require('gulp');
+var util = require('../lib/util');
+var colors = util.colors;
 var through = require('through2');
 var transport = require('../lib/transport');
 
@@ -45,8 +47,9 @@ function extendOption(options){
 
 function listen(){
   return through.obj(function (file, encoding, done){
+    console.log(colors.infoBold(file.path));
     console.log('\n' + JSON.stringify(file.package, null, 2));
-    console.log(file.path);
+    console.log('\n');
 
     this.push(file);
     done();
