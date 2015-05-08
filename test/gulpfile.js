@@ -26,24 +26,40 @@ var alias = { 'class': 'base/class/1.2.0/class' };
 
 gulp.task('default', function (){
   gulp.src('assets/js/**/*.*', { base: 'assets/js' })
-    .pipe(transport(util.extendOption({ wwwroot: './', alias: alias, css2js: true })));
+    .pipe(transport(util.extendOption({ wwwroot: './', alias: alias, css2js: true })))
+    //.pipe(gulp.dest('dist/js'))
+    .on('end', function (){
+      console.log('  ---------------all transport end---------------');
+    });
 
   gulp.src('assets/css/**/*.*', { base: 'assets/css' })
-    .pipe(transport(util.extendOption({ wwwroot: './' })));
+    .pipe(transport(util.extendOption({ wwwroot: './' })))
+    //.pipe(gulp.dest('dist/css'))
+    .on('end', function (){
+      console.log('  ---------------all transport end---------------');
+    });
 });
 
 gulp.task('watch', function (){
   gulp.watch('assets/js/**/*.*', function (e){
     if (e.type !== 'deleted') {
       return gulp.src(e.path, { base: 'assets/js' })
-        .pipe(transport(util.extendOption({ wwwroot: './', alias: alias, css2js: true })));
+        .pipe(transport(util.extendOption({ wwwroot: './', alias: alias, css2js: true })))
+        //.pipe(gulp.dest('dist/js'))
+        .on('end', function (){
+          console.log('  ---------------all transport end---------------');
+        });
     }
   });
 
   gulp.watch('assets/css/**/*.*', function (e){
     if (e.type !== 'deleted') {
       return gulp.src(e.path, { base: 'assets/css' })
-        .pipe(transport(util.extendOption({ wwwroot: './' })));
+        .pipe(transport(util.extendOption({ wwwroot: './' })))
+        //.pipe(gulp.dest('dist/css'))
+        .on('end', function (){
+          console.log('  ---------------all transport end---------------');
+        });
     }
   });
 });
