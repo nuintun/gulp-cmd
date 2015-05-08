@@ -48,7 +48,8 @@ function extendOption(options){
 function listen(){
   return through.obj(function (file, encoding, done){
     console.log(colors.infoBold(file.path));
-    console.log('\n' + JSON.stringify(file.package, null, 2));
+    console.log('\n');
+    console.log(colors.verboseBold(JSON.stringify(file.package, null, 2)));
     console.log('\n');
 
     this.push(file);
