@@ -68,5 +68,17 @@ gulp.task('default', function (){
 });
 
 gulp.task('watch', function (){
-  gulp.watch('assets/**/*.*', ['default']);
+  gulp.watch('assets/js/**/*.*', function (e){
+    if (e.type !== 'deleted') {
+      return gulp.src(e.path, { base: 'assets/js' })
+        .pipe(transport(extendOption({ css2js: true })));
+    }
+  });
+
+  gulp.watch('assets/css/**/*.*', function (e){
+    if (e.type !== 'deleted') {
+      return gulp.src(e.path, { base: 'assets/css' })
+        .pipe(transport(extendOption()));
+    }
+  });
 });
