@@ -1,6 +1,7 @@
-@import url("default.css");
-@import url("./default-1.css");
-@import url("/default/default-2.css");
+@import url("subbase.css");
+@import url("./subbase-1.css");
+@import url("./subdir/");
+@import url("/base/base/1.2.0/subbase-2.css");
 .ui-dialog {
   background-color: rgba(0, 0, 0, 0.3);
   border: none; outline: none;
