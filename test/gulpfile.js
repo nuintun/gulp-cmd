@@ -22,6 +22,7 @@ function listen(){
       return callback(util.throwError('streaming not supported.'));
     }
 
+    console.log('\n');
     console.log(colors.infoBold(file.path));
     console.log('\n');
     console.log(colors.verboseBold(JSON.stringify(file.package, null, 2)));
