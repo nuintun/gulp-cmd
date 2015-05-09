@@ -10,25 +10,26 @@ var colors = util.colors;
 var through = require('through2');
 var transport = require('../lib/transport');
 var include = require('../lib/include');
+var concat = require('../lib/concat');
 
 function listen(){
-  return through.obj(function (file, encoding, done){
-    if (file.isNull()) {
+  return through.obj(function (vinyl, encoding, done){
+    if (vinyl.isNull()) {
       // return empty file
-      return done(null, file);
+      return done(null, vinyl);
     }
 
-    if (file.isStream()) {
+    if (vinyl.isStream()) {
       return callback(util.throwError('streaming not supported.'));
     }
 
     console.log('\n');
-    console.log(colors.infoBold(file.path));
+    console.log(colors.infoBold(vinyl.path));
     console.log('\n');
-    console.log(colors.verboseBold(JSON.stringify(file.package, null, 2)));
+    console.log(colors.verboseBold(JSON.stringify(vinyl.package, null, 2)));
     console.log('\n');
 
-    this.push(file);
+    this.push(vinyl);
     done();
   });
 }
@@ -36,8 +37,9 @@ function listen(){
 var alias = { 'class': 'base/class/1.2.0/class' };
 
 gulp.task('default', function (){
-  gulp.src('assets/js/**/*.*', { base: 'assets/js' })
+  gulp.src('assets/js/**/base.js', { base: 'assets/js' })
     .pipe(include({ alias: alias }))
+    .pipe(concat({ alias: alias }))
     //.pipe(listen())
     //.pipe(gulp.dest('dist/js'))
     .on('end', function (){
