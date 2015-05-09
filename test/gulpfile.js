@@ -38,19 +38,19 @@ var alias = { 'class': 'base/class/1.2.0/class' };
 gulp.task('default', function (){
   gulp.src('assets/js/**/*.*', { base: 'assets/js' })
     .pipe(include({ alias: alias }))
-    .pipe(listen())
+    //.pipe(listen())
     //.pipe(gulp.dest('dist/js'))
     .on('end', function (){
       console.log('  ---------------all transport end---------------');
     });
 
-  gulp.src('assets/css/**/*.*', { base: 'assets/css' })
-    .pipe(include())
-    .pipe(listen())
-    //.pipe(gulp.dest('dist/css'))
-    .on('end', function (){
-      console.log('  ---------------all transport end---------------');
-    });
+  //gulp.src('assets/css/**/*.*', { base: 'assets/css' })
+  //  .pipe(include())
+  //  .pipe(listen())
+  //  //.pipe(gulp.dest('dist/css'))
+  //  .on('end', function (){
+  //    console.log('  ---------------all transport end---------------');
+  //  });
 });
 
 gulp.task('watch', function (){
