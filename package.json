@@ -43,8 +43,7 @@
     "debug": "^2.1.3",
     "umd-deps": "^0.0.2",
     "duplexer2": "^0.0.2",
-    "pedding": "^1.0.0",
-    "strip-comments": "^0.3.2"
+    "pedding": "^1.0.0"
   },
   "devDependencies": {
   },
