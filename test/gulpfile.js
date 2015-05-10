@@ -16,14 +16,14 @@ gulp.task('default', function (){
     .pipe(transport({ alias: alias, include: 'relative' }))
     .pipe(gulp.dest('dist/js'))
     .on('end', function (){
-      console.log(colors.verboseBold('  gulp-cmd ') + colors.infoBold('build complete without errors...'));
+      console.log(colors.verboseBold('  gulp-cmd ') + colors.infoBold('build complete ...'));
     });
 
   gulp.src('assets/js/view/**/*.!(css|json|tpl|html)', { base: 'assets/js' })
     .pipe(transport({ alias: alias, include: 'all' }))
     .pipe(gulp.dest('dist/js'))
     .on('end', function (){
-      console.log(colors.verboseBold('  gulp-cmd ') + colors.infoBold('build complete without errors...'));
+      console.log(colors.verboseBold('  gulp-cmd ') + colors.infoBold('build complete ...'));
     });
 });
 
@@ -34,7 +34,7 @@ gulp.task('watch', function (){
         .pipe(transport({ alias: alias, cache: false }))
         .pipe(gulp.dest('dist/js'))
         .on('end', function (){
-          console.log(colors.verboseBold('  gulp-cmd ') + colors.infoBold('build complete without errors...'));
+          console.log(colors.verboseBold('  gulp-cmd ') + colors.infoBold('build complete ...'));
         });
     }
   });
