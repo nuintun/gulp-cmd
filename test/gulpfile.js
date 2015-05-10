@@ -9,11 +9,18 @@ var util = require('../lib/util');
 var colors = util.colors;
 var transport = require('../index');
 
-var alias = { 'class': 'base/base/1.2.0/class' };
+var alias = { 'base': 'base/base/1.2.0/base' };
 
 gulp.task('default', function (){
-  gulp.src('assets/js/**/*.*', { base: 'assets/js' })
-    .pipe(transport({ alias: alias, ignore: ['class'], include: 'all' }))
+  gulp.src('assets/js/base/**/*.*', { base: 'assets/js' })
+    .pipe(transport({ alias: alias }))
+    .pipe(gulp.dest('dist/js'))
+    .on('end', function (){
+      console.log(colors.verboseBold('  gulp-cmd ') + colors.infoBold('build complete without errors...'));
+    });
+
+  gulp.src('assets/js/view/**/*.*', { base: 'assets/js' })
+    .pipe(transport({ alias: alias, include: 'all' }))
     .pipe(gulp.dest('dist/js'))
     .on('end', function (){
       console.log(colors.verboseBold('  gulp-cmd ') + colors.infoBold('build complete without errors...'));
