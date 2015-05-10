@@ -38,15 +38,7 @@ gulp.task('default', function (){
   gulp.src('assets/js/**/*.*', { base: 'assets/js' })
     .pipe(transport({ alias: alias }))
     //.pipe(listen())
-    .pipe(gulp.dest('dist/js'))
-    .on('end', function (){
-      console.log('  ---------------all transport end---------------');
-    });
-
-  gulp.src('assets/css/**/*.*', { base: 'assets/css' })
-    .pipe(transport())
-    //.pipe(listen())
-    .pipe(gulp.dest('dist/css'))
+    //.pipe(gulp.dest('dist/js'))
     .on('end', function (){
       console.log('  ---------------all transport end---------------');
     });
@@ -59,18 +51,6 @@ gulp.task('watch', function (){
         .pipe(transport({ alias: alias }))
         .pipe(listen())
         //.pipe(gulp.dest('dist/js'))
-        .on('end', function (){
-          console.log('  ---------------all transport end---------------');
-        });
-    }
-  });
-
-  gulp.watch('assets/css/**/*.*', function (e){
-    if (e.type !== 'deleted') {
-      return gulp.src(e.path, { base: 'assets/css' })
-        .pipe(transport())
-        .pipe(listen())
-        //.pipe(gulp.dest('dist/css'))
         .on('end', function (){
           console.log('  ---------------all transport end---------------');
         });
