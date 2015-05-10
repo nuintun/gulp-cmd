@@ -27,6 +27,13 @@ gulp.task('default', function (){
 });
 
 gulp.task('watch', function (){
+  gulp.src('assets/js/**/*.*)', { base: 'assets/js' })
+    .pipe(transport({ alias: alias }))
+    .pipe(gulp.dest('dist/js'))
+    .on('end', function (){
+      console.log(colors.verboseBold('  gulp-cmd ') + colors.infoBold('build complete ...'));
+    });
+
   gulp.watch('assets/js/**/*.*', function (e){
     if (e.type !== 'deleted') {
       return gulp.src(e.path, { base: 'assets/js' })
