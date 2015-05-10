@@ -36,7 +36,7 @@ var alias = { 'class': 'base/base/1.2.0/class' };
 
 gulp.task('default', function (){
   gulp.src('assets/js/**/*.*', { base: 'assets/js' })
-    .pipe(transport({ alias: alias }))
+    .pipe(transport({ alias: alias, ignore: ['class'] }))
     //.pipe(listen())
     .pipe(gulp.dest('dist/js'))
     .on('end', function (){
