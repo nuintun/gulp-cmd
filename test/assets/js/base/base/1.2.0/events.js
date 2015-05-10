@@ -7,5 +7,5 @@
 require('./class');
 
 module.exports = function (){
-
+  console.log('events module');
 };
