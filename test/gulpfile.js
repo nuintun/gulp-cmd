@@ -13,7 +13,7 @@ var alias = { 'base': 'base/base/1.2.0/base' };
 var options = {
   alias: alias,
   include: function (id){
-    return id.indexOf('view') === 0 ? 'all' : 'self';
+    return id.indexOf('view') === 0 ? 'all' : 'relative';
   }
 };
 
