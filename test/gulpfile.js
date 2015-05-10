@@ -12,14 +12,14 @@ var transport = require('../index');
 var alias = { 'base': 'base/base/1.2.0/base' };
 
 gulp.task('default', function (){
-  gulp.src('assets/js/base/**/*.*', { base: 'assets/js' })
+  gulp.src('assets/js/base/**/*.!(css|json|tpl|html)', { base: 'assets/js' })
     .pipe(transport({ alias: alias }))
     .pipe(gulp.dest('dist/js'))
     .on('end', function (){
       console.log(colors.verboseBold('  gulp-cmd ') + colors.infoBold('build complete without errors...'));
     });
 
-  gulp.src('assets/js/view/**/*.*', { base: 'assets/js' })
+  gulp.src('assets/js/view/**/*.!(css|json|tpl|html)', { base: 'assets/js' })
     .pipe(transport({ alias: alias, include: 'all' }))
     .pipe(gulp.dest('dist/js'))
     .on('end', function (){
