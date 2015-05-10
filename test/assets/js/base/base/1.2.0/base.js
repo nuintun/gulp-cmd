@@ -5,6 +5,9 @@
 require('class');
 require('./events');
 require('./base.css');
+require('./base.tpl');
+require('./base.html');
+require('./base.json');
 
 module.exports = function (){
 
