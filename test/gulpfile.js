@@ -32,7 +32,7 @@ function listen(){
   });
 }
 
-var alias = { 'class': 'base/class/1.2.0/class' };
+var alias = { 'class': 'base/base/1.2.0/class' };
 
 gulp.task('default', function (){
   gulp.src('assets/js/**/*.*', { base: 'assets/js' })
