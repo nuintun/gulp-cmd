@@ -26,7 +26,7 @@ function main(options){
     return stream;
   };
 
-  input
+  monitor(input)
     .pipe(monitor(include(options)))
     .pipe(monitor(concat()))
     .pipe(output);
