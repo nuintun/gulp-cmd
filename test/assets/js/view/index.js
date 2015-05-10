@@ -7,5 +7,5 @@
 require('base');
 
 module.exports = function (){
-  console.log('view module');
+  console.log('view module'); // asdas
 };

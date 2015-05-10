@@ -34,14 +34,20 @@ gulp.task('watch', function (){
       console.log(colors.verboseBold('  gulp-cmd ') + colors.infoBold('build complete ...'));
     });
 
+  var timer = null;
+
   gulp.watch('assets/js/**/*.*', function (e){
     if (e.type !== 'deleted') {
-      return gulp.src(e.path, { base: 'assets/js' })
-        .pipe(transport({ alias: alias, include: 'self', cache: false }))
-        .pipe(gulp.dest('dist/js'))
-        .on('end', function (){
-          console.log(colors.verboseBold('  gulp-cmd ') + colors.infoBold('build complete ...'));
-        });
+      clearTimeout(timer);
+
+      timer = setTimeout(function (){
+        gulp.src(e.path, { base: 'assets/js' })
+          .pipe(transport({ alias: alias, include: 'self', cache: false }))
+          .pipe(gulp.dest('dist/js'))
+          .on('end', function (){
+            console.log(colors.verboseBold('  gulp-cmd ') + colors.infoBold('build complete ...'));
+          });
+      }, 300);
     }
   });
 });
