@@ -9,6 +9,7 @@ var util = require('../lib/util');
 var colors = util.colors;
 var transport = require('../index');
 var uglify = require('gulp-uglify');
+var plumber = require('gulp-plumber');
 
 var alias = { 'base': 'base/base/1.2.0/base' };
 var options = {
@@ -29,7 +30,7 @@ function complete(){
   );
 }
 
-gulp.task('default', function (){
+gulp.task('online', function (){
   gulp.src('assets/js/**/*.js', { base: 'assets/js' })
     .pipe(transport(options))
     .pipe(uglify())
@@ -40,24 +41,22 @@ gulp.task('default', function (){
     .pipe(gulp.dest('dist/js'));
 });
 
-gulp.task('watch', function (){
+gulp.task('default', function (){
   gulp.src('assets/js/**/*.*', { base: 'assets/js' })
     .pipe(transport({ alias: alias, include: 'self' }))
     .pipe(gulp.dest('dist/js'))
     .on('end', complete);
+});
 
-  var timer = null;
-
+gulp.task('watch', ['default'], function (){
   gulp.watch('assets/js/**/*.*', function (e){
     if (e.type !== 'deleted') {
-      clearTimeout(timer);
 
-      timer = setTimeout(function (){
-        gulp.src(e.path, { base: 'assets/js' })
-          .pipe(transport({ alias: alias, include: 'self', cache: false }))
-          .pipe(gulp.dest('dist/js'))
-          .on('end', complete);
-      }, 200);
+      gulp.src(e.path, { base: 'assets/js' })
+        .pipe(plumber())
+        .pipe(transport({ alias: alias, include: 'self', cache: false }))
+        .pipe(gulp.dest('dist/js'))
+        .on('end', complete);
     }
   });
 });
