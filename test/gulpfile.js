@@ -8,6 +8,7 @@ var gulp = require('gulp');
 var util = require('../lib/util');
 var colors = util.colors;
 var transport = require('../index');
+var uglify = require('gulp-uglify');
 
 var alias = { 'base': 'base/base/1.2.0/base' };
 var options = {
@@ -29,10 +30,14 @@ function complete(){
 }
 
 gulp.task('default', function (){
-  gulp.src('assets/js/**/*.!(css|json|tpl|html)', { base: 'assets/js' })
+  gulp.src('assets/js/**/*.js', { base: 'assets/js' })
     .pipe(transport(options))
+    .pipe(uglify())
     .pipe(gulp.dest('dist/js'))
     .on('end', complete);
+
+  gulp.src('assets/js/**/*.!(js|css|json|tpl|html)')
+    .pipe(gulp.dest('dist/js'));
 });
 
 gulp.task('watch', function (){
