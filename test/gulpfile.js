@@ -17,22 +17,29 @@ var options = {
   }
 };
 
+function complete(){
+  var now = new Date();
+
+  console.log(
+    '  %s [%s] %s',
+    colors.verboseBold('gulp-cmd'),
+    now.toLocaleString(),
+    colors.infoBold('build complete ...')
+  );
+}
+
 gulp.task('default', function (){
   gulp.src('assets/js/**/*.!(css|json|tpl|html)', { base: 'assets/js' })
     .pipe(transport(options))
     .pipe(gulp.dest('dist/js'))
-    .on('end', function (){
-      console.log(colors.verboseBold('  gulp-cmd ') + colors.infoBold('build complete ...'));
-    });
+    .on('end', complete);
 });
 
 gulp.task('watch', function (){
   gulp.src('assets/js/**/*.*', { base: 'assets/js' })
     .pipe(transport({ alias: alias, include: 'self' }))
     .pipe(gulp.dest('dist/js'))
-    .on('end', function (){
-      console.log(colors.verboseBold('  gulp-cmd ') + colors.infoBold('build complete ...'));
-    });
+    .on('end', complete);
 
   var timer = null;
 
@@ -44,9 +51,7 @@ gulp.task('watch', function (){
         gulp.src(e.path, { base: 'assets/js' })
           .pipe(transport({ alias: alias, include: 'self', cache: false }))
           .pipe(gulp.dest('dist/js'))
-          .on('end', function (){
-            console.log(colors.verboseBold('  gulp-cmd ') + colors.infoBold('build complete ...'));
-          });
+          .on('end', complete);
       }, 200);
     }
   });
