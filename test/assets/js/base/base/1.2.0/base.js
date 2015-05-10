@@ -10,5 +10,5 @@ require('./base.html');
 require('./base.json');
 
 module.exports = function (){
-
+  console.log('haha');
 };
