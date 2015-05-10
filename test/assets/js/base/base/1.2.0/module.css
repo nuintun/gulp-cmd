@@ -1,7 +1,0 @@
-.ui-module {
-  background-color: rgba(0, 0, 0, 0.3);
-  border: none; outline: none;
-  filter: progid:DXImageTransform.Microsoft.Gradient(startColorstr='#4c000000', endColorstr='#4c000000');
-  padding: 8px; border-radius: 3px;
-  /* http://ued.taobao.com/blog/2011/04/onfocus-this-blur/ */
-}
