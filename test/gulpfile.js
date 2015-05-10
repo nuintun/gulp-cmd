@@ -47,7 +47,7 @@ gulp.task('watch', function (){
           .on('end', function (){
             console.log(colors.verboseBold('  gulp-cmd ') + colors.infoBold('build complete ...'));
           });
-      }, 300);
+      }, 200);
     }
   });
 });
