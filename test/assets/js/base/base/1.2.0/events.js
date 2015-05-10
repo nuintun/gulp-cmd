@@ -5,3 +5,7 @@
 'use strict';
 
 require('./class');
+
+module.exports = function (){
+
+};
