@@ -27,8 +27,8 @@ gulp.task('default', function (){
 });
 
 gulp.task('watch', function (){
-  gulp.src('assets/js/**/*.*)', { base: 'assets/js' })
-    .pipe(transport({ alias: alias }))
+  gulp.src('assets/js/**/*.*', { base: 'assets/js' })
+    .pipe(transport({ alias: alias, include: 'self' }))
     .pipe(gulp.dest('dist/js'))
     .on('end', function (){
       console.log(colors.verboseBold('  gulp-cmd ') + colors.infoBold('build complete ...'));
@@ -37,7 +37,7 @@ gulp.task('watch', function (){
   gulp.watch('assets/js/**/*.*', function (e){
     if (e.type !== 'deleted') {
       return gulp.src(e.path, { base: 'assets/js' })
-        .pipe(transport({ alias: alias, cache: false }))
+        .pipe(transport({ alias: alias, include: 'self', cache: false }))
         .pipe(gulp.dest('dist/js'))
         .on('end', function (){
           console.log(colors.verboseBold('  gulp-cmd ') + colors.infoBold('build complete ...'));
