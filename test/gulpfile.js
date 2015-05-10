@@ -6,6 +6,7 @@
 
 var gulp = require('gulp');
 var util = require('../lib/util');
+var colors = util.colors;
 var transport = require('../index');
 
 var alias = { 'class': 'base/base/1.2.0/class' };
@@ -15,7 +16,7 @@ gulp.task('default', function (){
     .pipe(transport({ alias: alias, ignore: ['class'], include: 'all' }))
     .pipe(gulp.dest('dist/js'))
     .on('end', function (){
-      console.log('  ---------------all transport end---------------');
+      console.log(colors.verboseBold('  gulp-cmd ') + colors.infoBold('build complete without errors...'));
     });
 });
 
@@ -26,7 +27,7 @@ gulp.task('watch', function (){
         .pipe(transport({ alias: alias, ignore: ['class'], cache: false }))
         .pipe(gulp.dest('dist/js'))
         .on('end', function (){
-          console.log('  ---------------all transport end---------------');
+          console.log(colors.verboseBold('  gulp-cmd ') + colors.infoBold('build complete without errors...'));
         });
     }
   });
