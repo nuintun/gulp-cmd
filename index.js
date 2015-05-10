@@ -9,8 +9,9 @@ var duplexer = require('duplexer2');
 var util = require('./lib/util');
 var include = require('./lib/include');
 var concat = require('./lib/concat');
+var cache = require('./lib/cache');
 
-module.exports = function (options){
+function main(options){
   options = util.extendOption(options);
 
   var input = through.obj();
@@ -30,4 +31,12 @@ module.exports = function (options){
     .pipe(output);
 
   return duplexer(input, output);
-};
+}
+
+/**
+ * Exports module.
+ */
+
+main.cache = {};
+main.cache.clear = cache.clear;
+module.exports = main;
