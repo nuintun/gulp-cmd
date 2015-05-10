@@ -13,13 +13,12 @@ var alias = { 'base': 'base/base/1.2.0/base' };
 var options = {
   alias: alias,
   include: function (id){
-    return id.indexOf('view') ? 'all' : 'relative';
+    return id.indexOf('view') === 0 ? 'all' : 'self';
   }
 };
 
 gulp.task('default', function (){
-
-  gulp.src('assets/js/!(view)/**/*.!(css|json|tpl|html)', { base: 'assets/js' })
+  gulp.src('assets/js/**/*.!(css|json|tpl|html)', { base: 'assets/js' })
     .pipe(transport(options))
     .pipe(gulp.dest('dist/js'))
     .on('end', function (){
