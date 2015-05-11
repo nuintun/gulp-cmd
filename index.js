@@ -11,15 +11,10 @@ var cache = require('./lib/cache');
 var common = require('./lib/common');
 var include = require('./lib/include');
 var concat = require('./lib/concat');
-var debug = util.debug;
-var colors = util.colors;
 
 function main(options){
   var input = through.obj({ objectMode: true });
   var output = through.obj({ objectMode: true });
-
-  // debug
-  debug('open: %s', colors.dataBold(util.normalize(util.cwd)));
 
   var monitor = function (stream){
     stream.on('error', function (e){
