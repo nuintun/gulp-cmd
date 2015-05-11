@@ -22,9 +22,6 @@
     }
   ],
   "main": "index",
-  "engines": {
-    "node": ">=0.10.0"
-  },
   "keywords": [
     "gulp",
     "cmd",
@@ -46,10 +43,5 @@
   },
   "devDependencies": {
   },
-  "readmeFilename": "README.md",
-  "scripts": {
-    "test": "mocha --check-leaks --reporter spec --bail",
-    "test-ci": "istanbul cover node_modules/mocha/bin/_mocha --report lcovonly -- --check-leaks --reporter spec",
-    "test-cov": "istanbul cover node_modules/mocha/bin/_mocha -- --check-leaks --reporter dot"
-  }
+  "readmeFilename": "README.md"
 }
