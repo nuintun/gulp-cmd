@@ -13,8 +13,6 @@ var include = require('./lib/include');
 var concat = require('./lib/concat');
 
 function main(options){
-  options = util.extendOption(options);
-
   var input = through.obj({ objectMode: true });
   var output = through.obj({ objectMode: true });
 
