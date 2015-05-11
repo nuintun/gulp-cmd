@@ -17,7 +17,7 @@ function main(options){
   var output = through.obj({ objectMode: true });
 
   // debug
-  debug('open: %s', colors.dataBold(util.cwd));
+  debug('open: %s', colors.dataBold(util.normalize(util.cwd)));
 
   var monitor = function (stream){
     stream.on('error', function (e){
