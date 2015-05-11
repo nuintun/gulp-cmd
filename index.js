@@ -15,8 +15,8 @@ var concat = require('./lib/concat');
 function main(options){
   options = util.extendOption(options);
 
-  var input = through.obj();
-  var output = through.obj();
+  var input = through.obj({ objectMode: true });
+  var output = through.obj({ objectMode: true });
 
   var monitor = function (stream){
     stream.on('error', function (e){
