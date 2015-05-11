@@ -7,6 +7,7 @@
 var through = require('through2');
 var duplexer = require('duplexer2');
 var util = require('./lib/util');
+var debug = util.debug;
 var cache = require('./lib/cache');
 var common = require('./lib/common');
 var include = require('./lib/include');
