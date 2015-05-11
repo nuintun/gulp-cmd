@@ -7,11 +7,12 @@
 var through = require('through2');
 var duplexer = require('duplexer2');
 var util = require('./lib/util');
-var debug = util.debug;
 var cache = require('./lib/cache');
 var common = require('./lib/common');
 var include = require('./lib/include');
 var concat = require('./lib/concat');
+var debug = util.debug;
+var colors = util.colors;
 
 function main(options){
   var input = through.obj({ objectMode: true });
