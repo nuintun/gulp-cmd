@@ -55,5 +55,5 @@ main.isRelative = util.isRelative;
 main.rename = rename;
 main.extend = util.extend;
 main.normalize = util.normalize;
-main.pathFormCwd = util.pathFormCwd;
+main.pathFromCwd = util.pathFromCwd;
 module.exports = main;
