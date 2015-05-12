@@ -37,10 +37,13 @@ function main(options){
  */
 
 main.cache = {};
-main.cache.clear = cache.clear;
+main.cache.clean = cache.clean;
 main.createParser = common.createParser;
 main.cwd = util.cwd;
 main.debug = util.debug;
 main.colors = util.colors;
+main.isAbsolute = util.isAbsolute;
+main.isRelative = util.isRelative;
+main.isLocal = util.isLocal;
 main.normalize = util.normalize;
 module.exports = main;
