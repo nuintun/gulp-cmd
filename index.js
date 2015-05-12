@@ -42,4 +42,5 @@ main.createParser = common.createParser;
 main.cwd = util.cwd;
 main.debug = util.debug;
 main.colors = util.colors;
+main.normalize = util.normalize;
 module.exports = main;
