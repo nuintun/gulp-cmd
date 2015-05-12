@@ -39,9 +39,9 @@ function main(options){
 
 main.cache = {};
 main.cache.clean = cache.clean;
-main.createParser = common.createParser;
 main.cwd = util.cwd;
 main.debug = util.debug;
 main.colors = util.colors;
+main.createParser = common.createParser;
 
 module.exports = main;
