@@ -5,5 +5,5 @@ gulp-cmd
 
 >[![Dependencies][david-image]][david-url]
 
-[david-image]: http://img.shields.io/david/nuintun/umd-deps.svg?style=flat-square
-[david-url]: https://david-dm.org/Nuintun/umd-deps
+[david-image]: http://img.shields.io/david/nuintun/gulp-cmd.svg?style=flat-square
+[david-url]: https://david-dm.org/Nuintun/gulp-cmd
