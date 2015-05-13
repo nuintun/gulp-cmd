@@ -42,6 +42,6 @@ main.cache.clean = cache.clean;
 main.cwd = util.cwd;
 main.debug = util.debug;
 main.colors = util.colors;
-main.createParser = common.createParser;
+main.plugin = common.plugin;
 
 module.exports = main;
