@@ -18,7 +18,7 @@
   "licenses": [
     {
       "type": "MIT",
-      "url": "https://github.com/Nuintun/gulp-cmd/blob/master/LICENSE"
+      "url": "https://github.com/nuintun/gulp-cmd/blob/master/LICENSE"
     }
   ],
   "main": "index",
