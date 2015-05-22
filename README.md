@@ -61,7 +61,7 @@ gulp.task('default', function (){
 
 - idleading ```String|Function```
   
-  模块 id 转换模板，默认 ```{{name}}/{{version}}/{{file}}``` 三个变量由 [vinyl](https://github.com/wearefractal/vinyl) 文件的 relative 属性转换而来，所以 gulp.src 的 base 参数必须设置，base 等同于 seajs 的 [base](https://github.com/seajs/seajs/issues/262) 配置。
+  模块 id 转换模板，默认 ```{{name}}/{{version}}/{{file}}``` 三个变量由 vinyl 文件的 relative 属性转换而来，所以 gulp.src 的 [base](https://github.com/wearefractal/vinyl) 参数必须设置，base 等同于 seajs 的 [base](https://github.com/seajs/seajs/issues/262) 配置。
 
 - rename ```Object|Function```
   
