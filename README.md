@@ -39,34 +39,44 @@ gulp.task('default', function (){
 ####cmd(options)
 #####  *options*
 - vars ```Object```
-模块路径在运行时才能确定，这时可以使用 vars 变量来配置。
+  
+  模块路径在运行时才能确定，这时可以使用 vars 变量来配置。
 
 - paths ```Object```
-当目录比较深，或需要跨目录调用模块时，可以使用 paths 来简化书写。
+  
+  当目录比较深，或需要跨目录调用模块时，可以使用 paths 来简化书写。
 
 - alias ```Object```
-当模块标识很长时，可以使用 alias 来简化。
+  
+  当模块标识很长时，可以使用 alias 来简化。
 >注意：*[import-style](https://github.com/nuintun/import-style) 为内置样式加载模块，建议配置 alias 以便正确的转换该模块，该模块需要自己下载并放入响应目录。 vars paths alias 可参考 [seajs](https://github.com/seajs/seajs/issues/262) 的配置*
 
 - cache ```Boolean```
-文件内存缓存，转换完成的文件会暂时存储在内存中以便提升转换效率。
+  
+  文件内存缓存，转换完成的文件会暂时存储在内存中以便提升转换效率。
 
 - wwwroot ```String```
-网站根目录配置，路径相对于 ```gulpfile.js``` 目录。
+  
+  网站根目录配置，路径相对于 ```gulpfile.js``` 目录。
 
 - idleading ```String|Function```
-模块 id 转换模板，默认 ```{{name}}/{{version}}/{{file}}``` 三个变量由 [vinyl](https://github.com/wearefractal/vinyl) 文件的 relative 属性转换而来，所以 gulp.src 的 base 参数必须设置，base 等同于 seajs 的 [base](https://github.com/seajs/seajs/issues/262) 配置。
+  
+  模块 id 转换模板，默认 ```{{name}}/{{version}}/{{file}}``` 三个变量由 [vinyl](https://github.com/wearefractal/vinyl) 文件的 relative 属性转换而来，所以 gulp.src 的 base 参数必须设置，base 等同于 seajs 的 [base](https://github.com/seajs/seajs/issues/262) 配置。
 
 - rename ```Object|Function```
-重命名文件，有 ```debug``` 和 ```min``` 两个配置可选，打开后文件名会自动添加 -debug 和 -min 后缀，debug 打开时 min 配置无效。当 rename 是函数的时候要返回 ```{ prefix: '', suffix: '' }``` 格式的对象，分别对应前缀和后缀。
+  
+  重命名文件，有 ```debug``` 和 ```min``` 两个配置可选，打开后文件名会自动添加 -debug 和 -min 后缀，debug 打开时 min 配置无效。当 rename 是函数的时候要返回 ```{ prefix: '', suffix: '' }``` 格式的对象，分别对应前缀和后缀。
 
 - include ```String```
-模块封装模式，默认 ```relative```，可选 ```all``` 和 ```self```。分别对应：（1）合并相对依赖文件。（2）合并所有依赖文件。（3）不合并任何文件。
+  
+  模块封装模式，默认 ```relative```，可选 ```all``` 和 ```self```。分别对应：（1）合并相对依赖文件。（2）合并所有依赖文件。（3）不合并任何文件。
 
 - css ```Object```
-转换 css 到 js 的配置，有 ```onpath``` 和 ```prefix``` 两个配置可选，配置类型为 ```String|Function```，对应 css 文件的资源文件路径处理和类名前缀。
+  
+  转换 css 到 js 的配置，有 ```onpath``` 和 ```prefix``` 两个配置可选，配置类型为 ```String|Function```，对应 css 文件的资源文件路径处理和类名前缀。
 
 - ignore ```Array```
-模块合并需要忽略的依赖模块，支持路径和 vars paths alias 配置，不支持相对路径（默认忽略），以 ```/``` 开头的路径按照 wwwroot 寻找， 其他按照 base 寻找。
+  
+  模块合并需要忽略的依赖模块，支持路径和 vars paths alias 配置，不支持相对路径（默认忽略），以 ```/``` 开头的路径按照 wwwroot 寻找， 其他按照 base 寻找。
 
 注意事项：*模块 id 以 ```/``` 结尾会默认用 ```index.js``` 或者 ```index.css``` 补全*， id 以 ```/``` 开头的模块会从 wwwroot 路径寻找。id 规则简化，所有 id 都会自动补全 js 后缀，和 seajs 的[模块标识](https://github.com/seajs/seajs/issues/258)中的```文件后缀的自动添加规则```有点区别，但不会破坏 seajs 的规则，只是相应模块不会做处理和合并。css 的 import 规则和原生一致，需要注意的是尽量不要引入远程资源。
