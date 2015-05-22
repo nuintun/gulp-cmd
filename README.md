@@ -79,4 +79,4 @@ gulp.task('default', function (){
   
   模块合并需要忽略的依赖模块，支持路径和 vars paths alias 配置，不支持相对路径（默认忽略），以 ```/``` 开头的路径按照 wwwroot 寻找， 其他按照 base 寻找。
 
->注意事项：*模块 id 以 ```/``` 结尾会默认用 ```index.js``` 或者 ```index.css``` 补全*， id 以 ```/``` 开头的模块会从 wwwroot 路径寻找。id 规则简化，所有 id 都会自动补全 js 后缀，和 seajs 的[模块标识](https://github.com/seajs/seajs/issues/258)中的*文件后缀的自动添加规则*有点区别，但不会破坏 seajs 的规则，只是相应模块不会做处理和合并。css 的 import 规则和原生一致，需要注意的是尽量不要引入远程资源。
+>注意事项：*模块 id 以 ```/``` 结尾会默认用 ```index.js``` 或者 ```index.css``` 补全*， id 以 ```/``` 开头的模块会从 wwwroot 路径寻找。id 规则简化，所有 id 都会自动补全 js 后缀，和 seajs 的[模块标识](https://github.com/seajs/seajs/issues/258)中的 *文件后缀的自动添加规则* 有点区别，但不会破坏 seajs 的规则，只是相应模块不会做处理和合并。css 的 import 规则和原生一致，需要注意的是尽量不要引入远程资源。
