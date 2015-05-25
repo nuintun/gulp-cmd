@@ -36,7 +36,7 @@
     "colors": "^1.1.0",
     "through2": "^0.6.5",
     "debug": "^2.2.0",
-    "umd-deps": "^0.0.4",
+    "umd-deps": "^0.0.5",
     "duplexer2": "^0.0.2"
   },
   "devDependencies": {
