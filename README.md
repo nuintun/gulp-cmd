@@ -38,6 +38,10 @@ gulp.task('default', function (){
 ###API
 ####cmd(options)
 #####  *options*
+- map
+  
+  配置模块ID路径映射修改，可用于路径转换。
+  
 - vars ```Object```
   
   模块路径在运行时才能确定，这时可以使用 vars 变量来配置。
