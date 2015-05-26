@@ -19,6 +19,7 @@ var alias = {
   'import-style': 'util/import-style/1.0.0/import-style'
 };
 
+// Fixed css resource path
 function onpath(path, property, file, wwwroot){
   if (/^[^./\\]/.test(path)) {
     path = './' + path;
