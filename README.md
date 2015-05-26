@@ -10,11 +10,31 @@ gulp-cmd
 
 ###Usage
 ```js
+var path = require('path');
+var join = path.join;
+var relative = path.relative;
 var gulp = require('gulp');
 var cmd = require('gulp-cmd');
 var alias = {
   'import-style': 'util/import-style/1.0.0/import-style'
 };
+
+function onpath(path, property, file, wwwroot){
+  if (/^[^./\\]/.test(path)) {
+    path = './' + path;
+  }
+
+  if (path.indexOf('.') === 0) {
+    path = join(dirname(file), path);
+    path = relative(wwwroot, path);
+    path = '/' + path;
+    path = path.replace(/\\+/g, '/');
+  }
+
+  path = path.replace('assets/', 'online/');
+
+  return path;
+}
 
 // Task
 gulp.task('default', function (){
@@ -25,11 +45,7 @@ gulp.task('default', function (){
       include: function (id){
         return id.indexOf('view') === 0 ? 'all' : 'self';
       },
-      css: {
-        onpath: function (path){
-          return path.replace('assets/', 'online/')
-        }
-      }
+      css: { onpath: onpath }
     }))
     .pipe(gulp.dest('online/js'));
 });
