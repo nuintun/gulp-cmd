@@ -16,8 +16,8 @@ function main(options){
   var output = through.obj({ objectMode: true });
 
   var monitor = function (stream){
-    stream.on('error', function (e){
-      output.emit('error', e);
+    stream.on('error', function (error){
+      output.emit('error', error);
     });
 
     return stream;
