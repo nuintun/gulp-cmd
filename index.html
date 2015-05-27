@@ -1,0 +1,180 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Gulp-cmd by nuintun</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/github-dark.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/respond.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!--[if lt IE 8]>
+    <link rel="stylesheet" href="stylesheets/ie.css">
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+  </head>
+  <body>
+      <div id="header">
+        <nav>
+          <li class="fork"><a href="https://github.com/nuintun/gulp-cmd">View On GitHub</a></li>
+          <li class="downloads"><a href="https://github.com/nuintun/gulp-cmd/zipball/master">ZIP</a></li>
+          <li class="downloads"><a href="https://github.com/nuintun/gulp-cmd/tarball/master">TAR</a></li>
+          <li class="title">DOWNLOADS</li>
+        </nav>
+      </div><!-- end header -->
+
+    <div class="wrapper">
+
+      <section>
+        <div id="title">
+          <h1>Gulp-cmd</h1>
+          <p>A gulp plugin for cmd transport and concat</p>
+          <hr>
+          <span class="credits left">Project maintained by <a href="https://github.com/nuintun">nuintun</a></span>
+          <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></span>
+        </div>
+
+        <h1>
+<a id="gulp-cmd" class="anchor" href="#gulp-cmd" aria-hidden="true"><span class="octicon octicon-link"></span></a>gulp-cmd</h1>
+
+<blockquote>
+<p>A gulp plugin for cmd transport and concat</p>
+
+<p><a href="https://david-dm.org/nuintun/gulp-cmd"><img src="http://img.shields.io/david/nuintun/gulp-cmd.svg?style=flat-square" alt="Dependencies"></a></p>
+</blockquote>
+
+<h3>
+<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Usage</h3>
+
+<div class="highlight highlight-js"><pre><span class="pl-k">var</span> path <span class="pl-k">=</span> <span class="pl-c1">require</span>(<span class="pl-s"><span class="pl-pds">'</span>path<span class="pl-pds">'</span></span>);
+<span class="pl-k">var</span> join <span class="pl-k">=</span> path.join;
+<span class="pl-k">var</span> relative <span class="pl-k">=</span> path.relative;
+<span class="pl-k">var</span> gulp <span class="pl-k">=</span> <span class="pl-c1">require</span>(<span class="pl-s"><span class="pl-pds">'</span>gulp<span class="pl-pds">'</span></span>);
+<span class="pl-k">var</span> cmd <span class="pl-k">=</span> <span class="pl-c1">require</span>(<span class="pl-s"><span class="pl-pds">'</span>gulp-cmd<span class="pl-pds">'</span></span>);
+<span class="pl-k">var</span> alias <span class="pl-k">=</span> {
+  <span class="pl-s"><span class="pl-pds">'</span>import-style<span class="pl-pds">'</span></span><span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>util/import-style/1.0.0/import-style<span class="pl-pds">'</span></span>
+};
+
+<span class="pl-c">// Fixed css resource path</span>
+<span class="pl-k">function</span> <span class="pl-en">onpath</span>(<span class="pl-smi">path</span>, <span class="pl-smi">property</span>, <span class="pl-smi">file</span>, <span class="pl-smi">wwwroot</span>){
+  <span class="pl-k">if</span> (<span class="pl-sr"><span class="pl-pds">/</span><span class="pl-k">^</span><span class="pl-c1">[<span class="pl-k">^</span><span class="pl-c1">.</span>/<span class="pl-cce">\\</span>]</span><span class="pl-pds">/</span></span>.<span class="pl-c1">test</span>(path)) {
+    path <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">'</span>./<span class="pl-pds">'</span></span> <span class="pl-k">+</span> path;
+  }
+
+  <span class="pl-k">if</span> (path.<span class="pl-c1">indexOf</span>(<span class="pl-s"><span class="pl-pds">'</span>.<span class="pl-pds">'</span></span>) <span class="pl-k">===</span> <span class="pl-c1">0</span>) {
+    path <span class="pl-k">=</span> <span class="pl-c1">join</span>(dirname(file), path);
+    path <span class="pl-k">=</span> relative(wwwroot, path);
+    path <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">'</span>/<span class="pl-pds">'</span></span> <span class="pl-k">+</span> path;
+    path <span class="pl-k">=</span> path.<span class="pl-c1">replace</span>(<span class="pl-sr"><span class="pl-pds">/</span><span class="pl-cce">\\</span><span class="pl-k">+</span><span class="pl-pds">/</span>g</span>, <span class="pl-s"><span class="pl-pds">'</span>/<span class="pl-pds">'</span></span>);
+  }
+
+  path <span class="pl-k">=</span> path.<span class="pl-c1">replace</span>(<span class="pl-s"><span class="pl-pds">'</span>assets/<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>online/<span class="pl-pds">'</span></span>);
+
+  <span class="pl-k">return</span> path;
+}
+
+<span class="pl-c">// Task</span>
+gulp.task(<span class="pl-s"><span class="pl-pds">'</span>default<span class="pl-pds">'</span></span>, <span class="pl-k">function</span> (){
+  gulp.<span class="pl-c1">src</span>(<span class="pl-s"><span class="pl-pds">'</span>assets/js/**/*.js<span class="pl-pds">'</span></span>, { base<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>assets/js<span class="pl-pds">'</span></span> })
+    .pipe(cmd({
+      alias<span class="pl-k">:</span> alias,
+      ignore<span class="pl-k">:</span> [<span class="pl-s"><span class="pl-pds">'</span>jquery<span class="pl-pds">'</span></span>],
+      <span class="pl-en">include</span>: <span class="pl-k">function</span> (<span class="pl-smi">id</span>){
+        <span class="pl-k">return</span> id.<span class="pl-c1">indexOf</span>(<span class="pl-s"><span class="pl-pds">'</span>view<span class="pl-pds">'</span></span>) <span class="pl-k">===</span> <span class="pl-c1">0</span> <span class="pl-k">?</span> <span class="pl-s"><span class="pl-pds">'</span>all<span class="pl-pds">'</span></span> <span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>self<span class="pl-pds">'</span></span>;
+      },
+      css<span class="pl-k">:</span> { onpath<span class="pl-k">:</span> onpath }
+    }))
+    .pipe(gulp.dest(<span class="pl-s"><span class="pl-pds">'</span>online/js<span class="pl-pds">'</span></span>));
+});</pre></div>
+
+<h3>
+<a id="api" class="anchor" href="#api" aria-hidden="true"><span class="octicon octicon-link"></span></a>API</h3>
+
+<h4>
+<a id="cmdoptions" class="anchor" href="#cmdoptions" aria-hidden="true"><span class="octicon octicon-link"></span></a>cmd(options)</h4>
+
+<h5>
+<a id="options" class="anchor" href="#options" aria-hidden="true"><span class="octicon octicon-link"></span></a><em>options</em>
+</h5>
+
+<ul>
+<li>
+<p>map <code>Array</code></p>
+
+<p>配置模块ID路径映射修改，可用于路径转换。</p>
+</li>
+<li>
+<p>vars <code>Object</code></p>
+
+<p>模块路径在运行时才能确定，这时可以使用 vars 变量来配置。</p>
+</li>
+<li>
+<p>paths <code>Object</code></p>
+
+<p>当目录比较深，或需要跨目录调用模块时，可以使用 paths 来简化书写。</p>
+</li>
+<li>
+<p>alias <code>Object</code></p>
+
+<p>当模块标识很长时，可以使用 alias 来简化。</p>
+
+<blockquote>
+<p>注意：<em><a href="https://github.com/nuintun/import-style">import-style</a> 为内置样式加载模块，建议配置 alias 以便正确的转换该模块，该模块需要自己下载并放入相应目录。 vars paths alias 可参考 <a href="https://github.com/seajs/seajs/issues/262">seajs</a> 的配置</em></p>
+</blockquote>
+</li>
+<li>
+<p>cache <code>Boolean</code></p>
+
+<p>文件内存缓存，转换完成的文件会暂时存储在内存中以便提升转换效率。</p>
+</li>
+<li>
+<p>wwwroot <code>String</code></p>
+
+<p>网站根目录配置，路径相对于 <code>gulpfile.js</code> 目录。</p>
+</li>
+<li>
+<p>idleading <code>String|Function</code></p>
+
+<p>模块 id 转换模板，默认 <code>{{name}}/{{version}}/{{file}}</code>， 三个变量由 vinyl 文件的 relative 属性转换而来，所以 gulp.src 的 <a href="https://github.com/wearefractal/vinyl">base</a> 参数必须设置，base 等同于 seajs 的 <a href="https://github.com/seajs/seajs/issues/262">base</a> 配置。</p>
+</li>
+<li>
+<p>rename <code>Object|Function</code></p>
+
+<p>重命名文件，有 <code>debug</code> 和 <code>min</code> 两个配置可选，打开后文件名会自动添加 -debug 和 -min 后缀，debug 打开时 min 配置无效。当 rename 是函数的时候要返回 <code>{ prefix: '', suffix: '' }</code> 格式的对象，分别对应前缀和后缀。</p>
+</li>
+<li>
+<p>plugins <code>Object</code></p>
+
+<p>文件转换插件，可以覆写默认插件，也可定义新插件，匹配的 <code>vinyl</code> 文件会经过插件的转换函数，插件名字必须为不包含 <code>.</code> 文件扩展名。</p>
+</li>
+<li>
+<p>include <code>String</code></p>
+
+<p>模块封装模式，默认 <code>relative</code>，可选 <code>all</code> 和 <code>self</code>。分别对应：（1）合并相对依赖文件。（2）合并所有依赖文件。（3）不合并任何文件。</p>
+</li>
+<li>
+<p>css <code>Object</code></p>
+
+<p>转换 css 到 js 的配置，有 <code>onpath</code> 和 <code>prefix</code> 两个配置可选，配置类型为 <code>String|Function</code>，对应 css 文件的资源文件路径处理和类名前缀。</p>
+</li>
+<li>
+<p>ignore <code>Array</code></p>
+
+<p>模块合并需要忽略的依赖模块，支持路径和 vars paths alias 配置，不支持相对路径（默认忽略），以 <code>/</code> 开头的路径按照 wwwroot 寻找， 其他按照 base 寻找。</p>
+</li>
+</ul>
+
+<blockquote>
+<p>注意事项：<em>模块 id 以 <code>/</code> 结尾会默认用 <code>index.js</code> 或者 <code>index.css</code> 补全</em>， id 以 <code>/</code> 开头的模块会从 wwwroot 路径寻找。id 规则简化，所有 id 都会自动补全 js 后缀，和 seajs 的<a href="https://github.com/seajs/seajs/issues/258">模块标识</a>中的 <em>文件后缀的自动添加规则</em> 有点区别，但不会破坏 seajs 的规则，只是相应模块不会做处理和合并。css 的 import 规则和原生一致，需要注意的是尽量不要引入远程资源。</p>
+</blockquote>
+      </section>
+
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+    
+  </body>
+</html>
