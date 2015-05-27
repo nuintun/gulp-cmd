@@ -27,7 +27,8 @@
     "cmd",
     "concat",
     "commonjs",
-    "transport"
+    "transport",
+    "gulpplugin"
   ],
   "dependencies": {
     "is": "^3.0.1",
