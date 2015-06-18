@@ -32,10 +32,10 @@
   ],
   "dependencies": {
     "is": "^3.0.1",
-    "css": "^2.2.0",
+    "css": "^2.2.1",
     "vinyl": "^0.5.0",
-    "colors": "^1.1.0",
-    "through2": "^0.6.5",
+    "colors": "^1.1.2",
+    "through2": "^2.0.0",
     "debug": "^2.2.0",
     "umd-deps": "^0.0.8",
     "duplexer2": "^0.0.2"
