@@ -32,7 +32,7 @@
     "colors": "^1.1.2",
     "through2": "^2.0.0",
     "debug": "^2.2.0",
-    "umd-deps": "^0.0.8",
+    "umd-deps": "^0.0.9",
     "duplexer2": "^0.0.2"
   },
   "devDependencies": {
