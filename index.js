@@ -31,14 +31,13 @@ function main(options){
   return duplexer(input, output);
 }
 
-/**
- * Exports module.
- */
-
 main.cache = {};
 main.cache.clean = cache.clean;
 main.cwd = util.cwd;
 main.debug = util.debug;
 main.colors = util.colors;
 
+/**
+ * exports module.
+ */
 module.exports = main;
