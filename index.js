@@ -4,7 +4,6 @@
 
 'use strict';
 
-var through = require('through2');
 var duplexer = require('duplexer2');
 var util = require('./lib/util');
 var cache = require('./lib/cache');
