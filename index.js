@@ -28,7 +28,7 @@ function main(options){
     .pipe(monitor(concat()))
     .pipe(output);
 
-  return duplexer(input, output);
+  return duplexer({ objectMode: true }, input, output);
 }
 
 main.cache = {};
