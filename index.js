@@ -4,7 +4,7 @@
 
 'use strict';
 
-var duplexer = require('./lib/duplexer');
+var duplexer = require('duplexer');
 var util = require('./lib/util');
 var cache = require('./lib/cache');
 var include = require('./lib/include');
