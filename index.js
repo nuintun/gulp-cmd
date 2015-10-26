@@ -10,6 +10,11 @@ var cache = require('./lib/cache');
 var include = require('./lib/include');
 var concat = require('./lib/concat');
 
+/**
+ * main
+ * @param options
+ * @returns {Duplexer|*}
+ */
 function main(options){
   var input = include(options);
   var output = concat();
@@ -27,6 +32,6 @@ main.debug = util.debug;
 main.colors = util.colors;
 
 /**
- * exports module.
+ * exports module
  */
 module.exports = main;
