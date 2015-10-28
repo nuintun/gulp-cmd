@@ -30,6 +30,8 @@ main.cache.clean = cache.clean;
 main.cwd = util.cwd;
 main.debug = util.debug;
 main.colors = util.colors;
+main.defaults = {};
+main.defaults.plugins = require('./lib/plugins').defaults;
 
 /**
  * exports module
