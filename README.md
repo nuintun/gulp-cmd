@@ -96,7 +96,7 @@ gulp.task('default', function (){
 
   模块封装模式，默认 ```relative```，可选 ```all``` 和 ```self```。分别对应：（1）合并相对依赖文件。（2）合并所有依赖文件。（3）不合并任何文件。
 
-- js
+- js ```Object```
 
   转换 cmd 模块时的配置，有 ```flags``` 配置可选，配置类型为 ```Array|Boolean```，用来控制是否转换类似 ```require.async``` 中的路径，可参考 ```cmd-deps``` 模块，默认转换 ```async```。
 
