@@ -36,7 +36,5 @@
     "duplexer": "https://github.com/nuintun/duplexer/archive/master.tar.gz",
     "css-deps": "https://github.com/nuintun/css-deps/archive/master.tar.gz"
   },
-  "devDependencies": {
-  },
   "readmeFilename": "README.md"
 }
