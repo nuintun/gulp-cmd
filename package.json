@@ -29,7 +29,7 @@
     "is": "^3.2.0",
     "vinyl": "^2.0.0",
     "colors": "^1.1.2",
-    "debug": "^2.3.1",
+    "debug": "^2.3.2",
     "cmd-deps": "^2.0.6",
     "extend": "https://github.com/nuintun/extend/archive/master.tar.gz",
     "through": "https://github.com/nuintun/through/archive/master.tar.gz",
