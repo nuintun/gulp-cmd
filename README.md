@@ -14,7 +14,7 @@ var path = require('path');
 var join = path.join;
 var relative = path.relative;
 var gulp = require('gulp');
-var cmd = require('gulp-cmd');
+var cmd = require('@nuintun/gulp-cmd');
 var alias = {
   'import-style': 'util/import-style/1.0.0/import-style'
 };
