@@ -31,10 +31,10 @@
     "colors": "^1.1.2",
     "debug": "^2.5.1",
     "cmd-deps": "^2.0.6",
-    "extend": "https://github.com/nuintun/extend/archive/master.tar.gz",
-    "through": "https://github.com/nuintun/through/archive/master.tar.gz",
-    "duplexer": "https://github.com/nuintun/duplexer/archive/master.tar.gz",
-    "css-deps": "https://github.com/nuintun/css-deps/archive/master.tar.gz"
+    "@nuintun/extend": "https://github.com/nuintun/extend/archive/master.tar.gz",
+    "@nuintun/through": "https://github.com/nuintun/through/archive/master.tar.gz",
+    "@nuintun/duplexer": "https://github.com/nuintun/duplexer/archive/master.tar.gz",
+    "@nuintun/css-deps": "https://github.com/nuintun/css-deps/archive/master.tar.gz"
   },
   "readmeFilename": "README.md"
 }
