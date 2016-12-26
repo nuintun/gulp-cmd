@@ -1,5 +1,5 @@
 {
-  "name": "gulp-cmd",
+  "name": "@nuintun/gulp-cmd",
   "version": "0.0.1",
   "description": "A gulp plugin for cmd transport and concat",
   "author": {
