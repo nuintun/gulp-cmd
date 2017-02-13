@@ -30,7 +30,7 @@
     "vinyl": "^2.0.1",
     "colors": "^1.1.2",
     "debug": "^2.6.1",
-    "cmd-deps": "^2.0.7",
+    "cmd-deps": "^2.0.8",
     "@nuintun/extend": "https://github.com/nuintun/extend/archive/master.tar.gz",
     "@nuintun/through": "https://github.com/nuintun/through/archive/master.tar.gz",
     "@nuintun/duplexer": "https://github.com/nuintun/duplexer/archive/master.tar.gz",
