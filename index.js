@@ -15,7 +15,7 @@ var concat = require('./lib/concat');
  * @param options
  * @returns {Duplexer|*}
  */
-function main(options){
+function main(options) {
   var input = include(options);
   var output = concat();
   var duplex = duplexer({ objectMode: true }, input, output);
