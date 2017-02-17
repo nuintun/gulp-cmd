@@ -2,7 +2,7 @@ title: Gulp-cmd
 description: A gulp plugin for cmd transport and concat
 google_analytics: 
 show_downloads: true
-theme: jekyll-theme-midnight
+theme: jekyll-theme-architect
 
 gems:
   - jekyll-mentions
