@@ -8,7 +8,7 @@ gulp-cmd
 [david-image]: http://img.shields.io/david/nuintun/gulp-cmd.svg?style=flat-square
 [david-url]: https://david-dm.org/nuintun/gulp-cmd
 
-###Usage
+### Usage
 ```js
 var path = require('path');
 var join = path.join;
@@ -52,9 +52,9 @@ gulp.task('default', function (){
 });
 ```
 
-###API
-####cmd(options)
-#####  *options*
+### API
+#### cmd(options)
+##### *options*
 - map ```Array```
 
   配置模块ID路径映射修改，可用于路径转换。
