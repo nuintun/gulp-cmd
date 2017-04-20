@@ -27,7 +27,7 @@
   ],
   "dependencies": {
     "is": "^3.2.1",
-    "vinyl": "^2.0.1",
+    "vinyl": "^2.0.2",
     "colors": "^1.1.2",
     "debug": "^2.6.3",
     "cmd-deps": "^2.0.8",
