@@ -29,7 +29,7 @@ main.cwd = gutil.cwd;
 main.cache = util.cache;
 main.debug = util.debug;
 main.colors = gutil.colors;
-main.defaults = { plugins: require('./lib/plugins/index') };
+main.defaults = { plugins: gutil.plugins(require('./lib/plugins/index')) };
 
 /**
  * exports module
