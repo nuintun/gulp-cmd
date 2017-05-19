@@ -4,19 +4,19 @@
 
 'use strict';
 
-var duplexer = require('@nuintun/duplexer');
 var util = require('./lib/util');
-var cache = require('./lib/cache');
-var include = require('./lib/include');
+var transform = require('./lib/transform');
 var concat = require('./lib/concat');
+var gutil = require('@nuintun/gulp-util');
+var duplexer = require('@nuintun/duplexer');
 
 /**
  * main
  * @param options
- * @returns {Duplexer|*}
+ * @returns {Duplexer}
  */
 function main(options) {
-  var input = include(options);
+  var input = transform(options);
   var output = concat();
   var duplex = duplexer({ objectMode: true }, input, output);
 
@@ -25,13 +25,11 @@ function main(options) {
   return duplex;
 }
 
-main.cache = {};
-main.cache.clean = cache.clean;
-main.cwd = util.cwd;
+main.cwd = gutil.cwd;
 main.debug = util.debug;
-main.colors = util.colors;
-main.defaults = {};
-main.defaults.plugins = require('./lib/plugins').defaults;
+main.colors = gutil.colors;
+main.cache = { clean: gutil.cache.clean };
+main.defaults = { plugins: require('./lib/plugins/index') };
 
 /**
  * exports module
