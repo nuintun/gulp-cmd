@@ -26,7 +26,6 @@
     "gulpplugin"
   ],
   "dependencies": {
-    "vinyl": "^2.0.2",
     "debug": "^2.6.6",
     "cmd-deps": "^2.0.9",
     "@nuintun/through": "https://github.com/nuintun/through/archive/master.tar.gz",
