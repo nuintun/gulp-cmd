@@ -28,6 +28,7 @@ function main(options) {
 main.cwd = gutil.cwd;
 main.cache = util.cache;
 main.debug = util.debug;
+main.print = util.print;
 main.colors = gutil.colors;
 main.defaults = { plugins: gutil.plugins(require('./lib/plugins/index')) };
 
