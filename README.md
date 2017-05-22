@@ -79,10 +79,6 @@ gulp.task('default', function (){
 
   网站根目录配置，路径相对于 ```gulpfile.js``` 目录。
 
-- idleading ```String|Function```
-
-  模块 id 转换模板，默认 ```{{name}}/{{version}}/{{filename}}```， 三个变量由 vinyl 文件的 relative 属性转换而来，所以 gulp.src 的 [base](https://github.com/wearefractal/vinyl) 参数必须设置，base 等同于 seajs 的 [base](https://github.com/seajs/seajs/issues/262) 配置。
-
 - rename ```Object|Function```
 
   重命名文件，有 ```debug``` 和 ```min``` 两个配置可选，打开后文件名会自动添加 -debug 和 -min 后缀，debug 打开时 min 配置无效。当 rename 是函数的时候要返回 ```{ prefix: '', suffix: '' }``` 格式的对象，分别对应前缀和后缀。
