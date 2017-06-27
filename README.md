@@ -15,7 +15,9 @@ var relative = path.relative;
 var gulp = require('gulp');
 var cmd = require('@nuintun/gulp-cmd');
 var alias = {
-  'import-style': 'util/import-style/1.0.0/import-style'
+  // If require css file, must be include css-loader
+  // see https://github.com/nuintun/css-loader
+  'css-loader': 'util/import-style/1.0.0/css-loader'
 };
 
 // Fixed css resource path
