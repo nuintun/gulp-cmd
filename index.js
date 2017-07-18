@@ -36,7 +36,7 @@ main.cache = util.cache;
 main.debug = util.debug;
 main.print = util.print;
 main.colors = gutil.colors;
-main.defaults = { plugins: gutil.plugins(require('./lib/plugins/index')) };
+main.defaults = { plugins: require('./lib/plugins/index') };
 
 /**
  * exports module
