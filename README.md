@@ -83,7 +83,7 @@ gulp.task('default', function (){
 
 - base ```String```
 
-  网站资源根目录配置，路径相对于 ```wwwroot``` 目录，相当于配置 ```vinyl.base```。
+  网站资源根目录配置，路径相对于 ```wwwroot``` 目录（相当于 ```seajs``` 的 ```base```）。
 
 - rename ```Object|Function```
 
