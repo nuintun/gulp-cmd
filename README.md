@@ -79,7 +79,11 @@ gulp.task('default', function (){
 
 - wwwroot ```String```
 
-  网站根目录配置，路径相对于 ```gulpfile.js``` 目录。
+  网站根目录配置，路径相对于 ```process.cwd()``` 目录。
+
+- base ```String```
+
+  网站资源根目录配置，路径相对于 ```wwwroot``` 目录，相当于配置 ```vinyl.base```。
 
 - rename ```Object|Function```
 
