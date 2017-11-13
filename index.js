@@ -1,30 +1,26 @@
-/*!
- * index
- *
- * Date: 2017/07/11
- * https://github.com/nuintun/gulp-cmd
- *
- * This is licensed under the MIT License (MIT).
- * For details, see: https://github.com/nuintun/gulp-cmd/blob/master/LICENSE
+/**
+ * @module index
+ * @license MIT
+ * @version 2017/11/13
  */
 
 'use strict';
 
-var util = require('./lib/util');
-var transform = require('./lib/transform');
-var concat = require('./lib/concat');
-var gutil = require('@nuintun/gulp-util');
-var duplexer = require('@nuintun/duplexer');
+const utils = require('./lib/utils');
+const transform = require('./lib/transform');
+const concat = require('./lib/concat');
+const gutil = require('@nuintun/gulp-util');
+const duplexer = require('@nuintun/duplexer');
 
 /**
- * main
- * @param options
+ * @function main
+ * @param {Object} options
  * @returns {Duplexer}
  */
 function main(options) {
-  var input = transform(options);
-  var output = concat();
-  var duplex = duplexer({ objectMode: true }, input, output);
+  const input = transform(options);
+  const output = concat();
+  const duplex = duplexer({ objectMode: true }, input, output);
 
   input.pipe(output);
 
@@ -32,12 +28,12 @@ function main(options) {
 }
 
 main.cwd = gutil.cwd;
-main.cache = util.cache;
-main.debug = util.debug;
-main.print = util.print;
+main.cache = utils.cache;
+main.debug = utils.debug;
+main.print = utils.print;
 main.chalk = gutil.chalk;
 
 /**
- * exports module
+ * Exports module
  */
 module.exports = main;

@@ -15,6 +15,9 @@
     "url": "https://github.com/nuintun/gulp-cmd/issues",
     "email": "nuintun@qq.com"
   },
+  "engines": {
+    "node": ">=4.0.0"
+  },
   "license": "MIT",
   "main": "index",
   "keywords": [
@@ -26,7 +29,7 @@
     "gulpplugin"
   ],
   "dependencies": {
-    "cmd-deps": "^2.1.2",
+    "cmd-deps": "^2.2.0",
     "@nuintun/through": "https://github.com/nuintun/through/archive/master.tar.gz",
     "@nuintun/duplexer": "https://github.com/nuintun/duplexer/archive/master.tar.gz",
     "@nuintun/css-deps": "https://github.com/nuintun/css-deps/archive/master.tar.gz",
