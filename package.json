@@ -22,7 +22,7 @@
   "main": "index",
   "keywords": ["gulp", "cmd", "concat", "commonjs", "transport", "gulpplugin"],
   "dependencies": {
-    "cmd-deps": "^2.2.0",
+    "cmd-deps": "^2.2.1",
     "@nuintun/through": "https://github.com/nuintun/through/archive/master.tar.gz",
     "@nuintun/duplexer": "https://github.com/nuintun/duplexer/archive/master.tar.gz",
     "@nuintun/css-deps": "https://github.com/nuintun/css-deps/archive/master.tar.gz",
