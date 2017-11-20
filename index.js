@@ -33,7 +33,5 @@ main.debug = utils.debug;
 main.print = utils.print;
 main.chalk = gutil.chalk;
 
-/**
- * Exports module
- */
+// Exports module
 module.exports = main;

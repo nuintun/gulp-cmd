@@ -20,14 +20,7 @@
   },
   "license": "MIT",
   "main": "index",
-  "keywords": [
-    "gulp",
-    "cmd",
-    "concat",
-    "commonjs",
-    "transport",
-    "gulpplugin"
-  ],
+  "keywords": ["gulp", "cmd", "concat", "commonjs", "transport", "gulpplugin"],
   "dependencies": {
     "cmd-deps": "^2.2.0",
     "@nuintun/through": "https://github.com/nuintun/through/archive/master.tar.gz",
