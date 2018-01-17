@@ -83,7 +83,7 @@ gulp.task('default', function() {
 
 * indent `Number`
 
-  设置代码缩进。
+  设置代码缩进，最小为 `0`，最大为 `10`。
 
 * strict `Boolean`
 
