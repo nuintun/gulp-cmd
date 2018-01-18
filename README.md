@@ -79,7 +79,7 @@ gulp.task('default', function() {
 
   当模块标识很长时，可以使用 `alias` 来简化。
 
-  > 注意：_[import-style](https://github.com/nuintun/import-style) 为内置样式加载模块，建议配置 alias 以便正确的转换该模块，该模块需要自己下载并放入相应目录。 vars paths alias 可参考 [seajs](https://github.com/seajs/seajs/issues/262) 的配置_
+  > 注意：_[css-loader](https://github.com/nuintun/css-loader) 为内置样式加载模块，建议配置 alias 以便正确的转换该模块，该模块需要自己下载并放入相应目录。 vars paths alias 可参考 [seajs](https://github.com/seajs/seajs/issues/262) 的配置_
 
 * indent `Number`
 
