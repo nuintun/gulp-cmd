@@ -65,7 +65,7 @@ gulp.task('default', function() {
 
 * map `Function`
 
-  配置模块路径映射，可用于路径转换（返回的映射字符必须符合文件路径规则，会同步更新模块 `ID`）。
+  配置模块路径映射，可用于路径转换（返回的映射字符必须符合文件路径规则，会同步更新模块 `ID` 和输出文件名）。
 
 * vars `Object`
 
@@ -100,10 +100,6 @@ gulp.task('default', function() {
 * base `String`
 
   网站资源根目录配置，路径相对于 `wwwroot` 目录（相当于 `seajs` 的 `base`）， 如果不填写默认等于 `wwwroot`。
-
-* rename `Object|Function`
-
-  重命名文件，有 `debug` 和 `min` 两个配置可选，打开后文件名会自动添加 -debug 和 -min 后缀，debug 打开时 min 配置无效。当 rename 是函数的时候要返回 `{ prefix: '', suffix: '' }` 格式的对象，分别对应前缀和后缀。
 
 * plugins `Object`
 
