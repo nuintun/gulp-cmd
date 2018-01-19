@@ -115,7 +115,7 @@ gulp.task('default', function() {
 
 * css `Object`
 
-  转换 css 到 js 的配置，有 `onpath` 和 `prefix` 两个配置可选，配置类型为 `String|Function`，对应 css 文件的资源文件路径处理和类名前缀。
+  转换 css 到 js 的配置，有 `onpath`， `loader` 和 `prefix` 三个配置可选，配置类型为 `Function|String|String`，对应 css 文件的资源文件路径处理，加载器和类名前缀。
 
 * ignore `Array`
 
