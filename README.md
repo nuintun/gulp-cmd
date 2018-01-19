@@ -65,7 +65,7 @@ gulp.task('default', function() {
 
 * map `Function`
 
-  配置模块 `ID` 路径映射修改，可用于路径转换。
+  配置模块 `ID` 路径映射修改，可用于路径转换（返回的映射字符必须符合文件路径规则）。
 
 * vars `Object`
 
