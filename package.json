@@ -26,7 +26,7 @@
     "@nuintun/through": "^0.0.1",
     "@nuintun/duplexer": "^0.0.1",
     "@nuintun/css-deps": "^1.0.0",
-    "@nuintun/gulp-util": "^0.0.1"
+    "@nuintun/gulp-util": "https://github.com/nuintun/gulp-util/archive/master.tar.gz"
   },
   "readmeFilename": "README.md"
 }
