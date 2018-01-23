@@ -23,10 +23,10 @@
   "keywords": ["gulp", "cmd", "concat", "commonjs", "transport", "gulpplugin"],
   "dependencies": {
     "cmd-deps": "^2.2.5",
-    "@nuintun/through": "https://github.com/nuintun/through/archive/master.tar.gz",
-    "@nuintun/duplexer": "https://github.com/nuintun/duplexer/archive/master.tar.gz",
-    "@nuintun/css-deps": "https://github.com/nuintun/css-deps/archive/master.tar.gz",
-    "@nuintun/gulp-util": "https://github.com/nuintun/gulp-util/archive/master.tar.gz"
+    "@nuintun/through": "^0.0.1",
+    "@nuintun/duplexer": "^0.0.1",
+    "@nuintun/css-deps": "^1.0.0",
+    "@nuintun/gulp-util": "^0.0.1"
   },
   "readmeFilename": "README.md"
 }
