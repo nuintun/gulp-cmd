@@ -28,7 +28,6 @@ function main(options) {
 }
 
 main.cwd = gutil.cwd;
-main.cache = utils.cache;
 main.debug = utils.debug;
 main.print = utils.print;
 main.chalk = gutil.chalk;
