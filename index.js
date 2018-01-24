@@ -8,7 +8,7 @@
 
 const utils = require('./lib/utils');
 const transform = require('./lib/transform');
-const concat = require('./lib/concat');
+const bundle = require('./lib/bundle');
 const gutil = require('@nuintun/gulp-util');
 const duplexer = require('@nuintun/duplexer');
 
@@ -19,7 +19,7 @@ const duplexer = require('@nuintun/duplexer');
  */
 function main(options) {
   const input = transform(options);
-  const output = concat();
+  const output = bundle();
   const duplex = duplexer({ objectMode: true }, input, output);
 
   input.pipe(output);
