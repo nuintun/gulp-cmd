@@ -29,8 +29,8 @@ function main(options) {
 
 main.cwd = gutil.cwd;
 main.debug = utils.debug;
-main.print = utils.print;
 main.chalk = gutil.chalk;
+main.logger = utils.logger;
 
 // Exports module
 module.exports = main;
