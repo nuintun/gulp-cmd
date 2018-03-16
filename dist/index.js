@@ -9,9 +9,10 @@
 
 'use strict';
 
-const cmdDeps = require('cmd-deps');
+const fs = require('fs');
 const gutil = require('@nuintun/gulp-util');
 const path = require('path');
+const cmdDeps = require('cmd-deps');
 const Bundler = require('@nuintun/bundler');
 const through = require('@nuintun/through');
 
@@ -81,6 +82,24 @@ const DEFAULT_MODULE_EXT_RE = /\.js$/i;
  */
 function addExt(path$$1) {
   return DEFAULT_MODULE_EXT_RE.test(path$$1) ? path$$1 : path$$1 + '.js';
+}
+
+const CSS_MODULE_EXT_RE = /\.css\.js$/i;
+
+/**
+ * @function hideExt
+ * @description Hide .js if exists
+ * @param {string} path
+ * @param {Boolean} force
+ * @returns {string}
+ */
+function hideExt(path$$1, force) {
+  // The seajs has hacked css before 3.0.0
+  // https://github.com/seajs/seajs/blob/2.2.1/src/util-path.js#L49
+  // Demo https://github.com/popomore/seajs-test/tree/master/css-deps
+  if (!force && CSS_MODULE_EXT_RE.test(path$$1)) return path$$1;
+
+  return path$$1.replace(DEFAULT_MODULE_EXT_RE, '');
 }
 
 /**
@@ -192,12 +211,55 @@ function initOptions(options) {
   return options;
 }
 
+const readStat = gutil.promisify(fs.stat);
+const readFile = gutil.promisify(fs.readFile);
+
+async function loadModule(path$$1, options) {
+  let contents;
+
+  try {
+    contents = await readFile(path$$1);
+  } catch (error) {
+    path$$1 = hideExt(path$$1, true);
+  }
+
+  contents = await readFile(path$$1);
+
+  const stat = await readStat(path$$1);
+
+  return new gutil.VinylFile({
+    path: path$$1,
+    stat,
+    contents,
+    base: options.base
+  });
+}
+
 /**
  * @module bundler
  * @license MIT
  * @version 2018/03/16
  */
 // import cssDeps from '@nuintun/css-deps';
+
+function parse(vinyl, options) {
+  const parsed = cmdDeps(vinyl.contents, id => parseAlias(id, options.alias), {
+    flags: options.js.flags,
+    word: options.js.require,
+    allowReturnOutsideFunction: true
+  });
+
+  const contents = (vinyl.contents = gutil.buffer(parsed.code));
+  const dependencies = parsed.dependencies.reduce((dependencies, dependency) => {
+    if (dependency.flag === null) {
+      dependencies.push(dependency.path);
+    }
+
+    return dependencies;
+  }, []);
+
+  return { dependencies, contents };
+}
 
 /**
  * @function bundler
@@ -206,35 +268,34 @@ function initOptions(options) {
  * @returns {Vinyl}
  */
 async function bundler(vinyl, options) {
-  const bundler = await new Bundler({
+  const bundles = await new Bundler({
     input: vinyl.path,
     resolve: (request, referer) => {
       const root = options.root;
       const base = options.base;
       const css = /\.css$/i.test(referer);
 
+      // If path end with /, use index.js
+      if (!css && request.endsWith('/')) request += 'index.js';
+
+      // Add ext
+      request = addExt(request);
+
+      // Resolve
       return resolve(request, referer, css ? { root } : { root, base });
     },
-    parse: path$$1 => {
+    parse: async path$$1 => {
+      // Is entry file
       if (vinyl.path === path$$1) {
-        const parsed = cmdDeps(vinyl.contents, id => parseAlias(id, options.alias), {
-          flags: options.js.flags,
-          word: options.js.require,
-          allowReturnOutsideFunction: true
-        });
-
-        const contents = (vinyl.contents = gutil.buffer(parsed.code));
-        const dependencies = parsed.dependencies.reduce((dependencies, dependency) => {
-          if (dependency.flag === null) {
-            dependencies.push(dependency.path);
-          }
-
-          return dependencies;
-        }, []);
-
-        return { dependencies, contents };
+        return parse(vinyl, options);
       } else {
-        gutil.logger(path$$1);
+        try {
+          gutil.logger(await loadModule(path$$1, options));
+        } catch (error) {
+          gutil.logger.error(error);
+        }
+
+        // return parse(vinyl, options);
       }
     }
   });
@@ -252,7 +313,7 @@ function main(options) {
   options = initOptions(options);
 
   return through(async function(vinyl, encoding, next) {
-    vinyl = gutil.vinyl(vinyl);
+    vinyl = gutil.VinylFile.wrap(vinyl);
     vinyl.base = options.base;
 
     // Throw error if stream vinyl

@@ -16,14 +16,14 @@
     "email": "nuintun@qq.com"
   },
   "engines": {
-    "node": ">=7.10.1"
+    "node": ">=7.6.0"
   },
   "license": "MIT",
   "main": "dist/index",
   "keywords": ["gulp", "cmd", "concat", "commonjs", "transport", "gulpplugin"],
   "dependencies": {
     "cmd-deps": "https://github.com/nuintun/cmd-deps/archive/dev.tar.gz",
-    "@nuintun/bundler": "^0.1.1",
+    "@nuintun/bundler": "^0.1.2",
     "@nuintun/through": "^0.2.0",
     "@nuintun/css-deps": "https://github.com/nuintun/css-deps/archive/dev.tar.gz",
     "@nuintun/gulp-util": "https://github.com/nuintun/gulp-util/archive/dev.tar.gz"

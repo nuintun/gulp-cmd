@@ -13,7 +13,7 @@ export default function main(options) {
   options = utils.initOptions(options);
 
   return through(async function(vinyl, encoding, next) {
-    vinyl = gutil.vinyl(vinyl);
+    vinyl = gutil.VinylFile.wrap(vinyl);
     vinyl.base = options.base;
 
     // Throw error if stream vinyl
