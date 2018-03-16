@@ -1,6 +1,6 @@
 {
   "name": "@nuintun/gulp-cmd",
-  "version": "0.0.4",
+  "version": "0.1.0",
   "description": "A gulp plugin for cmd transport and concat",
   "author": {
     "name": "nuintun",
@@ -16,18 +16,21 @@
     "email": "nuintun@qq.com"
   },
   "engines": {
-    "node": ">=4.0.0"
+    "node": ">=7.10.1"
   },
   "license": "MIT",
-  "main": "index",
+  "main": "dist/index",
   "keywords": ["gulp", "cmd", "concat", "commonjs", "transport", "gulpplugin"],
   "dependencies": {
-    "cmd-deps": "^2.2.7",
-    "gulplog": "^1.0.0",
-    "@nuintun/through": "^0.0.1",
-    "@nuintun/duplexer": "^0.0.1",
-    "@nuintun/css-deps": "^1.0.1",
-    "@nuintun/gulp-util": "^0.0.3"
+    "cmd-deps": "https://github.com/nuintun/cmd-deps/archive/dev.tar.gz",
+    "@nuintun/bundler": "^0.1.1",
+    "@nuintun/through": "^0.2.0",
+    "@nuintun/css-deps": "https://github.com/nuintun/css-deps/archive/dev.tar.gz",
+    "@nuintun/gulp-util": "https://github.com/nuintun/gulp-util/archive/dev.tar.gz"
+  },
+  "devDependencies": {
+    "gulp": "next",
+    "rollup": "^0.57.0"
   },
   "readmeFilename": "README.md"
 }

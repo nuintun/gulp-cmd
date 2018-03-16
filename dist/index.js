@@ -1,20 +1,31 @@
 /**
+ * @module @nuintun/gulp-cmd
+ * @author nuintun
+ * @license MIT
+ * @version 0.1.0
+ * @description A gulp plugin for cmd transport and concat
+ * @see https://nuintun.github.io/gulp-cmd
+ */
+
+'use strict';
+
+const cmdDeps = require('cmd-deps');
+const gutil = require('@nuintun/gulp-util');
+const path = require('path');
+const Bundler = require('@nuintun/bundler');
+const through = require('@nuintun/through');
+
+/**
  * @module utils
  * @license MIT
  * @version 2017/11/13
  */
 
-// import util from 'util';
-import cmd from 'cmd-deps';
-// import css from '@nuintun/css-deps';
-import gutil from '@nuintun/gulp-util';
-import { resolve as pResolve, join, dirname } from 'path';
-
 // Cache
-export const cache = new gutil.Cache();
+const cache = new gutil.Cache();
 
 // Debug
-export const debug = gutil.debug('gulp-cmd');
+const debug = gutil.debug('gulp-cmd');
 
 /**
  * @function resolve
@@ -24,30 +35,30 @@ export const debug = gutil.debug('gulp-cmd');
  * @param {Object} options
  * @returns {string}
  */
-export function resolve(request, referer, options) {
-  let path;
+function resolve(request, referer, options) {
+  let path$$1;
 
   // Resolve
   if (gutil.isAbsolute(request)) {
-    path = join(options.root, request);
+    path$$1 = path.join(options.root, request);
   } else if (gutil.isRelative(request)) {
-    path = join(dirname(referer), request);
+    path$$1 = path.join(path.dirname(referer), request);
 
     // Out of bounds of root
-    if (gutil.isOutBounds(path, options.root)) {
-      throw new RangeError(`File ${gutil.normalize(path)} is out of bounds of root.`);
+    if (gutil.isOutBounds(path$$1, options.root)) {
+      throw new RangeError(`File ${gutil.normalize(path$$1)} is out of bounds of root.`);
     }
   } else {
-    const base = options.base || dirname(referer);
+    const base = options.base || path.dirname(referer);
 
     // Use base or referer dirname
-    path = join(base, request);
+    path$$1 = path.join(base, request);
   }
 
   // Debug
-  debug('Resolved path %C', path);
+  debug('Resolved path %C', path$$1);
 
-  return path;
+  return path$$1;
 }
 
 /**
@@ -56,7 +67,7 @@ export function resolve(request, referer, options) {
  * @param {Object} alias
  * @returns {string}
  */
-export function parseAlias(id, alias) {
+function parseAlias(id, alias) {
   return alias && gutil.isString(alias[id]) ? alias[id] : id;
 }
 
@@ -68,26 +79,8 @@ const DEFAULT_MODULE_EXT_RE = /\.js$/i;
  * @param {string} path
  * @returns {string}
  */
-export function addExt(path) {
-  return DEFAULT_MODULE_EXT_RE.test(path) ? path : path + '.js';
-}
-
-const CSS_MODULE_EXT_RE = /\.css\.js$/i;
-
-/**
- * @function hideExt
- * @description Hide .js if exists
- * @param {string} path
- * @param {Boolean} force
- * @returns {string}
- */
-export function hideExt(path, force) {
-  // The seajs has hacked css before 3.0.0
-  // https://github.com/seajs/seajs/blob/2.2.1/src/util-path.js#L49
-  // Demo https://github.com/popomore/seajs-test/tree/master/css-deps
-  if (!force && CSS_MODULE_EXT_RE.test(path)) return path;
-
-  return path.replace(DEFAULT_MODULE_EXT_RE, '');
+function addExt(path$$1) {
+  return DEFAULT_MODULE_EXT_RE.test(path$$1) ? path$$1 : path$$1 + '.js';
 }
 
 /**
@@ -95,7 +88,7 @@ export function hideExt(path, force) {
  * @param {Object} options
  * @return {Object}
  */
-export function initIgnore(options) {
+function initIgnore(options) {
   const ignore = new Set();
 
   // Format ignore
@@ -111,7 +104,7 @@ export function initIgnore(options) {
 
       // Local id add ignore
       if (gutil.isLocal(id)) {
-        ignore.add(addExt(join(isAbsolute(id) ? root : base, id)));
+        ignore.add(addExt(path.join(isAbsolute(id) ? root : base, id)));
       }
     });
   }
@@ -124,7 +117,7 @@ export function initIgnore(options) {
  * @param {Object} options
  * @returns {Object}
  */
-export function initOptions(options) {
+function initOptions(options) {
   // Mix options
   options = gutil.extend(
     true,
@@ -156,10 +149,10 @@ export function initOptions(options) {
   }
 
   // Init root dir
-  gutil.readonly(options, 'root', pResolve(options.root));
+  gutil.readonly(options, 'root', path.resolve(options.root));
 
   // Init base dir
-  gutil.readonly(options, 'base', join(options.root, options.base));
+  gutil.readonly(options, 'base', path.join(options.root, options.base));
 
   // The base out of bounds of root
   if (gutil.isOutBounds(options.base, options.root)) {
@@ -199,39 +192,81 @@ export function initOptions(options) {
   return options;
 }
 
-const LINEFEED_RE = /[\r\n]+/g;
+/**
+ * @module bundler
+ * @license MIT
+ * @version 2018/03/16
+ */
+// import cssDeps from '@nuintun/css-deps';
 
 /**
- * @function wrapModule
- * @param {string} id
- * @param {Array} deps
- * @param {string} code
- * @param {boolean} strict
- * @param {number} indent
- * @returns {string}
+ * @function bundler
+ * @param {Vinyl} vinyl
+ * @param {Object} options
+ * @returns {Vinyl}
  */
-export function wrapModule(id, deps, code, strict, indent) {
-  // Debug
-  debug('compile module %p', id);
+async function bundler(vinyl, options) {
+  const bundler = await new Bundler({
+    input: vinyl.path,
+    resolve: (request, referer) => {
+      const root = options.root;
+      const base = options.base;
+      const css = /\.css$/i.test(referer);
 
-  if (Buffer.isBuffer(code)) code = code.toString();
+      return resolve(request, referer, css ? { root } : { root, base });
+    },
+    parse: path$$1 => {
+      if (vinyl.path === path$$1) {
+        const parsed = cmdDeps(vinyl.contents, id => parseAlias(id, options.alias), {
+          flags: options.js.flags,
+          word: options.js.require,
+          allowReturnOutsideFunction: true
+        });
 
-  id = JSON.stringify(id);
-  deps = JSON.stringify(deps, null, indent);
+        const contents = (vinyl.contents = gutil.buffer(parsed.code));
+        const dependencies = parsed.dependencies.reduce((dependencies, dependency) => {
+          if (dependency.flag === null) {
+            dependencies.push(dependency.path);
+          }
 
-  if (strict !== false) {
-    code = `'use strict';\n\n${code}`;
-  }
+          return dependencies;
+        }, []);
 
-  if (indent > 0) {
-    const pad = new Array(indent + 1).join(' ');
+        return { dependencies, contents };
+      } else {
+        gutil.logger(path$$1);
+      }
+    }
+  });
 
-    code = pad + code.replace(LINEFEED_RE, `$&${pad}`);
-  }
-
-  // Header and footer template string
-  const header = `define(${id}, ${deps}, function(require, exports, module){\n`;
-  const footer = '\n});\n';
-
-  return header + code + footer;
+  return vinyl;
 }
+
+/**
+ * @module index
+ * @license MIT
+ * @version 2017/11/13
+ */
+
+function main(options) {
+  options = initOptions(options);
+
+  return through(async function(vinyl, encoding, next) {
+    vinyl = gutil.vinyl(vinyl);
+    vinyl.base = options.base;
+
+    // Throw error if stream vinyl
+    if (vinyl.isStream()) {
+      return next(new TypeError('Streaming not supported.'));
+    }
+
+    // Return empty vinyl
+    if (vinyl.isNull()) {
+      return next(null, vinyl);
+    }
+
+    next(null, await bundler(vinyl, options));
+  });
+}
+
+module.exports = main;
