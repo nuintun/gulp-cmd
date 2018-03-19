@@ -12,7 +12,7 @@
 const fs = require('fs');
 const gutil = require('@nuintun/gulp-util');
 const path = require('path');
-const cmdDeps = require('cmd-deps');
+const jsDeps = require('cmd-deps');
 const Bundler = require('@nuintun/bundler');
 const through = require('@nuintun/through');
 
@@ -124,8 +124,8 @@ function initOptions(options) {
       strict: true, // Use strict mode
       combine: false, // Combine all modules
       ignore: [], // Ignore module lists when combine is true
-      css: { onpath: null, loader: 'css-loader' }, // CSS parser option { onpath: null, loader: null }
-      js: { require: 'require', flags: ['async'] } // JavaScript parser option { flags: ['async'] }
+      js: { flags: ['async'] }, // JavaScript parser option { flags: ['async'] }
+      css: { onpath: null, loader: 'css-loader' } // CSS parser option { onpath: null, loader: null }
     },
     options
   );
@@ -187,9 +187,61 @@ function initOptions(options) {
   return options;
 }
 
+const LINEFEED_RE = /[\r\n]+/g;
+
+/**
+ * @function wrapModule
+ * @param {string} id
+ * @param {Array|Set} deps
+ * @param {string} code
+ * @param {boolean} strict
+ * @param {number} indent
+ * @returns {string}
+ */
+function wrapModule(id, deps, code, options) {
+  const strict = options.strict;
+  const indent = options.indent;
+
+  if (Buffer.isBuffer(code)) code = code.toString();
+
+  id = JSON.stringify(id);
+  deps = JSON.stringify(Array.from(deps), null, indent);
+
+  if (strict !== false) {
+    code = `'use strict';\n\n${code}`;
+  }
+
+  if (indent > 0) {
+    const pad = new Array(indent + 1).join(' ');
+
+    code = pad + code.replace(LINEFEED_RE, `$&${pad}`);
+  }
+
+  // Header and footer template string
+  const header = `define(${id}, ${deps}, function(require, exports, module){\n`;
+  const footer = '\n});\n';
+
+  return gutil.buffer(header + code + footer);
+}
+
 // Promisify stat and readFile
-const readStat = gutil.promisify(fs.stat);
-const readFile = gutil.promisify(fs.readFile);
+const fsReadStat = gutil.promisify(fs.stat);
+const fsReadFile = gutil.promisify(fs.readFile);
+
+/**
+ * @function fsSafeAccess
+ * @param {string} path
+ * @param {Number} mode
+ */
+function fsSafeAccess(path$$1, mode = fs.constants.R_OK) {
+  try {
+    fs.accessSync(path$$1, mode);
+
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
 
 /**
  * @function loadModule
@@ -197,18 +249,11 @@ const readFile = gutil.promisify(fs.readFile);
  * @param {Object} options
  */
 async function loadModule(path$$1, options) {
-  let contents;
+  // Read module
+  const stat = await fsReadStat(path$$1);
+  const contents = await fsReadFile(path$$1);
 
-  try {
-    contents = await readFile(path$$1);
-  } catch (error) {
-    path$$1 = addExt(path$$1);
-  }
-
-  contents = await readFile(path$$1);
-
-  const stat = await readStat(path$$1);
-
+  // Return a vinyl file
   return new gutil.VinylFile({
     path: path$$1,
     stat,
@@ -218,34 +263,157 @@ async function loadModule(path$$1, options) {
 }
 
 /**
- * @module bundler
- * @license MIT
- * @version 2018/03/16
+ * @function isCSSFile
+ * @param {string} path
  */
-// import cssDeps from '@nuintun/css-deps';
+function isCSSFile(path$$1) {
+  return /\.css$/i.test(path$$1);
+}
 
-function parse(vinyl, options) {
-  const ext = vinyl.extname.toLowerCase();
+/**
+ * @module js
+ * @license MIT
+ * @version 2018/03/19
+ */
 
-  const parsed = cmdDeps(vinyl.contents, id => parseAlias(id, options.alias), {
-    flags: options.js.flags,
-    word: options.js.require,
-    allowReturnOutsideFunction: true
-  });
+function jsParser(vinyl, options) {
+  const root = options.root;
+  const base = options.base;
+  const dependencies = new Set();
 
-  const contents = (vinyl.contents = gutil.buffer(parsed.code));
-  const dependencies = parsed.dependencies.reduce((dependencies, dependency) => {
-    if (dependency.flag === null) {
-      dependencies.push(dependency.path);
+  // Parse module
+  const meta = jsDeps(
+    vinyl.contents,
+    (id, flag) => {
+      id = parseAlias(id, options.alias);
+      id = gutil.parseMap(id, vinyl.path, options.map);
+      id = gutil.normalize(id);
+
+      // Only collect local bependency
+      if (gutil.isLocal(id)) {
+        // If path end with /, use index.js
+        if (id.endsWith('/')) id += 'index';
+
+        // Only collect require no flag
+        if (flag === null) {
+          // Add dependencies
+          dependencies.add(id);
+        }
+
+        // The seajs has hacked css before 3.0.0
+        // https://github.com/seajs/seajs/blob/2.2.1/src/util-path.js#L49
+        // Demo https://github.com/popomore/seajs-test/tree/master/css-deps
+        if (isCSSFile(id)) {
+          id = addExt(id);
+        }
+      }
+
+      // Return id
+      return id;
+    },
+    {
+      flags: options.js.flags,
+      allowReturnOutsideFunction: true
+    }
+  );
+
+  // Get contents
+  const contents = gutil.buffer(meta.code);
+  let id = gutil.moduleId(vinyl, root, base);
+
+  if (!/\.js$/i.test(id)) {
+    id = addExt(id);
+  }
+
+  return { id, dependencies, contents };
+}
+
+/**
+ * @module index
+ * @license MIT
+ * @version 2018/03/19
+ */
+
+/**
+ * @module js
+ * @license MIT
+ * @version 2018/03/19
+ */
+
+function jsPackager(vinyl, meta, options) {
+  const referer = vinyl.path;
+  const root = options.root;
+  const base = options.base;
+
+  const deps = new Set();
+  const dependencies = new Set();
+
+  meta.dependencies.forEach(dependency => {
+    deps.add(isCSSFile(dependency) ? addExt(dependency) : dependency);
+
+    let resolved = resolve(dependency, referer, { root, base });
+
+    // Add extname
+    if (!path.extname(resolved)) {
+      resolved = addExt(resolved);
     }
 
-    return dependencies;
-  }, []);
+    // Module can read
+    if (fsSafeAccess(resolved)) {
+      dependencies.add(resolved);
+    } else {
+      // Module can't read, add ext .js test again
+      resolved = addExt(resolved);
+
+      // Module can read
+      if (fsSafeAccess(resolved)) {
+        dependencies.add(resolved);
+      } else {
+        // Relative referer from cwd
+        const rpath = JSON.stringify(gutil.path2cwd(referer));
+
+        // Output warn message
+        gutil.logger.warn(gutil.chalk.yellow(`Module ${JSON.stringify(dependency)} at ${rpath} can't be found.\x07`));
+      }
+    }
+  });
+
+  const contents = wrapModule(meta.id, deps, meta.contents, options);
+
+  // Rewrite path
+  if (!/\.js/i.test(referer)) {
+    vinyl.path = addExt(referer);
+  }
 
   return { dependencies, contents };
 }
 
-function concat(bundles) {
+/**
+ * @module index
+ * @license MIT
+ * @version 2018/03/19
+ */
+
+/**
+ * @module bundler
+ * @license MIT
+ * @version 2018/03/16
+ */
+
+function parse(vinyl, options) {
+  const meta = jsPackager(vinyl, jsParser(vinyl, options), options);
+  const contents = meta.contents;
+  const dependencies = meta.dependencies;
+
+  return { dependencies, contents };
+}
+
+/**
+ * @function combine
+ * @param {Set} bundles
+ * @returns {Buffer}
+ */
+function combine(bundles) {
   const files = [];
 
   bundles.forEach(bundle => {
@@ -262,54 +430,38 @@ function concat(bundles) {
  * @returns {Vinyl}
  */
 async function bundler(vinyl, options) {
-  let bundles;
+  const cache = options.cache;
 
-  // Read from cache
-  if (options.cache.has(vinyl.path)) {
-    bundles = options.cache.get(vinyl.path);
-  } else {
-    // Bundler
-    bundles = await new Bundler({
-      input: vinyl.path,
-      resolve: (request, referer) => {
-        const root = options.root;
-        const base = options.base;
-        const css = /\.css$/i.test(referer);
-
-        // If path end with /, use index.js
-        if (!css && request.endsWith('/')) request += 'index.js';
-
-        // Add extname
-        if (!path.extname(request)) {
-          request = addExt(request);
-        }
-
-        // Resolve
-        request = resolve(request, referer, css ? { root } : { root, base });
-
-        return request;
-      },
-      parse: async path$$1 => {
-        // Is entry file
-        if (vinyl.path === path$$1) {
-          return parse(vinyl, options);
-        } else {
-          try {
-            return parse(await loadModule(path$$1, options), options);
-          } catch (error) {
-            gutil.logger.error(error);
-
-            return { dependencies: [], contents: gutil.buffer('') };
-          }
-        }
+  // Bundler
+  const bundles = await new Bundler({
+    input: vinyl.path,
+    resolve: path$$1 => path$$1,
+    parse: async path$$1 => {
+      // Hit cache
+      if (cache.has(path$$1)) {
+        return cache.get(path$$1);
       }
-    });
 
-    // Add cache
-    options.cache.set(vinyl.path, bundles);
-  }
+      // Meta
+      let meta;
 
-  vinyl.contents = concat(bundles);
+      // Is entry file
+      if (vinyl.path === path$$1) {
+        meta = parse(vinyl, options);
+      } else {
+        meta = parse(await loadModule(path$$1, options), options);
+      }
+
+      // Set cache
+      cache.set(path$$1, meta);
+
+      // Return meta
+      return meta;
+    }
+  });
+
+  // Combine files
+  vinyl.contents = combine(bundles);
 
   return vinyl;
 }
