@@ -276,7 +276,37 @@ function isCSSFile(path$$1) {
  * @version 2018/03/19
  */
 
-function jsParser(vinyl, options) {
+/**
+ * @function resolveModuleId
+ * @param {Vinyl} vinyl
+ * @param {Object} options
+ * @returns {string}
+ */
+function resolveModuleId(vinyl, options) {
+  const root = options.root;
+  const base = options.base;
+  let id = gutil.moduleId(vinyl, root, base);
+
+  // Parse map
+  id = gutil.parseMap(id, vinyl.path, options.map);
+  id = gutil.normalize(id);
+
+  // Add ext
+  if (isCSSFile(id)) {
+    id = addExt(id);
+  }
+
+  return id;
+}
+
+/**
+ * @function jsPackager
+ * @param {Vinyl} vinyl
+ * @param {Object} options
+ */
+function jsPackager(vinyl, options) {
+  const deps = new Set();
+  const referer = vinyl.path;
   const root = options.root;
   const base = options.base;
   const dependencies = new Set();
@@ -284,32 +314,64 @@ function jsParser(vinyl, options) {
   // Parse module
   const meta = jsDeps(
     vinyl.contents,
-    (id, flag) => {
-      id = parseAlias(id, options.alias);
-      id = gutil.parseMap(id, vinyl.path, options.map);
-      id = gutil.normalize(id);
+    (dependency, flag) => {
+      dependency = parseAlias(dependency, options.alias);
+      dependency = gutil.normalize(dependency);
 
       // Only collect local bependency
-      if (gutil.isLocal(id)) {
+      if (gutil.isLocal(dependency)) {
         // If path end with /, use index.js
-        if (id.endsWith('/')) id += 'index';
+        if (dependency.endsWith('/')) dependency += 'index.js';
+
+        // Resolve dependency
+        let resolved = resolve(dependency, referer, { root, base });
 
         // Only collect require no flag
         if (flag === null) {
-          // Add dependencies
-          dependencies.add(id);
+          // Add extname
+          if (!path.extname(resolved)) {
+            resolved = addExt(resolved);
+          }
+
+          // Module can read
+          if (fsSafeAccess(resolved)) {
+            dependencies.add(resolved);
+          } else {
+            // Module can't read, add ext .js test again
+            resolved = addExt(resolved);
+
+            // Module can read
+            if (fsSafeAccess(resolved)) {
+              dependencies.add(resolved);
+            } else {
+              // Relative referer from cwd
+              const rpath = JSON.stringify(gutil.path2cwd(referer));
+
+              // Output warn message
+              gutil.logger.warn(
+                gutil.chalk.yellow(`Module ${JSON.stringify(dependency)} at ${rpath} can't be found.\x07`)
+              );
+            }
+          }
         }
+
+        // Parse map
+        dependency = gutil.parseMap(dependency, resolved, options.map);
+        dependency = gutil.normalize(dependency);
 
         // The seajs has hacked css before 3.0.0
         // https://github.com/seajs/seajs/blob/2.2.1/src/util-path.js#L49
         // Demo https://github.com/popomore/seajs-test/tree/master/css-deps
-        if (isCSSFile(id)) {
-          id = addExt(id);
+        if (isCSSFile(dependency)) {
+          dependency = addExt(dependency);
         }
+
+        // Add dependency
+        deps.add(dependency);
       }
 
-      // Return id
-      return id;
+      // Return dependency
+      return dependency;
     },
     {
       flags: options.js.flags,
@@ -317,75 +379,14 @@ function jsParser(vinyl, options) {
     }
   );
 
+  // Resolve module id
+  const id = resolveModuleId(vinyl, options);
   // Get contents
-  const contents = gutil.buffer(meta.code);
-  let id = gutil.moduleId(vinyl, root, base);
-
-  if (!/\.js$/i.test(id)) {
-    id = addExt(id);
-  }
-
-  return { id, dependencies, contents };
-}
-
-/**
- * @module index
- * @license MIT
- * @version 2018/03/19
- */
-
-/**
- * @module js
- * @license MIT
- * @version 2018/03/19
- */
-
-function jsPackager(vinyl, meta, options) {
-  const referer = vinyl.path;
-  const root = options.root;
-  const base = options.base;
-
-  const deps = new Set();
-  const dependencies = new Set();
-
-  meta.dependencies.forEach(dependency => {
-    deps.add(isCSSFile(dependency) ? addExt(dependency) : dependency);
-
-    let resolved = resolve(dependency, referer, { root, base });
-
-    // Add extname
-    if (!path.extname(resolved)) {
-      resolved = addExt(resolved);
-    }
-
-    // Module can read
-    if (fsSafeAccess(resolved)) {
-      dependencies.add(resolved);
-    } else {
-      // Module can't read, add ext .js test again
-      resolved = addExt(resolved);
-
-      // Module can read
-      if (fsSafeAccess(resolved)) {
-        dependencies.add(resolved);
-      } else {
-        // Relative referer from cwd
-        const rpath = JSON.stringify(gutil.path2cwd(referer));
-
-        // Output warn message
-        gutil.logger.warn(gutil.chalk.yellow(`Module ${JSON.stringify(dependency)} at ${rpath} can't be found.\x07`));
-      }
-    }
-  });
-
-  const contents = wrapModule(meta.id, deps, meta.contents, options);
-
+  const contents = wrapModule(id, deps, meta.code, options);
   // Rewrite path
-  if (!/\.js/i.test(referer)) {
-    vinyl.path = addExt(referer);
-  }
+  const path$$1 = !/\.js/i.test(referer) ? addExt(referer) : referer;
 
-  return { dependencies, contents };
+  return { path: path$$1, dependencies, contents };
 }
 
 /**
@@ -401,9 +402,12 @@ function jsPackager(vinyl, meta, options) {
  */
 
 function parse(vinyl, options) {
-  const meta = jsPackager(vinyl, jsParser(vinyl, options), options);
+  const meta = jsPackager(vinyl, options);
   const contents = meta.contents;
   const dependencies = meta.dependencies;
+
+  // Rewrite path
+  vinyl.path = meta.path;
 
   return { dependencies, contents };
 }

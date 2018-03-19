@@ -27,9 +27,23 @@ const alias = {
   confirmbox: 'common/dialog/1.5.1/confirmbox'
 };
 
+let uid = 0;
+const files = new Map();
+const map = (path, resolved) => {
+  if (files.has(resolved)) {
+    return files.get(resolved);
+  }
+
+  path = String(uid++);
+
+  files.set(resolved, path);
+
+  return path;
+};
+
 gulp.task('default', function() {
   return gulp
     .src('assets/view/**/*.js', { base: 'assets' })
-    .pipe(bunder({ root, base, alias }))
+    .pipe(bunder({ root, base, alias, map }))
     .pipe(gulp.dest('dist'));
 });
