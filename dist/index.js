@@ -22,9 +22,6 @@ const through = require('@nuintun/through');
  * @version 2017/11/13
  */
 
-// Cache
-const cache = new gutil.Cache();
-
 // Debug
 const debug = gutil.debug('gulp-cmd');
 
@@ -56,9 +53,6 @@ function resolve(request, referer, options) {
     path$$1 = path.join(base, request);
   }
 
-  // Debug
-  debug('Resolved path %C', path$$1);
-
   return path$$1;
 }
 
@@ -72,8 +66,6 @@ function parseAlias(id, alias) {
   return alias && gutil.isString(alias[id]) ? alias[id] : id;
 }
 
-const DEFAULT_MODULE_EXT_RE = /\.js$/i;
-
 /**
  * @function addExt
  * @description Add .js if not exists
@@ -81,25 +73,7 @@ const DEFAULT_MODULE_EXT_RE = /\.js$/i;
  * @returns {string}
  */
 function addExt(path$$1) {
-  return DEFAULT_MODULE_EXT_RE.test(path$$1) ? path$$1 : path$$1 + '.js';
-}
-
-const CSS_MODULE_EXT_RE = /\.css\.js$/i;
-
-/**
- * @function hideExt
- * @description Hide .js if exists
- * @param {string} path
- * @param {Boolean} force
- * @returns {string}
- */
-function hideExt(path$$1, force) {
-  // The seajs has hacked css before 3.0.0
-  // https://github.com/seajs/seajs/blob/2.2.1/src/util-path.js#L49
-  // Demo https://github.com/popomore/seajs-test/tree/master/css-deps
-  if (!force && CSS_MODULE_EXT_RE.test(path$$1)) return path$$1;
-
-  return path$$1.replace(DEFAULT_MODULE_EXT_RE, '');
+  return `${path$$1}.js`;
 }
 
 /**
@@ -147,7 +121,6 @@ function initOptions(options) {
       map: [], // Module map
       plugins: [], // Plugins
       indent: 2, // Code indent
-      cache: true, // Use files cache
       strict: true, // Use strict mode
       combine: false, // Combine all modules
       ignore: [], // Ignore module lists when combine is true
@@ -208,19 +181,28 @@ function initOptions(options) {
   // Init indent
   options.indent = Math.min(10, Math.max(0, options.indent >> 0));
 
+  // Init cache
+  gutil.readonly(options, 'cache', new Map());
+
   return options;
 }
 
+// Promisify stat and readFile
 const readStat = gutil.promisify(fs.stat);
 const readFile = gutil.promisify(fs.readFile);
 
+/**
+ * @function loadModule
+ * @param {string} path
+ * @param {Object} options
+ */
 async function loadModule(path$$1, options) {
   let contents;
 
   try {
     contents = await readFile(path$$1);
   } catch (error) {
-    path$$1 = hideExt(path$$1, true);
+    path$$1 = addExt(path$$1);
   }
 
   contents = await readFile(path$$1);
@@ -243,6 +225,8 @@ async function loadModule(path$$1, options) {
 // import cssDeps from '@nuintun/css-deps';
 
 function parse(vinyl, options) {
+  const ext = vinyl.extname.toLowerCase();
+
   const parsed = cmdDeps(vinyl.contents, id => parseAlias(id, options.alias), {
     flags: options.js.flags,
     word: options.js.require,
@@ -261,6 +245,16 @@ function parse(vinyl, options) {
   return { dependencies, contents };
 }
 
+function concat(bundles) {
+  const files = [];
+
+  bundles.forEach(bundle => {
+    files.push(bundle.contents);
+  });
+
+  return Buffer.concat(files);
+}
+
 /**
  * @function bundler
  * @param {Vinyl} vinyl
@@ -268,37 +262,54 @@ function parse(vinyl, options) {
  * @returns {Vinyl}
  */
 async function bundler(vinyl, options) {
-  const bundles = await new Bundler({
-    input: vinyl.path,
-    resolve: (request, referer) => {
-      const root = options.root;
-      const base = options.base;
-      const css = /\.css$/i.test(referer);
+  let bundles;
 
-      // If path end with /, use index.js
-      if (!css && request.endsWith('/')) request += 'index.js';
+  // Read from cache
+  if (options.cache.has(vinyl.path)) {
+    bundles = options.cache.get(vinyl.path);
+  } else {
+    // Bundler
+    bundles = await new Bundler({
+      input: vinyl.path,
+      resolve: (request, referer) => {
+        const root = options.root;
+        const base = options.base;
+        const css = /\.css$/i.test(referer);
 
-      // Add ext
-      request = addExt(request);
+        // If path end with /, use index.js
+        if (!css && request.endsWith('/')) request += 'index.js';
 
-      // Resolve
-      return resolve(request, referer, css ? { root } : { root, base });
-    },
-    parse: async path$$1 => {
-      // Is entry file
-      if (vinyl.path === path$$1) {
-        return parse(vinyl, options);
-      } else {
-        try {
-          gutil.logger(await loadModule(path$$1, options));
-        } catch (error) {
-          gutil.logger.error(error);
+        // Add extname
+        if (!path.extname(request)) {
+          request = addExt(request);
         }
 
-        // return parse(vinyl, options);
+        // Resolve
+        request = resolve(request, referer, css ? { root } : { root, base });
+
+        return request;
+      },
+      parse: async path$$1 => {
+        // Is entry file
+        if (vinyl.path === path$$1) {
+          return parse(vinyl, options);
+        } else {
+          try {
+            return parse(await loadModule(path$$1, options), options);
+          } catch (error) {
+            gutil.logger.error(error);
+
+            return { dependencies: [], contents: gutil.buffer('') };
+          }
+        }
       }
-    }
-  });
+    });
+
+    // Add cache
+    options.cache.set(vinyl.path, bundles);
+  }
+
+  vinyl.contents = concat(bundles);
 
   return vinyl;
 }
@@ -312,22 +323,29 @@ async function bundler(vinyl, options) {
 function main(options) {
   options = initOptions(options);
 
-  return through(async function(vinyl, encoding, next) {
-    vinyl = gutil.VinylFile.wrap(vinyl);
-    vinyl.base = options.base;
+  return through(
+    async function(vinyl, encoding, next) {
+      vinyl = gutil.VinylFile.wrap(vinyl);
+      vinyl.base = options.base;
 
-    // Throw error if stream vinyl
-    if (vinyl.isStream()) {
-      return next(new TypeError('Streaming not supported.'));
+      // Throw error if stream vinyl
+      if (vinyl.isStream()) {
+        return next(new TypeError('Streaming not supported.'));
+      }
+
+      // Return empty vinyl
+      if (vinyl.isNull()) {
+        return next(null, vinyl);
+      }
+
+      next(null, await bundler(vinyl, options));
+    },
+    next => {
+      options.cache.clear();
+
+      next();
     }
-
-    // Return empty vinyl
-    if (vinyl.isNull()) {
-      return next(null, vinyl);
-    }
-
-    next(null, await bundler(vinyl, options));
-  });
+  );
 }
 
 module.exports = main;

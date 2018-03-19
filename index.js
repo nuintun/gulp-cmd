@@ -12,20 +12,27 @@ import gutil from '@nuintun/gulp-util';
 export default function main(options) {
   options = utils.initOptions(options);
 
-  return through(async function(vinyl, encoding, next) {
-    vinyl = gutil.VinylFile.wrap(vinyl);
-    vinyl.base = options.base;
+  return through(
+    async function(vinyl, encoding, next) {
+      vinyl = gutil.VinylFile.wrap(vinyl);
+      vinyl.base = options.base;
 
-    // Throw error if stream vinyl
-    if (vinyl.isStream()) {
-      return next(new TypeError('Streaming not supported.'));
+      // Throw error if stream vinyl
+      if (vinyl.isStream()) {
+        return next(new TypeError('Streaming not supported.'));
+      }
+
+      // Return empty vinyl
+      if (vinyl.isNull()) {
+        return next(null, vinyl);
+      }
+
+      next(null, await bundler(vinyl, options));
+    },
+    next => {
+      options.cache.clear();
+
+      next();
     }
-
-    // Return empty vinyl
-    if (vinyl.isNull()) {
-      return next(null, vinyl);
-    }
-
-    next(null, await bundler(vinyl, options));
-  });
+  );
 }
