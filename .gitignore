@@ -32,5 +32,5 @@ node_modules
 # npm lock
 package-lock.json
 
-# test
+# tests dist
 tests/dist
