@@ -34,3 +34,4 @@ package-lock.json
 
 # tests dist
 tests/dist
+tests/manifest.json
