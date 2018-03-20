@@ -9,8 +9,7 @@
 const gulp = require('gulp');
 const bunder = require('../dist/index');
 
-const root = process.cwd();
-const base = '/assets';
+const base = 'assets';
 const alias = {
   jquery: 'base/jquery/1.11.3/jquery',
   base: 'base/base/1.2.0/base',
@@ -44,6 +43,6 @@ const map = (path, resolved) => {
 gulp.task('default', function() {
   return gulp
     .src('assets/view/**/*.js', { base: 'assets' })
-    .pipe(bunder({ root, base, alias, map }))
+    .pipe(bunder({ base, alias }))
     .pipe(gulp.dest('dist'));
 });

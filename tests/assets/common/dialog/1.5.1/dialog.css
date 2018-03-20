@@ -1,3 +1,5 @@
+@import "base.css";
+
 @-webkit-keyframes dialogZoomIn {
   0% {
     opacity: 0;

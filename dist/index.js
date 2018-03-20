@@ -13,6 +13,7 @@ const fs = require('fs');
 const gutil = require('@nuintun/gulp-util');
 const path = require('path');
 const jsDeps = require('cmd-deps');
+const cssDeps = require('@nuintun/css-deps');
 const Bundler = require('@nuintun/bundler');
 const through = require('@nuintun/through');
 
@@ -77,6 +78,16 @@ function addExt(path$$1) {
 }
 
 /**
+ * @function hideExt
+ * @description Hide .js if exists
+ * @param {string} path
+ * @returns {string}
+ */
+function hideExt(path$$1) {
+  return path$$1.replace(/\.js$/i, '');
+}
+
+/**
  * @function initIgnore
  * @param {Object} options
  * @return {Object}
@@ -130,37 +141,32 @@ function initOptions(options) {
     options
   );
 
-  // Option root must be string
-  if (!gutil.isString(options.root)) {
-    throw new TypeError(`The options.root's value must be a string.`);
-  }
+  // Init root dir
+  gutil.readonly(options, 'root', path.resolve(gutil.isString(options.root) ? options.root : ''));
 
   // Option base must be string
   if (!gutil.isString(options.base)) {
     throw new TypeError(`The options.base's value must be a string.`);
   }
 
-  // Init root dir
-  gutil.readonly(options, 'root', path.resolve(options.root));
-
   // Init base dir
-  gutil.readonly(options, 'base', path.join(options.root, options.base));
+  gutil.readonly(options, 'base', path.resolve(options.root, options.base));
 
   // The base out of bounds of root
   if (gutil.isOutBounds(options.base, options.root)) {
     throw new TypeError('The options.base is out bounds of options.root.');
   }
 
+  // The base equal to root
+  if (options.base === options.root) {
+    throw new TypeError(`The options.base can't be equal to options.root.`);
+  }
+
   // Init plugins
   gutil.readonly(options, 'plugins', Array.isArray(options.plugins) ? options.plugins : []);
 
   // Init js settings
-  options.js = options.js || { require: 'require', flags: ['async'] };
-
-  // Init js require
-  if (!options.js.require) {
-    options.js.require = 'require';
-  }
+  options.js = options.js || { flags: ['async'] };
 
   // Init js flags
   if (!Array.isArray(options.js.flags)) {
@@ -169,6 +175,11 @@ function initOptions(options) {
 
   // Init css settings
   options.css = options.css || { onpath: null, loader: 'css-loader' };
+
+  // Init css onpath
+  if (options.css.onpath && !gutil.isFunction(options.css.onpath)) {
+    options.css.onpath = null;
+  }
 
   // Init css loader
   if (!options.css.loader || !gutil.isString(options.css.loader)) {
@@ -185,6 +196,61 @@ function initOptions(options) {
   gutil.readonly(options, 'cache', new Map());
 
   return options;
+}
+
+/**
+ * @function moduleId
+ * @description Parse module id form src
+ * @param {string} src
+ * @param {Object} base
+ * @returns {string|null}
+ */
+function moduleId(src, base) {
+  // Vinyl not in base dir, user root
+  if (gutil.isOutBounds(src, base)) {
+    const rpath = JSON.stringify(gutil.path2cwd(src));
+
+    // Output error
+    throw new RangeError(`Module ${rpath} is out of bounds of base.`);
+  }
+
+  const path$$1 = path.relative(base, src);
+
+  return gutil.normalize(path$$1);
+}
+
+/**
+ * @function resolveModuleId
+ * @param {Vinyl} vinyl
+ * @param {Object} options
+ * @returns {string}
+ */
+function resolveModuleId(vinyl, options) {
+  let id;
+  const path$$1 = vinyl.path;
+  const base = options.base;
+
+  try {
+    id = moduleId(path$$1, base, true);
+  } catch (error) {
+    // Output error message
+    gutil.logger.warn(gutil.chalk.yellow(error), '\x07');
+
+    // Return null
+    return null;
+  }
+
+  // Parse map
+  id = gutil.parseMap(id, path$$1, options.map);
+  id = gutil.normalize(id);
+  id = hideExt(id);
+
+  // Add ext
+  if (isCSSFile(id)) {
+    id = addExt(id);
+  }
+
+  return id;
 }
 
 const LINEFEED_RE = /[\r\n]+/g;
@@ -277,38 +343,15 @@ function isCSSFile(path$$1) {
  */
 
 /**
- * @function resolveModuleId
- * @param {Vinyl} vinyl
- * @param {Object} options
- * @returns {string}
- */
-function resolveModuleId(vinyl, options) {
-  const root = options.root;
-  const base = options.base;
-  let id = gutil.moduleId(vinyl, root, base);
-
-  // Parse map
-  id = gutil.parseMap(id, vinyl.path, options.map);
-  id = gutil.normalize(id);
-
-  // Add ext
-  if (isCSSFile(id)) {
-    id = addExt(id);
-  }
-
-  return id;
-}
-
-/**
  * @function jsPackager
  * @param {Vinyl} vinyl
  * @param {Object} options
  */
 function jsPackager(vinyl, options) {
   const deps = new Set();
-  const referer = vinyl.path;
   const root = options.root;
   const base = options.base;
+  const referer = vinyl.path;
   const dependencies = new Set();
 
   // Parse module
@@ -349,8 +392,18 @@ function jsPackager(vinyl, options) {
 
               // Output warn message
               gutil.logger.warn(
-                gutil.chalk.yellow(`Module ${JSON.stringify(dependency)} at ${rpath} can't be found.\x07`)
+                gutil.chalk.yellow(`Module ${JSON.stringify(dependency)} at ${rpath} can't be found.`),
+                '\x07'
               );
+            }
+          }
+
+          // Convert absolute path to relative base path
+          if (gutil.isAbsolute(dependency) && dependencies.has(resolved)) {
+            try {
+              dependency = moduleId(resolved, base);
+            } catch (error) {
+              // Out of bounds of base
             }
           }
         }
@@ -382,9 +435,120 @@ function jsPackager(vinyl, options) {
   // Resolve module id
   const id = resolveModuleId(vinyl, options);
   // Get contents
-  const contents = wrapModule(id, deps, meta.code, options);
+  const contents = id ? wrapModule(id, deps, meta.code, options) : vinyl.contents;
   // Rewrite path
-  const path$$1 = !/\.js/i.test(referer) ? addExt(referer) : referer;
+  const path$$1 = referer;
+
+  return { path: path$$1, dependencies, contents };
+}
+
+/**
+ * @module css
+ * @license MIT
+ * @version 2018/03/19
+ */
+
+function cssPackager(vinyl, options) {
+  const root = options.root;
+  const referer = vinyl.path;
+  const dependencies = new Set();
+  const deps = new Set(['css-loader']);
+  let requires = `var loader = require("css-loader");\n\n`;
+
+  /**
+   * @function onpath
+   * @param {string} value
+   * @param {string} prop
+   */
+  const onpath = (prop, value) => {
+    if (options.onpath) {
+      options.onpath(prop, value, referer);
+    }
+  };
+
+  const meta = cssDeps(
+    vinyl.contents,
+    (dependency, media) => {
+      if (gutil.isLocal(dependency)) {
+        if (media.length) {
+          // Relative file path from cwd
+          const rpath = JSON.stringify(gutil.path2cwd(referer));
+
+          // Get media
+          media = JSON.stringify(media.join(', '));
+
+          // Output warn message
+          gutil.logger.warn(
+            gutil.chalk.yellow(`Found import media queries ${media} at ${rpath}, unsupported.`),
+            '\x07'
+          );
+        }
+
+        // Resolve dependency
+        let resolved = resolve(dependency, referer, { root });
+
+        // Module can read
+        if (fsSafeAccess(resolved)) {
+          dependencies.add(resolved);
+        } else {
+          // Relative file path from cwd
+          const rpath = JSON.stringify(gutil.path2cwd(referer));
+
+          // Output warn message
+          gutil.logger.warn(
+            gutil.chalk.yellow(`Module ${JSON.stringify(dependency)} at ${rpath} can't be found.`),
+            '\x07'
+          );
+        }
+
+        // Convert absolute path to relative base path
+        if (gutil.isAbsolute(dependency)) {
+          if (dependencies.has(resolved)) {
+            try {
+              dependency = moduleId(resolved, base);
+            } catch (error) {
+              // Out of bounds of base
+            }
+          }
+        } else if (!gutil.isRelative(dependency)) {
+          dependency = `./${dependency}`;
+        }
+
+        dependency = gutil.parseMap(dependency, resolved, options.map);
+        dependency = gutil.normalize(dependency);
+        // The seajs has hacked css before 3.0.0
+        // https://github.com/seajs/seajs/blob/2.2.1/src/util-path.js#L49
+        // Demo https://github.com/popomore/seajs-test/tree/master/css-deps
+        dependency = addExt(dependency);
+
+        // Add dependency
+        deps.add(dependency);
+
+        requires += `require(${JSON.stringify(dependency)});\n`;
+      } else {
+        // Relative file path from cwd
+        const rpath = JSON.stringify(gutil.path2cwd(referer));
+
+        // Output warn message
+        gutil.logger.warn(
+          gutil.chalk.yellow(`Found remote css file ${JSON.stringify(dependency)} at ${rpath}, unsupported.`),
+          '\x07'
+        );
+      }
+
+      return false;
+    },
+    { onpath, media: true }
+  );
+
+  if (deps.size > 1) {
+    requires += '\n';
+  }
+
+  const id = resolveModuleId(vinyl, options);
+  const code = `${requires}loader(${JSON.stringify(meta.code)});`;
+  const contents = id ? wrapModule(id, deps, code, options) : vinyl.contents;
+  const path$$1 = addExt(referer);
 
   return { path: path$$1, dependencies, contents };
 }
@@ -395,6 +559,11 @@ function jsPackager(vinyl, options) {
  * @version 2018/03/19
  */
 
+const packagers = /*#__PURE__*/(Object.freeze || Object)({
+  js: jsPackager,
+  css: cssPackager
+});
+
 /**
  * @module bundler
  * @license MIT
@@ -402,7 +571,14 @@ function jsPackager(vinyl, options) {
  */
 
 function parse(vinyl, options) {
-  const meta = jsPackager(vinyl, options);
+  const ext = vinyl.extname.slice(1);
+  const packager = packagers[ext.toLowerCase()];
+
+  if (!packager) {
+    return { dependencies: new Set(), contents: vinyl.contents };
+  }
+
+  const meta = packager(vinyl, options);
   const contents = meta.contents;
   const dependencies = meta.dependencies;
 
