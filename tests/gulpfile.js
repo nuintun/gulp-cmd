@@ -6,8 +6,11 @@
 
 'use strict';
 
+const fs = require('fs');
 const gulp = require('gulp');
 const bunder = require('../dist/index');
+const relative = require('path').relative;
+const through = require('@nuintun/through');
 
 const base = 'assets';
 const alias = {
@@ -27,6 +30,7 @@ const alias = {
 };
 
 let uid = 0;
+const combine = true;
 const files = new Map();
 const map = (path, resolved) => {
   if (files.has(resolved)) {
@@ -40,9 +44,40 @@ const map = (path, resolved) => {
   return path;
 };
 
-gulp.task('default', function() {
+/**
+ * @function build
+ */
+function build() {
   return gulp
     .src('assets/view/**/*.js', { base: 'assets' })
-    .pipe(bunder({ base, alias }))
+    .pipe(
+      through((vinyl, enc, next) => {
+        bunder.logger('Building', bunder.chalk.green(vinyl.relative.replace(/[\\/]/g, '/')));
+        next(null, vinyl);
+      })
+    )
+    .pipe(bunder({ base, alias, map, combine }))
+    .pipe(
+      through(
+        (vinyl, enc, next) => {
+          next(null, vinyl);
+        },
+        next => {
+          const json = {};
+
+          files.forEach((value, key) => {
+            json[relative(base, key).replace(/[\\/]/g, '/')] = value;
+          });
+
+          fs.writeFile('manifest.json', JSON.stringify(json, null, 2), error => {
+            bunder.logger('Building', bunder.chalk.green('manifest.json'));
+            next();
+          });
+        }
+      )
+    )
     .pipe(gulp.dest('dist'));
-});
+}
+
+// Register task
+gulp.task('default', build);

@@ -36,3 +36,7 @@ export default function main(options) {
     }
   );
 }
+
+// Exports
+main.chalk = gutil.chalk;
+main.logger = gutil.logger;

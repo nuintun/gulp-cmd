@@ -208,14 +208,17 @@ function initOptions(options) {
 function moduleId(src, base) {
   // Vinyl not in base dir, user root
   if (gutil.isOutBounds(src, base)) {
+    // Relative file path from cwd
     const rpath = JSON.stringify(gutil.path2cwd(src));
 
     // Output error
     throw new RangeError(`Module ${rpath} is out of bounds of base.`);
   }
 
+  // Relative path from base
   const path$$1 = path.relative(base, src);
 
+  // Return normalized path
   return gutil.normalize(path$$1);
 }
 
@@ -346,6 +349,7 @@ function isCSSFile(path$$1) {
  * @function jsPackager
  * @param {Vinyl} vinyl
  * @param {Object} options
+ * @returns {Object}
  */
 function jsPackager(vinyl, options) {
   const deps = new Set();
@@ -390,7 +394,7 @@ function jsPackager(vinyl, options) {
               // Relative referer from cwd
               const rpath = JSON.stringify(gutil.path2cwd(referer));
 
-              // Output warn message
+              // Output warn
               gutil.logger.warn(
                 gutil.chalk.yellow(`Module ${JSON.stringify(dependency)} at ${rpath} can't be found.`),
                 '\x07'
@@ -448,6 +452,12 @@ function jsPackager(vinyl, options) {
  * @version 2018/03/19
  */
 
+/**
+ * @function cssPackager
+ * @param {Vinyl} vinyl
+ * @param {Object} options
+ * @returns {Object}
+ */
 function cssPackager(vinyl, options) {
   const root = options.root;
   const referer = vinyl.path;
@@ -477,7 +487,7 @@ function cssPackager(vinyl, options) {
           // Get media
           media = JSON.stringify(media.join(', '));
 
-          // Output warn message
+          // Output warn
           gutil.logger.warn(
             gutil.chalk.yellow(`Found import media queries ${media} at ${rpath}, unsupported.`),
             '\x07'
@@ -494,7 +504,7 @@ function cssPackager(vinyl, options) {
           // Relative file path from cwd
           const rpath = JSON.stringify(gutil.path2cwd(referer));
 
-          // Output warn message
+          // Output warn
           gutil.logger.warn(
             gutil.chalk.yellow(`Module ${JSON.stringify(dependency)} at ${rpath} can't be found.`),
             '\x07'
@@ -529,7 +539,7 @@ function cssPackager(vinyl, options) {
         // Relative file path from cwd
         const rpath = JSON.stringify(gutil.path2cwd(referer));
 
-        // Output warn message
+        // Output warn
         gutil.logger.warn(
           gutil.chalk.yellow(`Found remote css file ${JSON.stringify(dependency)} at ${rpath}, unsupported.`),
           '\x07'
@@ -554,14 +564,65 @@ function cssPackager(vinyl, options) {
 }
 
 /**
+ * @module json
+ * @license MIT
+ * @version 2018/03/20
+ */
+
+/**
+ * @function jsonPackager
+ * @param {Vinyl} vinyl
+ * @param {Object} options
+ * @returns {Object}
+ */
+function jsonPackager(vinyl, options) {
+  const root = options.root;
+  const referer = vinyl.path;
+  const dependencies = new Set();
+  const id = resolveModuleId(vinyl, options);
+  const code = `module.exports = ${vinyl.contents.toString()};`;
+  const contents = id ? wrapModule(id, dependencies, code, options) : vinyl.contents;
+  const path$$1 = addExt(referer);
+
+  return { path: path$$1, dependencies, contents };
+}
+
+/**
+ * @module html
+ * @license MIT
+ * @version 2018/03/20
+ */
+
+/**
+ * @function htmlPackager
+ * @param {Vinyl} vinyl
+ * @param {Object} options
+ * @returns {Object}
+ */
+function htmlPackager(vinyl, options) {
+  const root = options.root;
+  const referer = vinyl.path;
+  const dependencies = new Set();
+  const id = resolveModuleId(vinyl, options);
+  const code = `module.exports = ${JSON.stringify(vinyl.contents.toString())};`;
+  const contents = id ? wrapModule(id, dependencies, code, options) : vinyl.contents;
+  const path$$1 = addExt(referer);
+
+  return { path: path$$1, dependencies, contents };
+}
+
+/**
  * @module index
  * @license MIT
  * @version 2018/03/19
  */
 
 const packagers = /*#__PURE__*/(Object.freeze || Object)({
+  html: htmlPackager,
+  tpl: htmlPackager,
   js: jsPackager,
-  css: cssPackager
+  css: cssPackager,
+  json: jsonPackager
 });
 
 /**
@@ -570,6 +631,11 @@ const packagers = /*#__PURE__*/(Object.freeze || Object)({
  * @version 2018/03/16
  */
 
+/**
+ * @function parse
+ * @param {Vinyl} vinyl
+ * @param {Object} options
+ */
 function parse(vinyl, options) {
   const ext = vinyl.extname.slice(1);
   const packager = packagers[ext.toLowerCase()];
@@ -635,6 +701,10 @@ async function bundler(vinyl, options) {
       // Set cache
       cache.set(path$$1, meta);
 
+      if (!options.combine) {
+        meta.dependencies = new Set();
+      }
+
       // Return meta
       return meta;
     }
@@ -679,5 +749,9 @@ function main(options) {
     }
   );
 }
+
+// Exports
+main.chalk = gutil.chalk;
+main.logger = gutil.logger;
 
 module.exports = main;
