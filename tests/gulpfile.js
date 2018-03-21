@@ -29,10 +29,19 @@ const alias = {
   confirmbox: 'common/dialog/1.5.1/confirmbox'
 };
 
+const ARGV = process.argv.slice(2);
+
+function hasArgv(argv) {
+  return ARGV.includes(argv);
+}
+
 let uid = 0;
-const combine = true;
 const files = new Map();
+const useMap = hasArgv('--map');
+const combine = hasArgv('--combine');
 const map = (path, resolved) => {
+  if (!useMap) return path;
+
   if (files.has(resolved)) {
     return files.get(resolved);
   }

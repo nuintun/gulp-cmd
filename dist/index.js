@@ -68,6 +68,24 @@ function parseAlias(id, alias) {
 }
 
 /**
+ * @function isJSFile
+ * @param {string} path
+ * @returns {boolean}
+ */
+function isJSFile(path$$1) {
+  return /[^\\/]+\.js$/i.test(path$$1);
+}
+
+/**
+ * @function isCSSFile
+ * @param {string} path
+ * @returns {boolean}
+ */
+function isCSSFile(path$$1) {
+  return /[^\\/]+\.css$/i.test(path$$1);
+}
+
+/**
  * @function addExt
  * @description Add .js if not exists
  * @param {string} path
@@ -116,12 +134,45 @@ function initIgnore(options) {
   return ignore;
 }
 
-function initLoader(id, loader, options) {
-  const rpath = require.resolve(`./builtins/loaders/${loader}`);
+/**
+ *
+ * @param {string} id
+ * @param {string} ext
+ * @param {Object} options
+ * @returns {Vinyl}
+ */
+function initLoader(id, ext, options) {
+  // Assert id
+  if (!id || !gutil.isString(id)) {
+    throw new TypeError(`The options.${ext}.loader must be a nonempty string.`);
+  }
+
+  // Starts with \ or /
+  if (/^[\\/]/.test(id)) {
+    throw new TypeError(`The options.${ext}.loader must be a string not starts with "\\" or "/".`);
+  }
+
+  // Resolve path
+  const path$$1 = path.join(options.base, isJSFile(id) ? id : addExt(id));
+
+  // Parse map
+  id = gutil.parseMap(id, path$$1, options.map);
+  id = gutil.normalize(id);
+  id = hideExt(id);
+
+  // Get real path
+  const rpath = require.resolve(`./builtins/loaders/${ext}`);
   // Read module
+  const dependencies = new Set();
   const stat = fs.statSync(rpath);
-  const contents = fs.readFileSync(rpath);
-  const path$$1 = /\.js$/i.test(id) ? id : addExt(path.join(options.base, id));
+  const contents = wrapModule(id, dependencies, fs.readFileSync(rpath), options);
+
+  if (options.combine) {
+    options.cache.set(path$$1, { dependencies, contents });
+  }
+
+  // Rewrite value
+  options[ext].loader = { id, path: path$$1 };
 
   // Return a vinyl file
   return new gutil.VinylFile({
@@ -195,11 +246,6 @@ function initOptions(options) {
   // Init css onpath
   if (options.css.onpath && !gutil.isFunction(options.css.onpath)) {
     options.css.onpath = null;
-  }
-
-  // Init css loader
-  if (!options.css.loader || !gutil.isString(options.css.loader)) {
-    throw new TypeError('The options.css.loader must be a nonempty string.');
   }
 
   // Init ignore
@@ -348,14 +394,6 @@ async function loadModule(path$$1, options) {
 }
 
 /**
- * @function isCSSFile
- * @param {string} path
- */
-function isCSSFile(path$$1) {
-  return /\.css$/i.test(path$$1);
-}
-
-/**
  * @module js
  * @license MIT
  * @version 2018/03/19
@@ -477,10 +515,10 @@ function jsPackager(vinyl, options) {
 function cssPackager(vinyl, options) {
   const root = options.root;
   const referer = vinyl.path;
-  const dependencies = new Set();
-  const deps = new Set(['css-loader']);
-  let requires = `var loader = require("css-loader");\n\n`;
-
+  const loader = options.css.loader;
+  const deps = new Set([loader.id]);
+  const dependencies = new Set([loader.path]);
+  let requires = `var loader = require(${JSON.stringify(loader.id)});\n\n`;
   /**
    * @function onpath
    * @param {string} value
@@ -744,12 +782,19 @@ async function bundler(vinyl, options) {
 function main(options) {
   options = initOptions(options);
 
+  const loaders = new Set();
   const cache = options.cache;
+  const ignore = options.ignore;
+  const combine = options.combine;
 
-  bundler(initLoader('css-loader', 'css', options), options).then(vinyl => {
-    console.log(vinyl.contents.toString());
+  // Init loaders
+  ['css'].forEach(ext => {
+    const id = options[ext].loader;
+
+    loaders.add(initLoader(id, ext, options));
   });
 
+  // Stream
   return through(
     async function(vinyl, encoding, next) {
       vinyl = gutil.VinylFile.wrap(vinyl);
@@ -765,11 +810,21 @@ function main(options) {
         return next(null, vinyl);
       }
 
+      // Next
       next(null, await bundler(vinyl, options));
     },
-    next => {
+    function(next) {
+      // Add loader to stream
+      loaders.forEach(loader => {
+        if (!combine || ignore.has(loader.path)) {
+          this.push(loader);
+        }
+      });
+
+      // Clear cache
       cache.clear();
 
+      // Next
       next();
     }
   );

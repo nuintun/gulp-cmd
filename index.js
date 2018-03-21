@@ -12,12 +12,19 @@ import gutil from '@nuintun/gulp-util';
 export default function main(options) {
   options = utils.initOptions(options);
 
+  const loaders = new Set();
   const cache = options.cache;
+  const ignore = options.ignore;
+  const combine = options.combine;
 
-  bundler(utils.initLoader('css-loader', 'css', options), options).then(vinyl => {
-    console.log(vinyl.contents.toString());
+  // Init loaders
+  ['css'].forEach(ext => {
+    const id = options[ext].loader;
+
+    loaders.add(utils.initLoader(id, ext, options));
   });
 
+  // Stream
   return through(
     async function(vinyl, encoding, next) {
       vinyl = gutil.VinylFile.wrap(vinyl);
@@ -33,11 +40,21 @@ export default function main(options) {
         return next(null, vinyl);
       }
 
+      // Next
       next(null, await bundler(vinyl, options));
     },
-    next => {
+    function(next) {
+      // Add loader to stream
+      loaders.forEach(loader => {
+        if (!combine || ignore.has(loader.path)) {
+          this.push(loader);
+        }
+      });
+
+      // Clear cache
       cache.clear();
 
+      // Next
       next();
     }
   );
