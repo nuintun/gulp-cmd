@@ -8,7 +8,7 @@
 
 const fs = require('fs');
 const gulp = require('gulp');
-const bunder = require('../dist/index');
+const bundler = require('../dist/index');
 const relative = require('path').relative;
 const through = require('@nuintun/through');
 
@@ -57,6 +57,18 @@ const map = (path, resolved) => {
   return path;
 };
 
+const plugins = [
+  {
+    name: 'Adam',
+    transform(path, contents, options) {
+      return contents;
+    },
+    bundle(path, contents, options) {
+      return contents;
+    }
+  }
+];
+
 /**
  * @function build
  */
@@ -65,11 +77,11 @@ function build() {
     .src('assets/view/**/*.js', { base: 'assets' })
     .pipe(
       through((vinyl, enc, next) => {
-        bunder.logger('Building', bunder.chalk.green(vinyl.relative.replace(/[\\/]/g, '/')));
+        bundler.logger('Building', bundler.chalk.green(vinyl.relative.replace(/[\\/]/g, '/')));
         next(null, vinyl);
       })
     )
-    .pipe(bunder({ base, alias, map, combine }))
+    .pipe(bundler({ base, alias, map, combine, plugins }))
     .pipe(
       through(
         (vinyl, enc, next) => {
@@ -83,7 +95,7 @@ function build() {
           });
 
           fs.writeFile('manifest.json', JSON.stringify(json, null, 2), error => {
-            bunder.logger('Building', bunder.chalk.green('manifest.json'));
+            bundler.logger('Building', bundler.chalk.green('manifest.json'));
             next();
           });
         }

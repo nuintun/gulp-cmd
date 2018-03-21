@@ -735,7 +735,10 @@ function combine(bundles) {
  */
 async function bundler(vinyl, options) {
   const input = vinyl.path;
+  const root = options.root;
+  const base = options.base;
   const cache = options.cache;
+  const plugins = options.plugins;
   const cacheable = options.combine;
 
   // Bundler
@@ -751,20 +754,22 @@ async function bundler(vinyl, options) {
       if (cacheable && cache.has(path$$1)) {
         meta = cache.get(path$$1);
       } else {
-        const module = isEntryFile ? vinyl : await loadModule(path$$1, options);
+        const file = isEntryFile ? vinyl : await loadModule(path$$1, options);
 
-        meta = parse(module, options);
+        // Execute transform hook
+        file.contents = await gutil.pipeline(plugins, 'transform', file.path, file.contents, { root, base });
+
+        // Execute parse
+        meta = parse(file, options);
+
+        // Execute bundle hook
+        meta.contents = await gutil.pipeline(plugins, 'bundle', meta.path, meta.contents, { root, base });
       }
 
       // Set cache if combine is true
-      if (cacheable) {
-        cache.set(path$$1, meta);
-      }
-
-      // If is entry file rewrite file path
-      if (isEntryFile) {
-        vinyl.path = meta.path;
-      }
+      if (cacheable) cache.set(path$$1, meta);
+      // If is entry file override file path
+      if (isEntryFile) vinyl.path = meta.path;
 
       // Get dependencies and contents
       const dependencies = meta.dependencies;
