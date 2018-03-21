@@ -6,6 +6,7 @@
 
 'use strict';
 
+const fs = require('fs-extra');
 const rollup = require('rollup');
 const pkg = require('./package.json');
 
@@ -18,8 +19,9 @@ async function build(inputOptions, outputOptions) {
   const bundle = await rollup.rollup(inputOptions);
 
   await bundle.write(outputOptions);
-
   console.log(`Build ${outputOptions.file} success!`);
+  await fs.copy('lib/builtins/loaders', 'dist/builtins/loaders');
+  console.log(`Build dist/builtins/loaders success!`);
 }
 
 const banner = `/**

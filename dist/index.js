@@ -116,6 +116,22 @@ function initIgnore(options) {
   return ignore;
 }
 
+function initLoader(id, loader, options) {
+  const rpath = require.resolve(`./builtins/loaders/${loader}`);
+  // Read module
+  const stat = fs.statSync(rpath);
+  const contents = fs.readFileSync(rpath);
+  const path$$1 = /\.js$/i.test(id) ? id : addExt(path.join(options.base, id));
+
+  // Return a vinyl file
+  return new gutil.VinylFile({
+    path: path$$1,
+    stat,
+    contents,
+    base: options.base
+  });
+}
+
 /**
  * @function initOptions
  * @param {Object} options
@@ -551,9 +567,7 @@ function cssPackager(vinyl, options) {
     { onpath, media: true }
   );
 
-  if (deps.size > 1) {
-    requires += '\n';
-  }
+  if (deps.size > 1) requires += '\n';
 
   const id = resolveModuleId(vinyl, options);
   const code = `${requires}loader(${JSON.stringify(meta.code)});`;
@@ -635,23 +649,28 @@ const packagers = /*#__PURE__*/(Object.freeze || Object)({
  * @function parse
  * @param {Vinyl} vinyl
  * @param {Object} options
+ * @returns {Object}
  */
 function parse(vinyl, options) {
   const ext = vinyl.extname.slice(1);
   const packager = packagers[ext.toLowerCase()];
 
-  if (!packager) {
-    return { dependencies: new Set(), contents: vinyl.contents };
+  if (packager) {
+    const meta = packager(vinyl, options);
+    const dependencies = meta.dependencies;
+    const contents = meta.contents;
+    const path$$1 = meta.path;
+
+    // Rewrite path
+    vinyl.path = meta.path;
+
+    return { dependencies, contents };
   }
 
-  const meta = packager(vinyl, options);
-  const contents = meta.contents;
-  const dependencies = meta.dependencies;
-
-  // Rewrite path
-  vinyl.path = meta.path;
-
-  return { dependencies, contents };
+  return {
+    dependencies: new Set(),
+    contents: vinyl.contents
+  };
 }
 
 /**
@@ -660,13 +679,15 @@ function parse(vinyl, options) {
  * @returns {Buffer}
  */
 function combine(bundles) {
-  const files = [];
+  const contents = [];
 
+  // Traverse bundles
   bundles.forEach(bundle => {
-    files.push(bundle.contents);
+    contents.push(bundle.contents);
   });
 
-  return Buffer.concat(files);
+  // Concat contents
+  return Buffer.concat(contents);
 }
 
 /**
@@ -676,32 +697,28 @@ function combine(bundles) {
  * @returns {Vinyl}
  */
 async function bundler(vinyl, options) {
+  const input = vinyl.path;
   const cache = options.cache;
+  const cacheable = options.combine;
 
   // Bundler
   const bundles = await new Bundler({
-    input: vinyl.path,
+    input,
     resolve: path$$1 => path$$1,
     parse: async path$$1 => {
       // Hit cache
-      if (cache.has(path$$1)) {
+      if (cacheable && cache.has(path$$1)) {
         return cache.get(path$$1);
       }
 
-      // Meta
-      let meta;
+      // Parse file
+      const meta = parse(input === path$$1 ? vinyl : await loadModule(path$$1, options), options);
 
-      // Is entry file
-      if (vinyl.path === path$$1) {
-        meta = parse(vinyl, options);
+      // Set cache if combine is true
+      if (cacheable) {
+        cache.set(path$$1, meta);
       } else {
-        meta = parse(await loadModule(path$$1, options), options);
-      }
-
-      // Set cache
-      cache.set(path$$1, meta);
-
-      if (!options.combine) {
+        // If combine is false rest dependencies empty
         meta.dependencies = new Set();
       }
 
@@ -709,6 +726,8 @@ async function bundler(vinyl, options) {
       return meta;
     }
   });
+
+  // console.log(bundles);
 
   // Combine files
   vinyl.contents = combine(bundles);
@@ -724,6 +743,12 @@ async function bundler(vinyl, options) {
 
 function main(options) {
   options = initOptions(options);
+
+  const cache = options.cache;
+
+  bundler(initLoader('css-loader', 'css', options), options).then(vinyl => {
+    console.log(vinyl.contents.toString());
+  });
 
   return through(
     async function(vinyl, encoding, next) {
@@ -743,7 +768,7 @@ function main(options) {
       next(null, await bundler(vinyl, options));
     },
     next => {
-      options.cache.clear();
+      cache.clear();
 
       next();
     }

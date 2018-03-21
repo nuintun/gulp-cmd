@@ -30,7 +30,8 @@
   },
   "devDependencies": {
     "gulp": "next",
-    "rollup": "^0.57.1"
+    "rollup": "^0.57.1",
+    "fs-extra": "^5.0.0"
   },
   "readmeFilename": "README.md"
 }

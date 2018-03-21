@@ -12,6 +12,12 @@ import gutil from '@nuintun/gulp-util';
 export default function main(options) {
   options = utils.initOptions(options);
 
+  const cache = options.cache;
+
+  bundler(utils.initLoader('css-loader', 'css', options), options).then(vinyl => {
+    console.log(vinyl.contents.toString());
+  });
+
   return through(
     async function(vinyl, encoding, next) {
       vinyl = gutil.VinylFile.wrap(vinyl);
@@ -30,7 +36,7 @@ export default function main(options) {
       next(null, await bundler(vinyl, options));
     },
     next => {
-      options.cache.clear();
+      cache.clear();
 
       next();
     }
