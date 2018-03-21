@@ -7,7 +7,7 @@
 import bundler from './lib/bundler';
 import * as utils from './lib/utils';
 import through from '@nuintun/through';
-import gutil from '@nuintun/gulp-util';
+import * as gutil from '@nuintun/gulp-util';
 
 export default function main(options) {
   options = utils.initOptions(options);
@@ -15,7 +15,7 @@ export default function main(options) {
   const loaders = new Set();
   const cache = options.cache;
   const ignore = options.ignore;
-  const combine = options.combine;
+  const cacheable = options.combine;
 
   // Init loaders
   ['css'].forEach(ext => {
@@ -41,12 +41,16 @@ export default function main(options) {
       }
 
       // Next
-      next(null, await bundler(vinyl, options));
+      try {
+        next(null, await bundler(vinyl, options));
+      } catch (error) {
+        next(error);
+      }
     },
     function(next) {
       // Add loader to stream
       loaders.forEach(loader => {
-        if (!combine || ignore.has(loader.path)) {
+        if (!cacheable || ignore.has(loader.path)) {
           this.push(loader);
         }
       });

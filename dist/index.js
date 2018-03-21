@@ -694,18 +694,17 @@ function parse(vinyl, options) {
   const packager = packagers[ext.toLowerCase()];
 
   if (packager) {
+    const cacheable = options.combine;
     const meta = packager(vinyl, options);
-    const dependencies = meta.dependencies;
+    const dependencies = cacheable ? meta.dependencies : new Set();
     const contents = meta.contents;
     const path$$1 = meta.path;
 
-    // Rewrite path
-    vinyl.path = meta.path;
-
-    return { dependencies, contents };
+    return { path: path$$1, dependencies, contents };
   }
 
   return {
+    path: vinyl.path,
     dependencies: new Set(),
     contents: vinyl.contents
   };
@@ -744,28 +743,37 @@ async function bundler(vinyl, options) {
     input,
     resolve: path$$1 => path$$1,
     parse: async path$$1 => {
+      let meta;
+      // Is entry file
+      const isEntryFile = input === path$$1;
+
       // Hit cache
       if (cacheable && cache.has(path$$1)) {
-        return cache.get(path$$1);
-      }
+        meta = cache.get(path$$1);
+      } else {
+        const module = isEntryFile ? vinyl : await loadModule(path$$1, options);
 
-      // Parse file
-      const meta = parse(input === path$$1 ? vinyl : await loadModule(path$$1, options), options);
+        meta = parse(module, options);
+      }
 
       // Set cache if combine is true
       if (cacheable) {
         cache.set(path$$1, meta);
-      } else {
-        // If combine is false rest dependencies empty
-        meta.dependencies = new Set();
       }
 
+      // If is entry file rewrite file path
+      if (isEntryFile) {
+        vinyl.path = meta.path;
+      }
+
+      // Get dependencies and contents
+      const dependencies = meta.dependencies;
+      const contents = meta.contents;
+
       // Return meta
-      return meta;
+      return { dependencies, contents };
     }
   });
-
-  // console.log(bundles);
 
   // Combine files
   vinyl.contents = combine(bundles);
@@ -785,7 +793,7 @@ function main(options) {
   const loaders = new Set();
   const cache = options.cache;
   const ignore = options.ignore;
-  const combine = options.combine;
+  const cacheable = options.combine;
 
   // Init loaders
   ['css'].forEach(ext => {
@@ -811,12 +819,16 @@ function main(options) {
       }
 
       // Next
-      next(null, await bundler(vinyl, options));
+      try {
+        next(null, await bundler(vinyl, options));
+      } catch (error) {
+        next(error);
+      }
     },
     function(next) {
       // Add loader to stream
       loaders.forEach(loader => {
-        if (!combine || ignore.has(loader.path)) {
+        if (!cacheable || ignore.has(loader.path)) {
           this.push(loader);
         }
       });
