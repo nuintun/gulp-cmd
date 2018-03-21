@@ -31,6 +31,10 @@ const alias = {
 
 const ARGV = process.argv.slice(2);
 
+/**
+ * @function hasArgv
+ * @param {string} argv
+ */
 function hasArgv(argv) {
   return ARGV.includes(argv);
 }
