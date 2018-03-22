@@ -23,9 +23,6 @@ const through = require('@nuintun/through');
  * @version 2017/11/13
  */
 
-// Debug
-const debug = gutil.debug('gulp-cmd');
-
 /**
  * @function resolve
  * @description Resolve a request path
@@ -64,16 +61,7 @@ function resolve(request, referer, options) {
  * @returns {string}
  */
 function parseAlias(id, alias) {
-  return alias && gutil.isString(alias[id]) ? alias[id] : id;
-}
-
-/**
- * @function isJSFile
- * @param {string} path
- * @returns {boolean}
- */
-function isJSFile(path$$1) {
-  return /[^\\/]+\.js$/i.test(path$$1);
+  return alias && gutil.typpy(alias[id], String) ? alias[id] : id;
 }
 
 /**
@@ -135,127 +123,69 @@ function initIgnore(options) {
 }
 
 /**
- *
- * @param {string} id
- * @param {string} ext
- * @param {Object} options
- * @returns {Vinyl}
- */
-function initLoader(id, ext, options) {
-  // Assert id
-  if (!id || !gutil.isString(id)) {
-    throw new TypeError(`The options.${ext}.loader must be a nonempty string.`);
-  }
-
-  // Starts with \ or /
-  if (/^[\\/]/.test(id)) {
-    throw new TypeError(`The options.${ext}.loader must be a string not starts with "\\" or "/".`);
-  }
-
-  // Resolve path
-  const path$$1 = path.join(options.base, isJSFile(id) ? id : addExt(id));
-
-  // Parse map
-  id = gutil.parseMap(id, path$$1, options.map);
-  id = gutil.normalize(id);
-  id = hideExt(id);
-
-  // Get real path
-  const rpath = require.resolve(`./builtins/loaders/${ext}`);
-  // Read module
-  const dependencies = new Set();
-  const stat = fs.statSync(rpath);
-  const contents = wrapModule(id, dependencies, fs.readFileSync(rpath), options);
-
-  if (options.combine) {
-    options.cache.set(path$$1, { dependencies, contents });
-  }
-
-  // Rewrite value
-  options[ext].loader = { id, path: path$$1 };
-
-  // Return a vinyl file
-  return new gutil.VinylFile({
-    path: path$$1,
-    stat,
-    contents,
-    base: options.base
-  });
-}
-
-/**
  * @function initOptions
  * @param {Object} options
  * @returns {Object}
  */
 function initOptions(options) {
-  // Mix options
-  options = gutil.extend(
-    true,
-    {
-      root: '', // Web root
-      base: '', // Base dir
-      alias: {}, // Alias
-      map: [], // Module map
-      plugins: [], // Plugins
-      indent: 2, // Code indent
-      strict: true, // Use strict mode
-      combine: false, // Combine all modules
-      ignore: [], // Ignore module lists when combine is true
-      js: { flags: ['async'] }, // JavaScript parser option { flags: ['async'] }
-      css: { onpath: null, loader: 'css-loader' } // CSS parser option { onpath: null, loader: null }
+  options = gutil.attrs(options, {
+    root: {
+      type: String,
+      default: process.cwd()
     },
-    options
-  );
+    base: {
+      required: true,
+      type: String,
+      onRequired: 'Options.%s is required.',
+      onTypeError: 'Options.%s must be a string.'
+    },
+    js: { type: Object, default: {} },
+    css: { type: Object, default: {} },
+    alias: { type: Object, default: {} },
+    indent: { type: Number, default: 2 },
+    ignore: { type: Array, default: [] },
+    plugins: { type: Array, default: [] },
+    strict: { type: Boolean, default: true },
+    combine: { type: Boolean, default: true },
+    map: { type: [null, Function], default: null },
+    'js.flags': { type: Array, default: ['async'] },
+    'css.loader': { type: String, default: 'css-loader' },
+    'css.onpath': { type: [null, Function], default: null }
+  });
 
-  // Init root dir
-  gutil.readonly(options, 'root', path.resolve(gutil.isString(options.root) ? options.root : ''));
-
-  // Option base must be string
-  if (!gutil.isString(options.base)) {
-    throw new TypeError(`The options.base's value must be a string.`);
-  }
-
-  // Init base dir
-  gutil.readonly(options, 'base', path.resolve(options.root, options.base));
+  // Init root and base
+  options.root = path.resolve(options.root);
+  options.base = path.resolve(options.root, options.base);
 
   // The base out of bounds of root
   if (gutil.isOutBounds(options.base, options.root)) {
-    throw new TypeError('The options.base is out bounds of options.root.');
+    throw new TypeError('Options.base is out bounds of options.root.');
   }
 
   // The base equal to root
   if (options.base === options.root) {
-    throw new TypeError(`The options.base can't be equal to options.root.`);
+    throw new TypeError(`Options.base can't be equal to options.root.`);
   }
 
-  // Init plugins
-  gutil.readonly(options, 'plugins', Array.isArray(options.plugins) ? options.plugins : []);
-
-  // Init js settings
-  options.js = options.js || { flags: ['async'] };
-
-  // Init js flags
-  if (!Array.isArray(options.js.flags)) {
-    options.js.flags = ['async'];
+  // Assert css loader
+  if (!options.css.loader) {
+    throw new TypeError(`Options.css.loader must be a nonempty string.`);
   }
 
-  // Init css settings
-  options.css = options.css || { onpath: null, loader: 'css-loader' };
-
-  // Init css onpath
-  if (options.css.onpath && !gutil.isFunction(options.css.onpath)) {
-    options.css.onpath = null;
+  // Starts with \ or /
+  if (/^[\\/]/.test(options.css.loader)) {
+    throw new TypeError(`Options.css.loader must be a string not starts with "\\" or "/".`);
   }
-
-  // Init ignore
-  options.ignore = initIgnore(options);
-
-  // Init indent
-  options.indent = Math.min(10, Math.max(0, options.indent >> 0));
 
   // Init cache
-  gutil.readonly(options, 'cache', new Map());
+  options.cache = new Map();
+  // Init loaders
+  options.loaders = new Set();
+  // Init ignore
+  options.ignore = initIgnore(options.ignore);
+
+  // Freeze
+  Object.freeze(options);
 
   return options;
 }
@@ -393,6 +323,14 @@ async function loadModule(path$$1, options) {
   });
 }
 
+async function registerLoader(loader, id, options) {
+  const cache = options.cache;
+  const loaders = options.loaders;
+  const contents = await fsReadFile(require.resolve(`./builtins/loaders/${loader}`));
+
+  return contents;
+}
+
 /**
  * @module js
  * @license MIT
@@ -512,11 +450,14 @@ function jsPackager(vinyl, options) {
  * @param {Object} options
  * @returns {Object}
  */
-function cssPackager(vinyl, options) {
+async function cssPackager(vinyl, options) {
   const root = options.root;
   const referer = vinyl.path;
   const loader = options.css.loader;
-  const deps = new Set([loader.id]);
+
+  console.log(await registerLoader('css', options.css.loader, options));
+
+  const deps = new Set([loader]);
   const dependencies = new Set([loader.path]);
   let requires = `var loader = require(${JSON.stringify(loader.id)});\n\n`;
   /**
@@ -689,13 +630,13 @@ const packagers = /*#__PURE__*/(Object.freeze || Object)({
  * @param {Object} options
  * @returns {Object}
  */
-function parse(vinyl, options) {
+async function parse(vinyl, options) {
   const ext = vinyl.extname.slice(1);
   const packager = packagers[ext.toLowerCase()];
 
   if (packager) {
     const cacheable = options.combine;
-    const meta = packager(vinyl, options);
+    const meta = await packager(vinyl, options);
     const dependencies = cacheable ? meta.dependencies : new Set();
     const contents = meta.contents;
     const path$$1 = meta.path;
@@ -760,7 +701,7 @@ async function bundler(vinyl, options) {
         file.contents = await gutil.pipeline(plugins, 'transform', file.path, file.contents, { root, base });
 
         // Execute parse
-        meta = parse(file, options);
+        meta = await parse(file, options);
 
         // Execute bundle hook
         meta.contents = await gutil.pipeline(plugins, 'bundle', meta.path, meta.contents, { root, base });
@@ -795,17 +736,8 @@ async function bundler(vinyl, options) {
 function main(options) {
   options = initOptions(options);
 
-  const loaders = new Set();
   const cache = options.cache;
-  const ignore = options.ignore;
-  const cacheable = options.combine;
-
-  // Init loaders
-  ['css'].forEach(ext => {
-    const id = options[ext].loader;
-
-    loaders.add(initLoader(id, ext, options));
-  });
+  const loaders = options.loaders;
 
   // Stream
   return through(
@@ -831,11 +763,8 @@ function main(options) {
       }
     },
     function(next) {
-      // Add loader to stream
       loaders.forEach(loader => {
-        if (!cacheable || ignore.has(loader.path)) {
-          this.push(loader);
-        }
+        this.push(loader);
       });
 
       // Clear cache

@@ -12,17 +12,8 @@ import * as gutil from '@nuintun/gulp-util';
 export default function main(options) {
   options = utils.initOptions(options);
 
-  const loaders = new Set();
   const cache = options.cache;
-  const ignore = options.ignore;
-  const cacheable = options.combine;
-
-  // Init loaders
-  ['css'].forEach(ext => {
-    const id = options[ext].loader;
-
-    loaders.add(utils.initLoader(id, ext, options));
-  });
+  const loaders = options.loaders;
 
   // Stream
   return through(
@@ -48,11 +39,8 @@ export default function main(options) {
       }
     },
     function(next) {
-      // Add loader to stream
       loaders.forEach(loader => {
-        if (!cacheable || ignore.has(loader.path)) {
-          this.push(loader);
-        }
+        this.push(loader);
       });
 
       // Clear cache
