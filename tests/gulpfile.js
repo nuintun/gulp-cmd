@@ -70,6 +70,14 @@ const plugins = [
 ];
 
 /**
+ * @function unixify
+ * @param {string} path
+ */
+function unixify(path) {
+  return path.replace(/\\/g, '/');
+}
+
+/**
  * @function build
  */
 function build() {
@@ -80,7 +88,7 @@ function build() {
     .src('assets/view/**/*.js', { base: 'assets' })
     .pipe(
       through((vinyl, enc, next) => {
-        bundler.logger('Building', bundler.chalk.green(vinyl.relative.replace(/[\\/]/g, '/')));
+        bundler.logger('Building', bundler.chalk.green(unixify(vinyl.relative)));
         next(null, vinyl);
       })
     )
@@ -96,7 +104,7 @@ function build() {
           const json = {};
 
           files.forEach((value, key) => {
-            json[relative(base, key).replace(/[\\/]/g, '/')] = value;
+            json[unixify(relative(base, key))] = value;
           });
 
           fs.writeFile('manifest.json', JSON.stringify(json, null, 2), error => {
