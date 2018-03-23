@@ -9,11 +9,17 @@ import * as utils from './lib/utils';
 import through from '@nuintun/through';
 import * as gutil from '@nuintun/gulp-util';
 
+/**
+ * @function main
+ * @param {Object} options
+ */
 export default function main(options) {
   options = utils.initOptions(options);
 
   const cache = options.cache;
+  const ignore = options.ignore;
   const loaders = options.loaders;
+  const cacheable = options.combine;
 
   // Stream
   return through(
@@ -40,7 +46,9 @@ export default function main(options) {
     },
     function(next) {
       loaders.forEach(loader => {
-        this.push(loader);
+        if (!cacheable || ignore.has(loader.path)) {
+          this.push(loader.vinyl);
+        }
       });
 
       // Clear cache

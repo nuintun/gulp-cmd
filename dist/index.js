@@ -65,6 +65,15 @@ function parseAlias(id, alias) {
 }
 
 /**
+ * @function isJSFile
+ * @param {string} path
+ * @returns {boolean}
+ */
+function isJSFile(path$$1) {
+  return /[^\\/]+\.js$/i.test(path$$1);
+}
+
+/**
  * @function isCSSFile
  * @param {string} path
  * @returns {boolean}
@@ -162,32 +171,24 @@ function initOptions(options) {
     throw new TypeError('Options.base is out bounds of options.root.');
   }
 
-  // The base equal to root
-  if (options.base === options.root) {
-    throw new TypeError(`Options.base can't be equal to options.root.`);
-  }
-
   // Assert css loader
   if (!options.css.loader) {
     throw new TypeError(`Options.css.loader must be a nonempty string.`);
   }
 
-  // Starts with \ or /
-  if (/^[\\/]/.test(options.css.loader)) {
-    throw new TypeError(`Options.css.loader must be a string not starts with "\\" or "/".`);
-  }
-
   // Init cache
   options.cache = new Map();
   // Init loaders
-  options.loaders = new Set();
+  options.loaders = new Map();
   // Init ignore
   options.ignore = initIgnore(options.ignore);
 
   // Freeze
-  Object.freeze(options);
+  options.js = Object.freeze(options.js);
+  options.css = Object.freeze(options.css);
 
-  return options;
+  // Freeze
+  return Object.freeze(options);
 }
 
 /**
@@ -197,36 +198,39 @@ function initOptions(options) {
  * @param {Object} base
  * @returns {string|null}
  */
-function moduleId(src, base) {
+function moduleId(src, options) {
+  const root = options.root;
+
   // Vinyl not in base dir, user root
-  if (gutil.isOutBounds(src, base)) {
-    // Relative file path from cwd
-    const rpath = JSON.stringify(gutil.path2cwd(src));
+  if (gutil.isOutBounds(src, root)) {
+    // Stringify file path
+    const fpath = JSON.stringify(gutil.normalize(src));
 
     // Output error
-    throw new RangeError(`Module ${rpath} is out of bounds of base.`);
+    throw new RangeError(`Module ${fpath} is out of bounds of root.`);
   }
 
-  // Relative path from base
-  const path$$1 = path.relative(base, src);
+  const base = options.base;
+  const isOutBase = gutil.isOutBounds(src, base);
+  const repath = path.relative(isOutBase ? root : base, src);
+  const id = gutil.normalize(path.join(isOutBase ? '/' : '', repath));
 
-  // Return normalized path
-  return gutil.normalize(path$$1);
+  // Return id
+  return id;
 }
 
 /**
  * @function resolveModuleId
- * @param {Vinyl} vinyl
+ * @param {string} src
  * @param {Object} options
  * @returns {string}
  */
-function resolveModuleId(vinyl, options) {
+function resolveModuleId(src, options) {
   let id;
-  const path$$1 = vinyl.path;
   const base = options.base;
 
   try {
-    id = moduleId(path$$1, base, true);
+    id = moduleId(src, options);
   } catch (error) {
     // Output error message
     gutil.logger.warn(gutil.chalk.yellow(error), '\x07');
@@ -236,16 +240,35 @@ function resolveModuleId(vinyl, options) {
   }
 
   // Parse map
-  id = gutil.parseMap(id, path$$1, options.map);
+  id = gutil.parseMap(id, src, options.map);
   id = gutil.normalize(id);
   id = hideExt(id);
 
   // Add ext
-  if (isCSSFile(id)) {
-    id = addExt(id);
-  }
+  if (isCSSFile(id)) id = addExt(id);
 
   return id;
+}
+
+/**
+ * @function resolveDependencyId
+ * @param {string} dependency
+ * @param {string} resolved
+ * @param {string} referer
+ * @returns {string}
+ */
+function resolveDependencyId(dependency, resolved, referer) {
+  // Convert absolute path to relative base path
+  if (gutil.isAbsolute(dependency)) {
+    dependency = path.relative(referer, resolved);
+    dependency = gutil.normalize(dependency);
+    dependency = hideExt(dependency);
+
+    // Add ext
+    if (isCSSFile(dependency)) dependency = addExt(dependency);
+  }
+
+  return dependency;
 }
 
 const LINEFEED_RE = /[\r\n]+/g;
@@ -293,42 +316,75 @@ const fsReadFile = gutil.promisify(fs.readFile);
  * @function fsSafeAccess
  * @param {string} path
  * @param {Number} mode
+ * @returns {boolean}
  */
 function fsSafeAccess(path$$1, mode = fs.constants.R_OK) {
   try {
     fs.accessSync(path$$1, mode);
-
-    return true;
   } catch (error) {
     return false;
   }
+
+  return true;
 }
 
 /**
  * @function loadModule
  * @param {string} path
  * @param {Object} options
+ * @returns {Vinyl}
  */
 async function loadModule(path$$1, options) {
   // Read module
+  const base = options.base;
   const stat = await fsReadStat(path$$1);
   const contents = await fsReadFile(path$$1);
 
   // Return a vinyl file
-  return new gutil.VinylFile({
-    path: path$$1,
-    stat,
-    contents,
-    base: options.base
-  });
+  return new gutil.VinylFile({ base, path: path$$1, stat, contents });
 }
 
+/**
+ * @function registerLoader
+ * @param {string} loader
+ * @param {string} id
+ * @param {Object} options
+ * @returns {object}
+ */
 async function registerLoader(loader, id, options) {
-  const cache = options.cache;
   const loaders = options.loaders;
-  const contents = await fsReadFile(require.resolve(`./builtins/loaders/${loader}`));
 
-  return contents;
+  if (loaders.has(loader)) return loaders.get(loader);
+
+  // Normalize id
+  id = gutil.normalize(id);
+
+  // If id end with /, use index.js
+  if (id.endsWith('/')) dependency += 'index.js';
+
+  // Add ext
+  id = isJSFile(id) ? id : addExt(id);
+
+  const root = options.root;
+  const base = options.base;
+  const cache = options.cache;
+  const dependencies = new Set();
+  const path$$1 = path.join(gutil.isAbsolute(id) ? root : base, id);
+
+  // Resolve module id
+  id = resolveModuleId(path$$1, options);
+
+  const rpath = require.resolve(`./builtins/loaders/${loader}`);
+  const stat = await fsReadStat(rpath);
+  const contents = wrapModule(id, dependencies, await fsReadFile(rpath), options);
+  const vinyl = new gutil.VinylFile({ base, path: path$$1, stat, contents });
+
+  // Set cache
+  loaders.set(loader, { id, path: path$$1, vinyl });
+  cache.set(path$$1, { path: path$$1, dependencies, contents });
+
+  // Return meta
+  return { id, path: path$$1, vinyl };
 }
 
 /**
@@ -367,11 +423,6 @@ function jsPackager(vinyl, options) {
 
         // Only collect require no flag
         if (flag === null) {
-          // Add extname
-          if (!path.extname(resolved)) {
-            resolved = addExt(resolved);
-          }
-
           // Module can read
           if (fsSafeAccess(resolved)) {
             dependencies.add(resolved);
@@ -393,27 +444,18 @@ function jsPackager(vinyl, options) {
               );
             }
           }
-
-          // Convert absolute path to relative base path
-          if (gutil.isAbsolute(dependency) && dependencies.has(resolved)) {
-            try {
-              dependency = moduleId(resolved, base);
-            } catch (error) {
-              // Out of bounds of base
-            }
-          }
         }
 
-        // Parse map
+        // Convert absolute path to relative path
+        dependency = resolveDependencyId(dependency, resolved, referer);
         dependency = gutil.parseMap(dependency, resolved, options.map);
         dependency = gutil.normalize(dependency);
+        dependency = hideExt(dependency);
 
         // The seajs has hacked css before 3.0.0
         // https://github.com/seajs/seajs/blob/2.2.1/src/util-path.js#L49
         // Demo https://github.com/popomore/seajs-test/tree/master/css-deps
-        if (isCSSFile(dependency)) {
-          dependency = addExt(dependency);
-        }
+        if (isCSSFile(dependency)) dependency = addExt(dependency);
 
         // Add dependency
         deps.add(dependency);
@@ -429,7 +471,7 @@ function jsPackager(vinyl, options) {
   );
 
   // Resolve module id
-  const id = resolveModuleId(vinyl, options);
+  const id = resolveModuleId(vinyl.path, options);
   // Get contents
   const contents = id ? wrapModule(id, deps, meta.code, options) : vinyl.contents;
   // Rewrite path
@@ -453,13 +495,12 @@ function jsPackager(vinyl, options) {
 async function cssPackager(vinyl, options) {
   const root = options.root;
   const referer = vinyl.path;
-  const loader = options.css.loader;
-
-  console.log(await registerLoader('css', options.css.loader, options));
-
-  const deps = new Set([loader]);
-  const dependencies = new Set([loader.path]);
-  let requires = `var loader = require(${JSON.stringify(loader.id)});\n\n`;
+  const loader = await registerLoader('css', options.css.loader, options);
+  const loaderPath = loader.path;
+  const loaderId = resolveDependencyId(loader.id, loaderPath, referer);
+  const deps = new Set([loaderId]);
+  const dependencies = new Set([loaderPath]);
+  let requires = `var loader = require(${JSON.stringify(loaderId)});\n\n`;
   /**
    * @function onpath
    * @param {string} value
@@ -476,11 +517,11 @@ async function cssPackager(vinyl, options) {
     (dependency, media) => {
       if (gutil.isLocal(dependency)) {
         if (media.length) {
-          // Relative file path from cwd
-          const rpath = JSON.stringify(gutil.path2cwd(referer));
-
           // Get media
           media = JSON.stringify(media.join(', '));
+
+          // Relative file path from cwd
+          const rpath = JSON.stringify(gutil.path2cwd(referer));
 
           // Output warn
           gutil.logger.warn(
@@ -506,19 +547,13 @@ async function cssPackager(vinyl, options) {
           );
         }
 
-        // Convert absolute path to relative base path
-        if (gutil.isAbsolute(dependency)) {
-          if (dependencies.has(resolved)) {
-            try {
-              dependency = moduleId(resolved, base);
-            } catch (error) {
-              // Out of bounds of base
-            }
-          }
-        } else if (!gutil.isRelative(dependency)) {
-          dependency = `./${dependency}`;
-        }
+        // Convert absolute path to relative path
+        dependency = resolveDependencyId(dependency, resolved, referer);
 
+        // Use css resolve rule
+        if (!gutil.isRelative(dependency)) dependency = `./${dependency}`;
+
+        // Parse map
         dependency = gutil.parseMap(dependency, resolved, options.map);
         dependency = gutil.normalize(dependency);
         // The seajs has hacked css before 3.0.0
@@ -548,7 +583,7 @@ async function cssPackager(vinyl, options) {
 
   if (deps.size > 1) requires += '\n';
 
-  const id = resolveModuleId(vinyl, options);
+  const id = resolveModuleId(vinyl.path, options);
   const code = `${requires}loader(${JSON.stringify(meta.code)});`;
   const contents = id ? wrapModule(id, deps, code, options) : vinyl.contents;
   const path$$1 = addExt(referer);
@@ -572,7 +607,7 @@ function jsonPackager(vinyl, options) {
   const root = options.root;
   const referer = vinyl.path;
   const dependencies = new Set();
-  const id = resolveModuleId(vinyl, options);
+  const id = resolveModuleId(vinyl.path, options);
   const code = `module.exports = ${vinyl.contents.toString()};`;
   const contents = id ? wrapModule(id, dependencies, code, options) : vinyl.contents;
   const path$$1 = addExt(referer);
@@ -596,7 +631,7 @@ function htmlPackager(vinyl, options) {
   const root = options.root;
   const referer = vinyl.path;
   const dependencies = new Set();
-  const id = resolveModuleId(vinyl, options);
+  const id = resolveModuleId(vinyl.path, options);
   const code = `module.exports = ${JSON.stringify(vinyl.contents.toString())};`;
   const contents = id ? wrapModule(id, dependencies, code, options) : vinyl.contents;
   const path$$1 = addExt(referer);
@@ -733,11 +768,17 @@ async function bundler(vinyl, options) {
  * @version 2017/11/13
  */
 
+/**
+ * @function main
+ * @param {Object} options
+ */
 function main(options) {
   options = initOptions(options);
 
   const cache = options.cache;
+  const ignore = options.ignore;
   const loaders = options.loaders;
+  const cacheable = options.combine;
 
   // Stream
   return through(
@@ -764,7 +805,9 @@ function main(options) {
     },
     function(next) {
       loaders.forEach(loader => {
-        this.push(loader);
+        if (!cacheable || ignore.has(loader.path)) {
+          this.push(loader.vinyl);
+        }
       });
 
       // Clear cache
