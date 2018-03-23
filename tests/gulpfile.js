@@ -6,8 +6,8 @@
 
 'use strict';
 
-const fs = require('fs');
 const gulp = require('gulp');
+const fs = require('fs-extra');
 const bundler = require('../dist/index');
 const relative = require('path').relative;
 const through = require('@nuintun/through');
@@ -73,6 +73,9 @@ const plugins = [
  * @function build
  */
 function build() {
+  fs.removeSync('dist');
+  fs.removeSync('manifest.json');
+
   return gulp
     .src('assets/view/**/*.js', { base: 'assets' })
     .pipe(
@@ -88,6 +91,8 @@ function build() {
           next(null, vinyl);
         },
         next => {
+          if (!useMap) return next();
+
           const json = {};
 
           files.forEach((value, key) => {

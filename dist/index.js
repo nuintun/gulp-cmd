@@ -109,24 +109,21 @@ function hideExt(path$$1) {
  */
 function initIgnore(options) {
   const ignore = new Set();
+  const root = options.root;
+  const base = options.base;
+  const alias = options.alias;
+  const isLocal = gutil.isLocal;
+  const isAbsolute = gutil.isAbsolute;
 
-  // Format ignore
-  if (Array.isArray(options.ignore)) {
-    const root = options.root;
-    const base = options.base;
-    const alias = options.alias;
-    const isAbsolute = gutil.isAbsolute;
+  options.ignore.forEach(id => {
+    // Compute id
+    id = parseAlias(id, alias);
 
-    options.ignore.forEach(id => {
-      // Compute id
-      id = parseAlias(id, alias);
-
-      // Local id add ignore
-      if (gutil.isLocal(id)) {
-        ignore.add(addExt(path.join(isAbsolute(id) ? root : base, id)));
-      }
-    });
-  }
+    // Local id add ignore
+    if (isLocal(id)) {
+      ignore.add(addExt(path.join(isAbsolute(id) ? root : base, id)));
+    }
+  });
 
   return ignore;
 }
@@ -181,7 +178,7 @@ function initOptions(options) {
   // Init loaders
   options.loaders = new Map();
   // Init ignore
-  options.ignore = initIgnore(options.ignore);
+  options.ignore = initIgnore(options);
 
   // Freeze
   options.js = Object.freeze(options.js);
@@ -404,6 +401,7 @@ function jsPackager(vinyl, options) {
   const root = options.root;
   const base = options.base;
   const referer = vinyl.path;
+  const ignore = options.ignore;
   const dependencies = new Set();
 
   // Parse module
@@ -425,14 +423,14 @@ function jsPackager(vinyl, options) {
         if (flag === null) {
           // Module can read
           if (fsSafeAccess(resolved)) {
-            dependencies.add(resolved);
+            !ignore.has(resolved) && dependencies.add(resolved);
           } else {
             // Module can't read, add ext .js test again
             resolved = addExt(resolved);
 
             // Module can read
             if (fsSafeAccess(resolved)) {
-              dependencies.add(resolved);
+              !ignore.has(resolved) && dependencies.add(resolved);
             } else {
               // Relative referer from cwd
               const rpath = JSON.stringify(gutil.path2cwd(referer));
@@ -495,12 +493,14 @@ function jsPackager(vinyl, options) {
 async function cssPackager(vinyl, options) {
   const root = options.root;
   const referer = vinyl.path;
+  const ignore = options.ignore;
   const loader = await registerLoader('css', options.css.loader, options);
   const loaderPath = loader.path;
   const loaderId = resolveDependencyId(loader.id, loaderPath, referer);
   const deps = new Set([loaderId]);
-  const dependencies = new Set([loaderPath]);
   let requires = `var loader = require(${JSON.stringify(loaderId)});\n\n`;
+  const dependencies = new Set(ignore.has(loaderPath) ? [] : [loaderPath]);
+
   /**
    * @function onpath
    * @param {string} value
@@ -535,7 +535,7 @@ async function cssPackager(vinyl, options) {
 
         // Module can read
         if (fsSafeAccess(resolved)) {
-          dependencies.add(resolved);
+          !ignore.has(resolved) && dependencies.add(resolved);
         } else {
           // Relative file path from cwd
           const rpath = JSON.stringify(gutil.path2cwd(referer));
