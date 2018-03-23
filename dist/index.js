@@ -366,6 +366,7 @@ async function registerLoader(loader, id, options) {
   const base = options.base;
   const cache = options.cache;
   const dependencies = new Set();
+  const plugins = options.plugins;
   const path$$1 = path.join(gutil.isAbsolute(id) ? root : base, id);
 
   // Resolve module id
@@ -373,7 +374,15 @@ async function registerLoader(loader, id, options) {
 
   const rpath = require.resolve(`./builtins/loaders/${loader}`);
   const stat = await fsReadStat(rpath);
-  const contents = wrapModule(id, dependencies, await fsReadFile(rpath), options);
+  let contents = await fsReadFile(rpath);
+
+  // Execute transform hook
+  contents = await gutil.pipeline(plugins, 'transform', path$$1, contents, { root, base });
+  // Wrap module
+  contents = wrapModule(id, dependencies, contents, options);
+  // Execute bundle hook
+  contents = await gutil.pipeline(plugins, 'bundle', path$$1, contents, { root, base });
+
   const vinyl = new gutil.VinylFile({ base, path: path$$1, stat, contents });
 
   // Set cache
