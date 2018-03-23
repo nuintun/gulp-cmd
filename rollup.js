@@ -16,6 +16,8 @@ const pkg = require('./package.json');
  * @param {Object} outputOptions
  */
 async function build(inputOptions, outputOptions) {
+  await fs.remove('dist');
+
   const bundle = await rollup.rollup(inputOptions);
 
   await bundle.write(outputOptions);
