@@ -20,7 +20,7 @@ const through = require('@nuintun/through');
 /**
  * @module utils
  * @license MIT
- * @version 2017/11/13
+ * @version 2018/03/26
  */
 
 /**
@@ -396,7 +396,7 @@ async function registerLoader(loader, id, options) {
 /**
  * @module js
  * @license MIT
- * @version 2018/03/19
+ * @version 2018/03/26
  */
 
 /**
@@ -490,7 +490,7 @@ function jsPackager(vinyl, options) {
 /**
  * @module css
  * @license MIT
- * @version 2018/03/19
+ * @version 2018/03/26
  */
 
 /**
@@ -603,7 +603,7 @@ async function cssPackager(vinyl, options) {
 /**
  * @module json
  * @license MIT
- * @version 2018/03/20
+ * @version 2018/03/26
  */
 
 /**
@@ -627,7 +627,7 @@ function jsonPackager(vinyl, options) {
 /**
  * @module html
  * @license MIT
- * @version 2018/03/20
+ * @version 2018/03/26
  */
 
 /**
@@ -651,7 +651,7 @@ function htmlPackager(vinyl, options) {
 /**
  * @module index
  * @license MIT
- * @version 2018/03/19
+ * @version 2018/03/26
  */
 
 const packagers = /*#__PURE__*/(Object.freeze || Object)({
@@ -665,7 +665,7 @@ const packagers = /*#__PURE__*/(Object.freeze || Object)({
 /**
  * @module bundler
  * @license MIT
- * @version 2018/03/16
+ * @version 2018/03/26
  */
 
 /**
@@ -774,7 +774,7 @@ async function bundler(vinyl, options) {
 /**
  * @module index
  * @license MIT
- * @version 2017/11/13
+ * @version 2018/03/26
  */
 
 /**

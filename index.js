@@ -1,7 +1,7 @@
 /**
  * @module index
  * @license MIT
- * @version 2017/11/13
+ * @version 2018/03/26
  */
 
 import bundler from './lib/bundler';

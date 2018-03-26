@@ -1,7 +1,7 @@
 /**
  * @module css-loader
  * @license MIT
- * @version 2018/03/23
+ * @version 2018/03/26
  * @description Embedding style text in JavaScript code
  */
 
