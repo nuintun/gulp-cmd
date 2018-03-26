@@ -134,7 +134,7 @@ function initIgnore(options) {
  * @returns {Object}
  */
 function initOptions(options) {
-  options = gutil.attrs(options, {
+  options = gutil.inspectAttrs(options, {
     root: {
       type: String,
       default: process.cwd()
