@@ -256,12 +256,14 @@ function resolveDependencyId(dependency, resolved, referer) {
   // Convert absolute path to relative base path
   if (gutil.isAbsolute(dependency)) {
     dependency = path.relative(referer, resolved);
-    dependency = gutil.normalize(dependency);
     dependency = hideExt(dependency);
 
     // Add ext
     if (isCSSFile(dependency)) dependency = addExt(dependency);
   }
+
+  // Normalize
+  dependency = gutil.normalize(dependency);
 
   return dependency;
 }
