@@ -32,26 +32,24 @@ const through = require('@nuintun/through');
  * @returns {string}
  */
 function resolve(request, referer, options) {
-  let path$$1;
-
   // Resolve
   if (gutil.isAbsolute(request)) {
-    path$$1 = path.join(options.root, request);
+    request = path.join(options.root, request);
   } else if (gutil.isRelative(request)) {
-    path$$1 = path.join(path.dirname(referer), request);
+    request = path.join(path.dirname(referer), request);
 
     // Out of bounds of root
-    if (gutil.isOutBounds(path$$1, options.root)) {
-      throw new RangeError(`File ${gutil.normalize(path$$1)} is out of bounds of root.`);
+    if (gutil.isOutBounds(request, options.root)) {
+      throw new RangeError(`File ${gutil.normalize(request)} is out of bounds of root.`);
     }
   } else {
     const base = options.base || path.dirname(referer);
 
     // Use base or referer dirname
-    path$$1 = path.join(base, request);
+    request = path.join(base, request);
   }
 
-  return path$$1;
+  return request;
 }
 
 /**
