@@ -20,9 +20,10 @@ function createStyleNode() {
   // Set type
   node.setAttribute('type', 'text/css');
 
-  // IE
-  if (node.styleSheet) {
-    // See http://support.microsoft.com/kb/262161
+  // When lte IE9
+  if (typeof window.VBArray === 'function' && document.documentMode <= 9) {
+    // @see http://support.microsoft.com/kb/262161
+    // @see https://blogs.msdn.microsoft.com/ieinternals/2011/05/14/stylesheet-limits-in-internet-explorer/
     if (doc.getElementsByTagName('style').length > 31) {
       throw new Error('Exceed the maximal count of style tags in IE');
     }
