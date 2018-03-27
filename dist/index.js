@@ -395,10 +395,12 @@ function jsPackager(vinyl, options) {
     vinyl.contents,
     (dependency, flag) => {
       dependency = parseAlias(dependency, options.alias);
-      dependency = gutil.normalize(dependency);
 
       // Only collect local bependency
       if (gutil.isLocal(dependency)) {
+        // Normalize
+        dependency = gutil.normalize(dependency);
+
         // If path end with /, use index.js
         if (dependency.endsWith('/')) dependency += 'index.js';
 
@@ -507,6 +509,9 @@ async function cssPackager(vinyl, options) {
             '\x07'
           );
         }
+
+        // Normalize
+        dependency = gutil.normalize(dependency);
 
         // Resolve dependency
         let resolved = resolve(dependency, referer, { root });
