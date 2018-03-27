@@ -44,7 +44,13 @@ const files = new Map();
 const useMap = hasArgv('--map');
 const combine = hasArgv('--combine');
 const map = (path, resolved) => {
-  if (!useMap) return path;
+  if (!useMap) {
+    if (path.startsWith('/')) {
+      path = path.replace(/^\/assets/, '/dist');
+    }
+
+    return path;
+  }
 
   if (files.has(resolved)) {
     return files.get(resolved);
@@ -55,6 +61,23 @@ const map = (path, resolved) => {
   files.set(resolved, path);
 
   return path;
+};
+
+const css = {
+  onpath(prop, path, referer) {
+    if (/^(?:[a-z0-9.+-]+:)?\/\/|^data:\w+?\/\w+?[,;]/i.test(path)) {
+      return path;
+    }
+
+    if (!path.startsWith('/')) {
+      path = join(dirname(referer), path);
+      path = '/' + unixify(relative(root, path));
+    }
+
+    path = path.replace(/^\/assets/, '/dist');
+
+    return path;
+  }
 };
 
 const plugins = [
@@ -92,7 +115,7 @@ function build() {
         next(null, vinyl);
       })
     )
-    .pipe(bundler({ base, alias, map, combine, plugins }))
+    .pipe(bundler({ base, alias, map, css, combine, plugins }))
     .pipe(
       through(
         (vinyl, enc, next) => {
