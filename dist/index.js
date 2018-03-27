@@ -488,8 +488,17 @@ async function cssPackager(vinyl, options) {
   let requires = `var loader = require(${JSON.stringify(loaderId)});\n\n`;
   const dependencies = new Set(ignore.has(loaderPath) ? [] : [loaderPath]);
 
-  // Normalize onpath
-  const onpath = options.onpath ? (prop, value) => options.onpath(prop, value, referer) : null;
+  /**
+   * @function onpath
+   * @param {string} prop
+   * @param {string} value
+   */
+  const onpath = (prop, value) => {
+    value = gutil.isLocal(value) ? gutil.normalize(value) : value;
+
+    // Returned value
+    return options.onpath ? options.onpath(prop, value, referer) : value;
+  };
 
   // Parse module
   const meta = cssDeps(
