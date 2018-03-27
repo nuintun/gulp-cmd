@@ -255,7 +255,7 @@ function resolveModuleId(src, options) {
 function resolveDependencyId(dependency, resolved, referer) {
   // Convert absolute path to relative base path
   if (gutil.isAbsolute(dependency)) {
-    dependency = path.relative(referer, resolved);
+    dependency = path.relative(path.dirname(referer), resolved);
     dependency = hideExt(dependency);
 
     // Add ext
