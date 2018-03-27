@@ -274,7 +274,7 @@ const LINEFEED_RE = /[\r\n]+/g;
  * @function wrapModule
  * @param {string} id
  * @param {Array|Set} deps
- * @param {string} code
+ * @param {string|Buffer} code
  * @param {boolean} strict
  * @param {number} indent
  * @returns {string}
