@@ -102,9 +102,10 @@ function build() {
           if (!useMap) return next();
 
           const json = {};
+          const root = process.cwd();
 
           files.forEach((value, key) => {
-            json[unixify(relative(base, key))] = value;
+            json[unixify(relative(root, key))] = value;
           });
 
           fs.writeFile('manifest.json', JSON.stringify(json, null, 2), error => {

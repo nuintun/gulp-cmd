@@ -245,29 +245,6 @@ function resolveModuleId(src, options) {
   return id;
 }
 
-/**
- * @function resolveDependencyId
- * @param {string} dependency
- * @param {string} resolved
- * @param {string} referer
- * @returns {string}
- */
-function resolveDependencyId(dependency, resolved, referer) {
-  // Convert absolute path to relative base path
-  if (gutil.isAbsolute(dependency)) {
-    dependency = path.relative(path.dirname(referer), resolved);
-    dependency = hideExt(dependency);
-
-    // Add ext
-    if (isCSSFile(dependency)) dependency = addExt(dependency);
-  }
-
-  // Normalize
-  dependency = gutil.normalize(dependency);
-
-  return dependency;
-}
-
 const LINEFEED_RE = /[\r\n]+/g;
 
 /**
@@ -453,8 +430,7 @@ function jsPackager(vinyl, options) {
           }
         }
 
-        // Convert absolute path to relative path
-        dependency = resolveDependencyId(dependency, resolved, referer);
+        // Parse map
         dependency = gutil.parseMap(dependency, resolved, options.map);
         dependency = gutil.normalize(dependency);
         dependency = hideExt(dependency);
@@ -504,8 +480,8 @@ async function cssPackager(vinyl, options) {
   const referer = vinyl.path;
   const ignore = options.ignore;
   const loader = await registerLoader('css', options.css.loader, options);
+  const loaderId = loader.id;
   const loaderPath = loader.path;
-  const loaderId = resolveDependencyId(loader.id, loaderPath, referer);
   const deps = new Set([loaderId]);
   let requires = `var loader = require(${JSON.stringify(loaderId)});\n\n`;
   const dependencies = new Set(ignore.has(loaderPath) ? [] : [loaderPath]);
@@ -548,9 +524,6 @@ async function cssPackager(vinyl, options) {
             '\x07'
           );
         }
-
-        // Convert absolute path to relative path
-        dependency = resolveDependencyId(dependency, resolved, referer);
 
         // Use css resolve rule
         if (!gutil.isRelative(dependency)) dependency = `./${dependency}`;
