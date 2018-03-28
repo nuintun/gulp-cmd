@@ -2,7 +2,7 @@
  * @module @nuintun/gulp-cmd
  * @author nuintun
  * @license MIT
- * @version 0.1.0
+ * @version 0.2.0
  * @description A gulp plugin for cmd transport and concat
  * @see https://nuintun.github.io/gulp-cmd
  */
@@ -218,20 +218,21 @@ function moduleId(src, options) {
  * @function resolveModuleId
  * @param {string} src
  * @param {Object} options
- * @returns {string}
+ * @returns {string|null}
  */
 function resolveModuleId(src, options) {
-  let id;
+  let id = null;
   const base = options.base;
 
+  // Parse module id
   try {
     id = moduleId(src, options);
   } catch (error) {
-    // Output error message
-    gutil.logger.warn(gutil.chalk.yellow(error), '\x07');
+    // Logger error
+    gutil.logger.error(gutil.chalk.red(error), '\x07');
 
-    // Return null
-    return null;
+    // Returned id
+    return id;
   }
 
   // Parse map
@@ -349,9 +350,9 @@ async function registerLoader(loader, id, options) {
   // Resolve module id
   id = resolveModuleId(path$$1, options);
 
-  const rpath = require.resolve(`./builtins/loaders/${loader}`);
-  const stat = await fsReadStat(rpath);
-  let contents = await fsReadFile(rpath);
+  const fpath = require.resolve(`./builtins/loaders/${loader}`);
+  const stat = await fsReadStat(fpath);
+  let contents = await fsReadFile(fpath);
 
   // Execute transform hook
   contents = await gutil.pipeline(plugins, 'transform', path$$1, contents, { root, base });
@@ -383,9 +384,9 @@ async function registerLoader(loader, id, options) {
  * @returns {Object}
  */
 function jsPackager(vinyl, options) {
-  const deps = new Set();
   const root = options.root;
   const base = options.base;
+  const modules = new Set();
   const referer = vinyl.path;
   const ignore = options.ignore;
   const dependencies = new Set();
@@ -411,14 +412,14 @@ function jsPackager(vinyl, options) {
         if (flag === null) {
           // Module can read
           if (fsSafeAccess(resolved)) {
-            !ignore.has(resolved) && dependencies.add(resolved);
+            !ignore.has(resolved) && modules.add(resolved);
           } else {
             // Module can't read, add ext .js test again
             resolved = addExt(resolved);
 
             // Module can read
             if (fsSafeAccess(resolved)) {
-              !ignore.has(resolved) && dependencies.add(resolved);
+              !ignore.has(resolved) && modules.add(resolved);
             } else {
               // Relative referer from cwd
               const rpath = JSON.stringify(gutil.path2cwd(referer));
@@ -443,7 +444,7 @@ function jsPackager(vinyl, options) {
         if (isCSSFile(dependency)) dependency = addExt(dependency);
 
         // Add dependency
-        deps.add(dependency);
+        dependencies.add(dependency);
       }
 
       // Return dependency
@@ -455,14 +456,14 @@ function jsPackager(vinyl, options) {
     }
   );
 
-  // Resolve module id
-  const id = resolveModuleId(vinyl.path, options);
-  // Get contents
-  const contents = id ? wrapModule(id, deps, meta.code, options) : vinyl.contents;
   // Rewrite path
   const path$$1 = referer;
+  // Get contents
+  const contents = meta.code;
+  // Resolve module id
+  const id = resolveModuleId(referer, options);
 
-  return { path: path$$1, dependencies, contents };
+  return { id, path: path$$1, dependencies, contents, modules };
 }
 
 /**
@@ -484,9 +485,9 @@ async function cssPackager(vinyl, options) {
   const loader = await registerLoader('css', options.css.loader, options);
   const loaderId = loader.id;
   const loaderPath = loader.path;
-  const deps = new Set([loaderId]);
+  const dependencies = new Set([loaderId]);
   let requires = `var loader = require(${JSON.stringify(loaderId)});\n\n`;
-  const dependencies = new Set(ignore.has(loaderPath) ? [] : [loaderPath]);
+  const modules = new Set(ignore.has(loaderPath) ? [] : [loaderPath]);
 
   /**
    * @function onpath
@@ -527,7 +528,7 @@ async function cssPackager(vinyl, options) {
 
         // Module can read
         if (fsSafeAccess(resolved)) {
-          !ignore.has(resolved) && dependencies.add(resolved);
+          !ignore.has(resolved) && modules.add(resolved);
         } else {
           // Relative file path from cwd
           const rpath = JSON.stringify(gutil.path2cwd(referer));
@@ -551,7 +552,7 @@ async function cssPackager(vinyl, options) {
         dependency = addExt(dependency);
 
         // Add dependency
-        deps.add(dependency);
+        dependencies.add(dependency);
 
         requires += `require(${JSON.stringify(dependency)});\n`;
       } else {
@@ -570,14 +571,13 @@ async function cssPackager(vinyl, options) {
     { onpath, media: true }
   );
 
-  if (deps.size > 1) requires += '\n';
+  if (dependencies.size > 1) requires += '\n';
 
-  const id = resolveModuleId(vinyl.path, options);
-  const code = `${requires}loader(${JSON.stringify(meta.code)});`;
-  const contents = id ? wrapModule(id, deps, code, options) : vinyl.contents;
   const path$$1 = addExt(referer);
+  const id = resolveModuleId(referer, options);
+  const contents = `${requires}loader(${JSON.stringify(meta.code)});`;
 
-  return { path: path$$1, dependencies, contents };
+  return { id, path: path$$1, dependencies, contents, modules };
 }
 
 /**
@@ -593,15 +593,14 @@ async function cssPackager(vinyl, options) {
  * @returns {Object}
  */
 function jsonPackager(vinyl, options) {
-  const root = options.root;
+  const modules = new Set();
   const referer = vinyl.path;
   const dependencies = new Set();
-  const id = resolveModuleId(vinyl.path, options);
-  const code = `module.exports = ${vinyl.contents.toString()};`;
-  const contents = id ? wrapModule(id, dependencies, code, options) : vinyl.contents;
   const path$$1 = addExt(referer);
+  const id = resolveModuleId(referer, options);
+  const contents = `module.exports = ${vinyl.contents.toString()};`;
 
-  return { path: path$$1, dependencies, contents };
+  return { id, path: path$$1, dependencies, contents, modules };
 }
 
 /**
@@ -617,15 +616,14 @@ function jsonPackager(vinyl, options) {
  * @returns {Object}
  */
 function htmlPackager(vinyl, options) {
-  const root = options.root;
+  const modules = new Set();
   const referer = vinyl.path;
   const dependencies = new Set();
-  const id = resolveModuleId(vinyl.path, options);
-  const code = `module.exports = ${JSON.stringify(vinyl.contents.toString())};`;
-  const contents = id ? wrapModule(id, dependencies, code, options) : vinyl.contents;
   const path$$1 = addExt(referer);
+  const id = resolveModuleId(referer, options);
+  const contents = `module.exports = ${JSON.stringify(vinyl.contents.toString())};`;
 
-  return { path: path$$1, dependencies, contents };
+  return { id, path: path$$1, dependencies, contents, modules };
 }
 
 /**
@@ -661,9 +659,13 @@ async function parse(vinyl, options) {
   if (packager) {
     const cacheable = options.combine;
     const meta = await packager(vinyl, options);
-    const dependencies = cacheable ? meta.dependencies : new Set();
-    const contents = meta.contents;
+
+    // Get props
+    const id = meta.id;
     const path$$1 = meta.path;
+    const code = meta.contents;
+    const dependencies = cacheable ? meta.modules : new Set();
+    const contents = id === null ? code : wrapModule(id, meta.dependencies, code, options);
 
     return { path: path$$1, dependencies, contents };
   }

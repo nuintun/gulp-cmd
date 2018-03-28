@@ -62,3 +62,7 @@ typings/
 
 # npm lock file
 package-lock.json
+
+# tests compiled file
+/tests/dist
+/tests/manifest.json
