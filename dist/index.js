@@ -110,7 +110,7 @@ function initIgnore(options) {
   const root = options.root;
   const base = options.base;
   const alias = options.alias;
-  const isLocal = gutil.isLocal;
+  const isUrl = gutil.isUrl;
   const isAbsolute = gutil.isAbsolute;
 
   options.ignore.forEach(id => {
@@ -118,7 +118,7 @@ function initIgnore(options) {
     id = parseAlias(id, alias);
 
     // Local id add ignore
-    if (isLocal(id)) {
+    if (!isUrl(id)) {
       ignore.add(addExt(path.join(isAbsolute(id) ? root : base, id)));
     }
   });
@@ -398,7 +398,7 @@ function jsPackager(vinyl, options) {
       dependency = parseAlias(dependency, options.alias);
 
       // Only collect local bependency
-      if (gutil.isLocal(dependency)) {
+      if (!gutil.isUrl(dependency)) {
         // Normalize
         dependency = gutil.normalize(dependency);
 
@@ -495,7 +495,8 @@ async function cssPackager(vinyl, options) {
    * @param {string} value
    */
   const onpath = (prop, value) => {
-    value = gutil.isLocal(value) ? gutil.normalize(value) : value;
+    // Normalize value
+    value = gutil.isUrl(value) ? value : gutil.normalize(value);
 
     // Returned value
     return options.onpath ? options.onpath(prop, value, referer) : value;
@@ -505,7 +506,16 @@ async function cssPackager(vinyl, options) {
   const meta = cssDeps(
     vinyl.contents,
     (dependency, media) => {
-      if (gutil.isLocal(dependency)) {
+      if (gutil.isUrl(dependency)) {
+        // Relative file path from cwd
+        const rpath = JSON.stringify(gutil.path2cwd(referer));
+
+        // Output warn
+        gutil.logger.warn(
+          gutil.chalk.yellow(`Found remote css file ${JSON.stringify(dependency)} at ${rpath}, unsupported.`),
+          '\x07'
+        );
+      } else {
         if (media.length) {
           // Get media
           media = JSON.stringify(media.join(', '));
@@ -555,15 +565,6 @@ async function cssPackager(vinyl, options) {
         dependencies.add(dependency);
 
         requires += `require(${JSON.stringify(dependency)});\n`;
-      } else {
-        // Relative file path from cwd
-        const rpath = JSON.stringify(gutil.path2cwd(referer));
-
-        // Output warn
-        gutil.logger.warn(
-          gutil.chalk.yellow(`Found remote css file ${JSON.stringify(dependency)} at ${rpath}, unsupported.`),
-          '\x07'
-        );
       }
 
       return false;
