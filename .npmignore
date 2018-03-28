@@ -1,0 +1,49 @@
+# Dependency directory
+# Deployed apps should consider commenting this line out:
+# see https://npmjs.org/doc/faq.html#Should-I-check-my-node_modules-folder-into-git
+node_modules
+
+# vscode
+.vscode
+
+# github
+.gitignore
+
+# npm
+.npmignore
+
+# travis
+.travis.yml
+
+# appveyor
+appveyor.yml
+
+# tests
+tests
+test
+
+# makefile
+Makefile
+
+# js lint
+.jshintrc
+
+# Logs
+logs
+*.log
+
+# benchmark
+benchmark
+
+# editorconfig
+.editorconfig
+
+# jsbeautifyrc
+.jsbeautifyrc
+
+# npm lock file
+package-lock.json
+
+# src file and dist dev file
+/lib
+/index.js

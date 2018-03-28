@@ -26,10 +26,10 @@ build/Release
 # https://www.npmjs.org/doc/misc/npm-faq.html#should-i-check-my-node_modules-folder-into-git
 node_modules
 
-# WebStorm
-.idea
+# vscode
+.vscode
 
-# npm lock
+# npm lock file
 package-lock.json
 
 # tests dist

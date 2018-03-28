@@ -2,22 +2,19 @@
 
 > A gulp plugin for cmd transport and concat
 >
+> [![NPM Version][npm-image]][npm-url]
+> [![Download Status][download-image]][npm-url]
 > [![Dependencies][david-image]][david-url]
-
-[david-image]: http://img.shields.io/david/nuintun/gulp-cmd.svg?style=flat-square
-[david-url]: https://david-dm.org/nuintun/gulp-cmd
 
 ### Usage
 
 ```js
-var path = require('path');
-var join = path.join;
-var relative = path.relative;
-var gulp = require('gulp');
-var cmd = require('@nuintun/gulp-cmd');
-var alias = {
-  // If require css file, must be include css-loader
-  // see https://github.com/nuintun/css-loader
+const path = require('path');
+const join = path.join;
+const relative = path.relative;
+const gulp = require('gulp');
+const cmd = require('@nuintun/gulp-cmd');
+const alias = {
   'css-loader': 'util/css-loader/1.0.0/css-loader'
 };
 
@@ -122,3 +119,9 @@ gulp.task('default', function() {
   模块合并需要忽略的依赖模块，支持路径和 vars paths alias 配置，不支持相对路径（默认忽略），以 `/` 开头的路径按照 wwwroot 寻找， 其他按照 base 寻找。
 
 > 注意事项：_模块 id 以 `/` 结尾会默认用 `index.js` 或者 `index.css` 补全_， id 以 `/` 开头的模块会从 wwwroot 路径寻找。id 规则简化，不支持带 `search` 参数的用法，只支持标准路径，和 seajs 的[模块标识](https://github.com/seajs/seajs/issues/258)中有些区别。css 的 import 规则和原生一致，需要注意的是尽量不要引入远程资源。
+
+[npm-image]: http://img.shields.io/npm/v/gulp-cmd.svg?style=flat-square
+[npm-url]: https://www.npmjs.org/package/gulp-cmd
+[download-image]: http://img.shields.io/npm/dm/gulp-cmd.svg?style=flat-square
+[david-image]: http://img.shields.io/david/nuintun/gulp-cmd.svg?style=flat-square
+[david-url]: https://david-dm.org/nuintun/gulp-cmd
