@@ -679,23 +679,6 @@ async function parse(vinyl, options) {
 }
 
 /**
- * @function combine
- * @param {Set} bundles
- * @returns {Buffer}
- */
-function combine(bundles) {
-  const contents = [];
-
-  // Traverse bundles
-  bundles.forEach(bundle => {
-    contents.push(bundle.contents);
-  });
-
-  // Concat contents
-  return Buffer.concat(contents);
-}
-
-/**
  * @function bundler
  * @param {Vinyl} vinyl
  * @param {Object} options
@@ -749,7 +732,7 @@ async function bundler(vinyl, options) {
   });
 
   // Combine files
-  vinyl.contents = combine(bundles);
+  vinyl.contents = gutil.combine(bundles);
 
   return vinyl;
 }
