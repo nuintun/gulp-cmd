@@ -81,3 +81,7 @@ test
 
 # npm lock file
 package-lock.json
+
+# src file
+/lib
+/index.js
