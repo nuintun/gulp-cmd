@@ -141,7 +141,7 @@ function initOptions(options) {
     ignore: { type: Array, default: [] },
     plugins: { type: Array, default: [] },
     strict: { type: Boolean, default: true },
-    combine: { type: Boolean, default: true },
+    combine: { type: Boolean, default: false },
     map: { type: [null, Function], default: null },
     'js.flags': { type: Array, default: ['async'] },
     'css.loader': { type: String, default: 'css-loader' },
