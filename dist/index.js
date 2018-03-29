@@ -63,21 +63,12 @@ function parseAlias(id, alias) {
 }
 
 /**
- * @function isJSFile
+ * @function fileExt
  * @param {string} path
- * @returns {boolean}
+ * @returns {string}
  */
-function isJSFile(path$$1) {
-  return /[^\\/]+\.js$/i.test(path$$1);
-}
-
-/**
- * @function isCSSFile
- * @param {string} path
- * @returns {boolean}
- */
-function isCSSFile(path$$1) {
-  return /[^\\/]+\.css$/i.test(path$$1);
+function fileExt(path$$1) {
+  return path.extname(path$$1).toLowerCase();
 }
 
 /**
@@ -97,7 +88,7 @@ function addExt(path$$1) {
  * @returns {string}
  */
 function hideExt(path$$1) {
-  return path$$1.replace(/\.js$/i, '');
+  return path$$1.replace(/([^/]+)\.js$/i, '$1');
 }
 
 /**
@@ -225,23 +216,14 @@ function resolveModuleId(src, options) {
   const base = options.base;
 
   // Parse module id
-  try {
-    id = moduleId(src, options);
-  } catch (error) {
-    // Logger error
-    gutil.logger.error(gutil.chalk.red(error), '\x07');
-
-    // Returned id
-    return id;
-  }
-
+  id = moduleId(src, options);
   // Parse map
   id = gutil.parseMap(id, src, options.map);
   id = gutil.normalize(id);
   id = hideExt(id);
 
   // Add ext
-  if (isCSSFile(id)) id = addExt(id);
+  if (fileExt(id) === '.css') id = addExt(id);
 
   return id;
 }
@@ -338,7 +320,7 @@ async function registerLoader(loader, id, options) {
   if (id.endsWith('/')) dependency += 'index.js';
 
   // Add ext
-  id = isJSFile(id) ? id : addExt(id);
+  id = fileExt(id) === '.js' ? id : addExt(id);
 
   const root = options.root;
   const base = options.base;
@@ -441,7 +423,7 @@ function jsPackager(vinyl, options) {
         // The seajs has hacked css before 3.0.0
         // https://github.com/seajs/seajs/blob/2.2.1/src/util-path.js#L49
         // Demo https://github.com/popomore/seajs-test/tree/master/css-deps
-        if (isCSSFile(dependency)) dependency = addExt(dependency);
+        if (fileExt(dependency) === '.css') dependency = addExt(dependency);
 
         // Add dependency
         dependencies.add(dependency);
