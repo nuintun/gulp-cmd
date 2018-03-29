@@ -6,8 +6,8 @@
  */
 
 // Doc and head
-var doc = document;
-var head = doc.getElementsByTagName('head')[0] || doc.documentElement;
+const doc = document;
+const head = doc.getElementsByTagName('head')[0] || doc.documentElement;
 
 /**
  * @function createStyleNode
@@ -15,7 +15,7 @@ var head = doc.getElementsByTagName('head')[0] || doc.documentElement;
  * @returns {HTMLStyleElement}
  */
 function createStyleNode() {
-  var node = doc.createElement('style');
+  const node = doc.createElement('style');
 
   // Set type
   node.setAttribute('type', 'text/css');
@@ -25,7 +25,7 @@ function createStyleNode() {
     // @see http://support.microsoft.com/kb/262161
     // @see https://blogs.msdn.microsoft.com/ieinternals/2011/05/14/stylesheet-limits-in-internet-explorer/
     if (doc.getElementsByTagName('style').length > 31) {
-      throw new Error('Exceed the maximal count of style tags in IE');
+      throw new RangeError('Exceed the maximal count of style tags in IE');
     }
   }
 
@@ -62,7 +62,7 @@ function insertRule(node, css) {
 }
 
 // Create style node
-var node = createStyleNode();
+const node = createStyleNode();
 
 /**
  * @exports loader
