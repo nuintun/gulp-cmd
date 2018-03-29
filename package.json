@@ -17,7 +17,7 @@
     "node": ">=7.6.0"
   },
   "license": "MIT",
-  "main": "dist/index",
+  "main": "dist/index.js",
   "keywords": ["gulp", "cmd", "concat", "commonjs", "transport", "gulpplugin"],
   "dependencies": {
     "cmd-deps": "https://github.com/nuintun/cmd-deps/archive/dev.tar.gz",
