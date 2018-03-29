@@ -1,19 +1,17 @@
 {
   "name": "@nuintun/gulp-cmd",
   "version": "0.2.0",
-  "description": "A gulp plugin for cmd transport and concat",
+  "description": "A gulp plugin for cmd transport and concat.",
   "author": {
     "name": "nuintun",
     "email": "nuintun@qq.com"
   },
-  "homepage": "https://nuintun.github.io/gulp-cmd",
   "repository": {
     "type": "git",
-    "url": "git://github.com/nuintun/gulp-cmd.git"
+    "url": "git+https://github.com/nuintun/gulp-cmd.git"
   },
   "bugs": {
-    "url": "https://github.com/nuintun/gulp-cmd/issues",
-    "email": "nuintun@qq.com"
+    "url": "https://github.com/nuintun/gulp-cmd/issues"
   },
   "engines": {
     "node": ">=7.6.0"
@@ -23,8 +21,8 @@
   "keywords": ["gulp", "cmd", "concat", "commonjs", "transport", "gulpplugin"],
   "dependencies": {
     "cmd-deps": "https://github.com/nuintun/cmd-deps/archive/dev.tar.gz",
-    "@nuintun/bundler": "^0.2.0",
-    "@nuintun/through": "^1.0.0",
+    "@nuintun/bundler": "^0.2.3",
+    "@nuintun/through": "^1.0.3",
     "@nuintun/css-deps": "https://github.com/nuintun/css-deps/archive/dev.tar.gz",
     "@nuintun/gulp-util": "https://github.com/nuintun/gulp-util/archive/dev.tar.gz"
   },
@@ -33,5 +31,5 @@
     "rollup": "^0.57.1",
     "fs-extra": "^5.0.0"
   },
-  "readmeFilename": "README.md"
+  "homepage": "https://github.com/nuintun/gulp-cmd#readme"
 }
