@@ -644,11 +644,9 @@ async function parse(vinyl, options) {
     const meta = await packager(vinyl, options);
 
     // Get props
-    const id = meta.id;
     const path$$1 = meta.path;
-    const code = meta.contents;
     const dependencies = cacheable ? meta.modules : new Set();
-    const contents = id === null ? code : wrapModule(id, meta.dependencies, code, options);
+    const contents = wrapModule(meta.id, meta.dependencies, meta.contents, options);
 
     return { path: path$$1, dependencies, contents };
   }
