@@ -140,6 +140,7 @@ function initOptions(options) {
     indent: { type: Number, default: 2 },
     ignore: { type: Array, default: [] },
     plugins: { type: Array, default: [] },
+    packagers: { type: Object, default: {} },
     strict: { type: Boolean, default: true },
     combine: { type: Boolean, default: false },
     map: { type: [null, Function], default: null },
@@ -172,6 +173,9 @@ function initOptions(options) {
   // Freeze
   options.js = Object.freeze(options.js);
   options.css = Object.freeze(options.css);
+
+  // Can not override js packager
+  delete options.packagers.js;
 
   // Freeze
   return Object.freeze(options);
@@ -262,7 +266,7 @@ function wrapModule(id, deps, code, options) {
   const header = `define(${id}, ${deps}, function(require, exports, module){\n`;
   const footer = '\n});\n';
 
-  return gutil.buffer(header + code + footer);
+  return header + code + footer;
 }
 
 // Promisify stat and readFile
@@ -302,6 +306,130 @@ async function loadModule(path$$1, options) {
 }
 
 /**
+ * @module js
+ * @license MIT
+ * @version 2018/03/26
+ */
+
+/**
+ * @namespace jsPackager
+ */
+const jsPackager = {
+  /**
+   * @method resolve
+   * @param {string} path
+   * @returns {string}
+   */
+  resolve(path$$1) {
+    return path$$1;
+  },
+  /**
+   * @method parse
+   * @param {string} path
+   * @param {string} contents
+   * @param {Object} options
+   * @returns {Object}
+   */
+  parse(path$$1, contents, options) {
+    const root = options.root;
+    const base = options.base;
+    const ignore = options.ignore;
+
+    // Metadata
+    const id = resolveModuleId(path$$1, options);
+    const dependencies = new Set();
+    const modules = new Set();
+
+    // Parse module
+    const meta = jsDeps(
+      contents,
+      (dependency, flag) => {
+        dependency = parseAlias(dependency, options.alias);
+
+        // Only collect local bependency
+        if (!gutil.isUrl(dependency)) {
+          // Normalize
+          dependency = gutil.normalize(dependency);
+
+          // If path end with /, use index.js
+          if (dependency.endsWith('/')) dependency += 'index.js';
+
+          // Resolve dependency
+          let resolved = resolve(dependency, path$$1, { root, base });
+
+          // Only collect require no flag
+          if (flag === null) {
+            // Module can read
+            if (fsSafeAccess(resolved)) {
+              !ignore.has(resolved) && modules.add(resolved);
+            } else {
+              // Module can't read, add ext .js test again
+              resolved = addExt(resolved);
+
+              // Module can read
+              if (fsSafeAccess(resolved)) {
+                !ignore.has(resolved) && modules.add(resolved);
+              } else {
+                // Relative path from cwd
+                const rpath = JSON.stringify(gutil.path2cwd(path$$1));
+
+                // Output warn
+                gutil.logger.warn(
+                  gutil.chalk.yellow(`Module ${JSON.stringify(dependency)} at ${rpath} can't be found.`),
+                  '\x07'
+                );
+              }
+            }
+          }
+
+          // Parse map
+          dependency = gutil.parseMap(dependency, resolved, options.map);
+          dependency = gutil.normalize(dependency);
+          dependency = hideExt(dependency);
+
+          // The seajs has hacked css before 3.0.0
+          // https://github.com/seajs/seajs/blob/2.2.1/src/util-path.js#L49
+          // Demo https://github.com/popomore/seajs-test/tree/master/css-deps
+          if (fileExt(dependency) === '.css') dependency = addExt(dependency);
+
+          // Add dependency
+          dependencies.add(dependency);
+        }
+
+        // Return dependency
+        return dependency;
+      },
+      {
+        flags: options.js.flags,
+        allowReturnOutsideFunction: true
+      }
+    );
+
+    // Get contents
+    contents = meta.code;
+
+    return { id, dependencies, contents, modules };
+  },
+  /**
+   *
+   * @param {string} id
+   * @param {Set} dependencies
+   * @param {string} contents
+   * @param {Object} options
+   * @returns {string}
+   */
+  transform(id, dependencies, contents, options) {
+    return wrapModule(id, dependencies, contents, options);
+  }
+};
+
+/**
+ * @module loaders
+ * @license MIT
+ * @version 2018/03/30
+ */
+
+/**
  * @function registerLoader
  * @param {string} loader
  * @param {string} id
@@ -311,6 +439,7 @@ async function loadModule(path$$1, options) {
 async function registerLoader(loader, id, options) {
   const loaders = options.loaders;
 
+  // Hit cache
   if (loaders.has(loader)) return loaders.get(loader);
 
   // Normalize id
@@ -325,24 +454,41 @@ async function registerLoader(loader, id, options) {
   const root = options.root;
   const base = options.base;
   const cache = options.cache;
-  const dependencies = new Set();
   const plugins = options.plugins;
-  const path$$1 = path.join(gutil.isAbsolute(id) ? root : base, id);
+
+  // Get path
+  let path$$1 = path.join(gutil.isAbsolute(id) ? root : base, id);
 
   // Resolve module id
   id = resolveModuleId(path$$1, options);
 
+  // Dependencies
+  const dependencies = new Set();
+  // Get real path and stat
   const fpath = require.resolve(`./builtins/loaders/${loader}`);
   const stat = await fsReadStat(fpath);
+
+  // Read file contents
   let contents = await fsReadFile(fpath);
 
+  // Get code
+  contents = contents.toString();
+
+  // Execute load hook
+  contents = await gutil.pipeline(plugins, 'load', path$$1, contents, { root, base });
   // Execute transform hook
   contents = await gutil.pipeline(plugins, 'transform', path$$1, contents, { root, base });
-  // Wrap module
-  contents = wrapModule(id, dependencies, contents, options);
+  // Transform code
+  contents = await jsPackager.transform(id, dependencies, contents, options);
+  // Resolve path
+  path$$1 = await jsPackager.resolve(path$$1);
   // Execute bundle hook
   contents = await gutil.pipeline(plugins, 'bundle', path$$1, contents, { root, base });
 
+  // To buffer
+  contents = gutil.buffer(contents);
+
+  // Create vinyl file
   const vinyl = new gutil.VinylFile({ base, path: path$$1, stat, contents });
 
   // Set cache
@@ -354,217 +500,160 @@ async function registerLoader(loader, id, options) {
 }
 
 /**
- * @module js
- * @license MIT
- * @version 2018/03/26
- */
-
-/**
- * @function jsPackager
- * @param {Vinyl} vinyl
- * @param {Object} options
- * @returns {Object}
- */
-function jsPackager(vinyl, options) {
-  const root = options.root;
-  const base = options.base;
-  const modules = new Set();
-  const referer = vinyl.path;
-  const ignore = options.ignore;
-  const dependencies = new Set();
-
-  // Parse module
-  const meta = jsDeps(
-    vinyl.contents,
-    (dependency, flag) => {
-      dependency = parseAlias(dependency, options.alias);
-
-      // Only collect local bependency
-      if (!gutil.isUrl(dependency)) {
-        // Normalize
-        dependency = gutil.normalize(dependency);
-
-        // If path end with /, use index.js
-        if (dependency.endsWith('/')) dependency += 'index.js';
-
-        // Resolve dependency
-        let resolved = resolve(dependency, referer, { root, base });
-
-        // Only collect require no flag
-        if (flag === null) {
-          // Module can read
-          if (fsSafeAccess(resolved)) {
-            !ignore.has(resolved) && modules.add(resolved);
-          } else {
-            // Module can't read, add ext .js test again
-            resolved = addExt(resolved);
-
-            // Module can read
-            if (fsSafeAccess(resolved)) {
-              !ignore.has(resolved) && modules.add(resolved);
-            } else {
-              // Relative referer from cwd
-              const rpath = JSON.stringify(gutil.path2cwd(referer));
-
-              // Output warn
-              gutil.logger.warn(
-                gutil.chalk.yellow(`Module ${JSON.stringify(dependency)} at ${rpath} can't be found.`),
-                '\x07'
-              );
-            }
-          }
-        }
-
-        // Parse map
-        dependency = gutil.parseMap(dependency, resolved, options.map);
-        dependency = gutil.normalize(dependency);
-        dependency = hideExt(dependency);
-
-        // The seajs has hacked css before 3.0.0
-        // https://github.com/seajs/seajs/blob/2.2.1/src/util-path.js#L49
-        // Demo https://github.com/popomore/seajs-test/tree/master/css-deps
-        if (fileExt(dependency) === '.css') dependency = addExt(dependency);
-
-        // Add dependency
-        dependencies.add(dependency);
-      }
-
-      // Return dependency
-      return dependency;
-    },
-    {
-      flags: options.js.flags,
-      allowReturnOutsideFunction: true
-    }
-  );
-
-  // Rewrite path
-  const path$$1 = referer;
-  // Get contents
-  const contents = meta.code;
-  // Resolve module id
-  const id = resolveModuleId(referer, options);
-
-  return { id, path: path$$1, dependencies, contents, modules };
-}
-
-/**
  * @module css
  * @license MIT
  * @version 2018/03/26
  */
 
 /**
- * @function cssPackager
- * @param {Vinyl} vinyl
- * @param {Object} options
- * @returns {Object}
+ * @namespace cssPackager
  */
-async function cssPackager(vinyl, options) {
-  const root = options.root;
-  const referer = vinyl.path;
-  const ignore = options.ignore;
-  const loader = await registerLoader('css', options.css.loader, options);
-  const loaderId = loader.id;
-  const loaderPath = loader.path;
-  const dependencies = new Set([loaderId]);
-  let requires = `const loader = require(${JSON.stringify(loaderId)});\n\n`;
-  const modules = new Set(ignore.has(loaderPath) ? [] : [loaderPath]);
-
+const css = {
   /**
-   * @function onpath
-   * @param {string} prop
-   * @param {string} value
+   * @method resolve
+   * @param {string} path
+   * @returns {string}
    */
-  const onpath = (prop, value) => {
-    // Normalize value
-    value = gutil.isUrl(value) ? value : gutil.normalize(value);
+  resolve(path$$1) {
+    return addExt(path$$1);
+  },
+  /**
+   * @method parse
+   * @param {string} path
+   * @param {string} contents
+   * @param {Object} options
+   * @returns {Object}
+   */
+  async parse(path$$1, contents, options) {
+    const root = options.root;
+    const ignore = options.ignore;
+    const loader = options.css.loader;
+    const { id: loaderId, path: loaderPath } = await registerLoader('css', loader, options);
 
-    // Get onpath
-    const onpath = options.css.onpath;
+    // Metadata
+    const id = resolveModuleId(path$$1, options);
+    const dependencies = new Set([loaderId]);
+    const modules = new Set(ignore.has(loaderPath) ? [] : [loaderPath]);
 
-    // Returned value
-    return onpath ? onpath(prop, value, referer) : value;
-  };
+    /**
+     * @function onpath
+     * @param {string} prop
+     * @param {string} value
+     */
+    const onpath = (prop, value) => {
+      // Normalize value
+      value = gutil.isUrl(value) ? value : gutil.normalize(value);
 
-  // Parse module
-  const meta = cssDeps(
-    vinyl.contents,
-    (dependency, media) => {
-      if (gutil.isUrl(dependency)) {
-        // Relative file path from cwd
-        const rpath = JSON.stringify(gutil.path2cwd(referer));
+      // Get onpath
+      const onpath = options.css.onpath;
 
-        // Output warn
-        gutil.logger.warn(
-          gutil.chalk.yellow(`Found remote css file ${JSON.stringify(dependency)} at ${rpath}, unsupported.`),
-          '\x07'
-        );
-      } else {
-        if (media.length) {
-          // Get media
-          media = JSON.stringify(media.join(', '));
+      // Returned value
+      return onpath ? onpath(prop, value, path$$1) : value;
+    };
 
+    // Parse module
+    const meta = cssDeps(
+      contents,
+      (dependency, media) => {
+        if (gutil.isUrl(dependency)) {
           // Relative file path from cwd
-          const rpath = JSON.stringify(gutil.path2cwd(referer));
+          const rpath = JSON.stringify(gutil.path2cwd(path$$1));
 
           // Output warn
           gutil.logger.warn(
-            gutil.chalk.yellow(`Found import media queries ${media} at ${rpath}, unsupported.`),
+            gutil.chalk.yellow(`Found remote css file ${JSON.stringify(dependency)} at ${rpath}, unsupported.`),
             '\x07'
           );
-        }
-
-        // Normalize
-        dependency = gutil.normalize(dependency);
-
-        // Resolve dependency
-        let resolved = resolve(dependency, referer, { root });
-
-        // Module can read
-        if (fsSafeAccess(resolved)) {
-          !ignore.has(resolved) && modules.add(resolved);
         } else {
-          // Relative file path from cwd
-          const rpath = JSON.stringify(gutil.path2cwd(referer));
+          if (media.length) {
+            // Get media
+            media = JSON.stringify(media.join(', '));
 
-          // Output warn
-          gutil.logger.warn(
-            gutil.chalk.yellow(`Module ${JSON.stringify(dependency)} at ${rpath} can't be found.`),
-            '\x07'
-          );
+            // Relative file path from cwd
+            const rpath = JSON.stringify(gutil.path2cwd(path$$1));
+
+            // Output warn
+            gutil.logger.warn(
+              gutil.chalk.yellow(`Found import media queries ${media} at ${rpath}, unsupported.`),
+              '\x07'
+            );
+          }
+
+          // Normalize
+          dependency = gutil.normalize(dependency);
+
+          // Resolve dependency
+          let resolved = resolve(dependency, path$$1, { root });
+
+          // Module can read
+          if (fsSafeAccess(resolved)) {
+            !ignore.has(resolved) && modules.add(resolved);
+          } else {
+            // Relative file path from cwd
+            const rpath = JSON.stringify(gutil.path2cwd(path$$1));
+
+            // Output warn
+            gutil.logger.warn(
+              gutil.chalk.yellow(`Module ${JSON.stringify(dependency)} at ${rpath} can't be found.`),
+              '\x07'
+            );
+          }
+
+          // Use css resolve rule
+          if (!gutil.isRelative(dependency)) dependency = `./${dependency}`;
+
+          // Parse map
+          dependency = gutil.parseMap(dependency, resolved, options.map);
+          dependency = gutil.normalize(dependency);
+          // The seajs has hacked css before 3.0.0
+          // https://github.com/seajs/seajs/blob/2.2.1/src/util-path.js#L49
+          // Demo https://github.com/popomore/seajs-test/tree/master/css-deps
+          dependency = addExt(dependency);
+
+          // Add dependency
+          dependencies.add(dependency);
         }
 
-        // Use css resolve rule
-        if (!gutil.isRelative(dependency)) dependency = `./${dependency}`;
+        return false;
+      },
+      { onpath, media: true }
+    );
 
-        // Parse map
-        dependency = gutil.parseMap(dependency, resolved, options.map);
-        dependency = gutil.normalize(dependency);
-        // The seajs has hacked css before 3.0.0
-        // https://github.com/seajs/seajs/blob/2.2.1/src/util-path.js#L49
-        // Demo https://github.com/popomore/seajs-test/tree/master/css-deps
-        dependency = addExt(dependency);
+    // Get contents
+    contents = meta.code;
 
-        // Add dependency
-        dependencies.add(dependency);
+    return { id, dependencies, contents, modules };
+  },
+  /**
+   *
+   * @param {string} id
+   * @param {Set} dependencies
+   * @param {string} contents
+   * @param {Object} options
+   * @returns {string}
+   */
+  async transform(id, dependencies, contents, options) {
+    let requires = '';
+    const loader = options.css.loader;
+    const { id: loaderId } = await registerLoader('css', loader, options);
 
+    dependencies.forEach(dependency => {
+      if (dependency === loaderId) {
+        requires += `const loader = require(${JSON.stringify(loaderId)});\n\n`;
+      } else {
         requires += `require(${JSON.stringify(dependency)});\n`;
       }
 
-      return false;
-    },
-    { onpath, media: true }
-  );
+      return requires;
+    });
 
-  if (dependencies.size > 1) requires += '\n';
+    if (dependencies.size > 1) requires += '\n';
 
-  const path$$1 = addExt(referer);
-  const id = resolveModuleId(referer, options);
-  const contents = `${requires}loader(${JSON.stringify(meta.code)});`;
+    contents = `${requires}loader(${JSON.stringify(contents)});`;
 
-  return { id, path: path$$1, dependencies, contents, modules };
-}
+    return wrapModule(id, dependencies, contents, options);
+  }
+};
 
 /**
  * @module json
@@ -573,21 +662,46 @@ async function cssPackager(vinyl, options) {
  */
 
 /**
- * @function jsonPackager
- * @param {Vinyl} vinyl
- * @param {Object} options
- * @returns {Object}
+ * @namespace jsonPackager
  */
-function jsonPackager(vinyl, options) {
-  const modules = new Set();
-  const referer = vinyl.path;
-  const dependencies = new Set();
-  const path$$1 = addExt(referer);
-  const id = resolveModuleId(referer, options);
-  const contents = `module.exports = ${vinyl.contents.toString()};`;
+const json = {
+  /**
+   * @method resolve
+   * @param {string} path
+   * @returns {string}
+   */
+  resolve(path$$1) {
+    return addExt(path$$1);
+  },
+  /**
+   * @method parse
+   * @param {string} path
+   * @param {string} contents
+   * @param {Object} options
+   * @returns {Object}
+   */
+  parse(path$$1, contents, options) {
+    // Metadata
+    const id = resolveModuleId(path$$1, options);
+    const dependencies = new Set();
+    const modules = new Set();
 
-  return { id, path: path$$1, dependencies, contents, modules };
-}
+    return { id, dependencies, contents, modules };
+  },
+  /**
+   *
+   * @param {string} id
+   * @param {Set} dependencies
+   * @param {string} contents
+   * @param {Object} options
+   * @returns {string}
+   */
+  transform(id, dependencies, contents, options) {
+    contents = `module.exports = ${contents};`;
+
+    return wrapModule(id, dependencies, contents, options);
+  }
+};
 
 /**
  * @module html
@@ -596,21 +710,46 @@ function jsonPackager(vinyl, options) {
  */
 
 /**
- * @function htmlPackager
- * @param {Vinyl} vinyl
- * @param {Object} options
- * @returns {Object}
+ * @namespace htmlPackager
  */
-function htmlPackager(vinyl, options) {
-  const modules = new Set();
-  const referer = vinyl.path;
-  const dependencies = new Set();
-  const path$$1 = addExt(referer);
-  const id = resolveModuleId(referer, options);
-  const contents = `module.exports = ${JSON.stringify(vinyl.contents.toString())};`;
+const html = {
+  /**
+   * @method resolve
+   * @param {string} path
+   * @returns {string}
+   */
+  resolve(path$$1) {
+    return addExt(path$$1);
+  },
+  /**
+   * @method parse
+   * @param {string} path
+   * @param {string} contents
+   * @param {Object} options
+   * @returns {Object}
+   */
+  parse(path$$1, contents, options) {
+    // Metadata
+    const id = resolveModuleId(path$$1, options);
+    const dependencies = new Set();
+    const modules = new Set();
 
-  return { id, path: path$$1, dependencies, contents, modules };
-}
+    return { id, dependencies, contents, modules };
+  },
+  /**
+   *
+   * @param {string} id
+   * @param {Set} dependencies
+   * @param {string} contents
+   * @param {Object} options
+   * @returns {string}
+   */
+  transform(id, dependencies, contents, options) {
+    contents = `module.exports = ${JSON.stringify(contents)};`;
+
+    return wrapModule(id, dependencies, contents, options);
+  }
+};
 
 /**
  * @module index
@@ -619,47 +758,75 @@ function htmlPackager(vinyl, options) {
  */
 
 const packagers = /*#__PURE__*/(Object.freeze || Object)({
-  html: htmlPackager,
-  tpl: htmlPackager,
+  html: html,
+  tpl: html,
   js: jsPackager,
-  css: cssPackager,
-  json: jsonPackager
+  css: css,
+  json: json
 });
+
+/**
+ * @module parser
+ * @license MIT
+ * @version 2018/03/30
+ */
+
+/**
+ * @function parser
+ * @param {Vinyl} vinyl
+ * @param {Object} options
+ * @returns {Object}
+ */
+async function parser(vinyl, options) {
+  let path$$1 = vinyl.path;
+  let dependencies = new Set();
+  let contents = vinyl.contents;
+
+  const ext = vinyl.extname.slice(1).toLowerCase();
+  const packager = options.packagers[ext] || packagers[ext];
+
+  if (packager) {
+    const root = options.root;
+    const base = options.base;
+    const plugins = options.plugins;
+    const cacheable = options.combine;
+
+    // Get code
+    contents = contents.toString();
+
+    // Execute load hook
+    contents = await gutil.pipeline(plugins, 'load', path$$1, contents, { root, base });
+
+    // Parse metadata
+    const meta = await packager.parse(path$$1, contents, options);
+
+    // Override contents
+    contents = meta.contents;
+
+    // Execute transform hook
+    contents = await gutil.pipeline(plugins, 'transform', path$$1, contents, { root, base });
+    // Transform code
+    contents = await packager.transform(meta.id, meta.dependencies, contents, options);
+    // Resolve path
+    path$$1 = await packager.resolve(path$$1);
+    // Execute bundle hook
+    contents = await gutil.pipeline(plugins, 'bundle', path$$1, contents, { root, base });
+
+    // Override dependencies
+    if (cacheable) dependencies = meta.modules;
+
+    // To buffer
+    contents = gutil.buffer(contents);
+  }
+
+  return { path: path$$1, dependencies, contents };
+}
 
 /**
  * @module bundler
  * @license MIT
  * @version 2018/03/26
  */
-
-/**
- * @function parse
- * @param {Vinyl} vinyl
- * @param {Object} options
- * @returns {Object}
- */
-async function parse(vinyl, options) {
-  const ext = vinyl.extname.slice(1);
-  const packager = packagers[ext.toLowerCase()];
-
-  if (packager) {
-    const cacheable = options.combine;
-    const meta = await packager(vinyl, options);
-
-    // Get props
-    const path$$1 = meta.path;
-    const dependencies = cacheable ? meta.modules : new Set();
-    const contents = wrapModule(meta.id, meta.dependencies, meta.contents, options);
-
-    return { path: path$$1, dependencies, contents };
-  }
-
-  return {
-    path: vinyl.path,
-    dependencies: new Set(),
-    contents: vinyl.contents
-  };
-}
 
 /**
  * @function bundler
@@ -672,7 +839,6 @@ async function bundler(vinyl, options) {
   const root = options.root;
   const base = options.base;
   const cache = options.cache;
-  const plugins = options.plugins;
   const cacheable = options.combine;
 
   // Bundler
@@ -682,35 +848,25 @@ async function bundler(vinyl, options) {
     parse: async path$$1 => {
       let meta;
       // Is entry file
-      const isEntryFile = input === path$$1;
+      const entry = input === path$$1;
 
       // Hit cache
       if (cacheable && cache.has(path$$1)) {
         meta = cache.get(path$$1);
       } else {
-        const file = isEntryFile ? vinyl : await loadModule(path$$1, options);
+        const file = entry ? vinyl : await loadModule(path$$1, options);
 
-        // Execute transform hook
-        file.contents = await gutil.pipeline(plugins, 'transform', file.path, file.contents, { root, base });
-
-        // Execute parse
-        meta = await parse(file, options);
-
-        // Execute bundle hook
-        meta.contents = await gutil.pipeline(plugins, 'bundle', meta.path, meta.contents, { root, base });
+        // Execute parser
+        meta = await parser(file, options);
       }
 
+      // If is entry file override file path
+      if (entry) vinyl.path = meta.path;
       // Set cache if combine is true
       if (cacheable) cache.set(path$$1, meta);
-      // If is entry file override file path
-      if (isEntryFile) vinyl.path = meta.path;
-
-      // Get dependencies and contents
-      const dependencies = meta.dependencies;
-      const contents = meta.contents;
 
       // Return meta
-      return { dependencies, contents };
+      return meta;
     }
   });
 
