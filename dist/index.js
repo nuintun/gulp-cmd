@@ -238,7 +238,7 @@ const LINEFEED_RE = /[\r\n]+/g;
  * @function wrapModule
  * @param {string} id
  * @param {Array|Set} deps
- * @param {string|Buffer} code
+ * @param {string} code
  * @param {boolean} strict
  * @param {number} indent
  * @returns {string}
@@ -246,8 +246,6 @@ const LINEFEED_RE = /[\r\n]+/g;
 function wrapModule(id, deps, code, options) {
   const strict = options.strict;
   const indent = options.indent;
-
-  if (Buffer.isBuffer(code)) code = code.toString();
 
   id = JSON.stringify(id);
   deps = JSON.stringify(Array.from(deps), null, indent);
@@ -315,6 +313,11 @@ async function loadModule(path$$1, options) {
  * @namespace jsPackager
  */
 const jsPackager = {
+  /**
+   * @property module
+   * @type {boolean}
+   */
+  module: true,
   /**
    * @method resolve
    * @param {string} path
@@ -419,7 +422,7 @@ const jsPackager = {
    * @returns {string}
    */
   transform(id, dependencies, contents, options) {
-    return wrapModule(id, dependencies, contents, options);
+    return contents;
   }
 };
 
@@ -480,6 +483,10 @@ async function registerLoader(loader, id, options) {
   contents = await gutil.pipeline(plugins, 'transform', path$$1, contents, { root, base });
   // Transform code
   contents = await jsPackager.transform(id, dependencies, contents, options);
+
+  // If is module then wrap module
+  if (jsPackager.module) contents = wrapModule(id, dependencies, contents, options);
+
   // Resolve path
   path$$1 = await jsPackager.resolve(path$$1);
   // Execute bundle hook
@@ -509,6 +516,11 @@ async function registerLoader(loader, id, options) {
  * @namespace cssPackager
  */
 const css = {
+  /**
+   * @property module
+   * @type {boolean}
+   */
+  module: true,
   /**
    * @method resolve
    * @param {string} path
@@ -651,7 +663,7 @@ const css = {
 
     contents = `${requires}loader(${JSON.stringify(contents)});`;
 
-    return wrapModule(id, dependencies, contents, options);
+    return contents;
   }
 };
 
@@ -665,6 +677,11 @@ const css = {
  * @namespace jsonPackager
  */
 const json = {
+  /**
+   * @property module
+   * @type {boolean}
+   */
+  module: true,
   /**
    * @method resolve
    * @param {string} path
@@ -699,7 +716,7 @@ const json = {
   transform(id, dependencies, contents, options) {
     contents = `module.exports = ${contents};`;
 
-    return wrapModule(id, dependencies, contents, options);
+    return contents;
   }
 };
 
@@ -713,6 +730,11 @@ const json = {
  * @namespace htmlPackager
  */
 const html = {
+  /**
+   * @property module
+   * @type {boolean}
+   */
+  module: true,
   /**
    * @method resolve
    * @param {string} path
@@ -747,7 +769,7 @@ const html = {
   transform(id, dependencies, contents, options) {
     contents = `module.exports = ${JSON.stringify(contents)};`;
 
-    return wrapModule(id, dependencies, contents, options);
+    return contents;
   }
 };
 
@@ -807,6 +829,10 @@ async function parser(vinyl, options) {
     contents = await gutil.pipeline(plugins, 'transform', path$$1, contents, { root, base });
     // Transform code
     contents = await packager.transform(meta.id, meta.dependencies, contents, options);
+
+    // If is module then wrap module
+    if (packager.module) contents = wrapModule(meta.id, meta.dependencies, contents, options);
+
     // Resolve path
     path$$1 = await packager.resolve(path$$1);
     // Execute bundle hook
