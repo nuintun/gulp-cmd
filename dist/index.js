@@ -9,7 +9,6 @@
 
 'use strict';
 
-const fs = require('fs');
 const gutil = require('@nuintun/gulp-util');
 const path = require('path');
 const jsDeps = require('cmd-deps');
@@ -267,42 +266,6 @@ function wrapModule(id, deps, code, options) {
   return header + code + footer;
 }
 
-// Promisify stat and readFile
-const fsReadStat = gutil.promisify(fs.stat);
-const fsReadFile = gutil.promisify(fs.readFile);
-
-/**
- * @function fsSafeAccess
- * @param {string} path
- * @param {Number} mode
- * @returns {boolean}
- */
-function fsSafeAccess(path$$1, mode = fs.constants.R_OK) {
-  try {
-    fs.accessSync(path$$1, mode);
-  } catch (error) {
-    return false;
-  }
-
-  return true;
-}
-
-/**
- * @function loadModule
- * @param {string} path
- * @param {Object} options
- * @returns {Vinyl}
- */
-async function loadModule(path$$1, options) {
-  // Read module
-  const base = options.base;
-  const stat = await fsReadStat(path$$1);
-  const contents = await fsReadFile(path$$1);
-
-  // Return a vinyl file
-  return new gutil.VinylFile({ base, path: path$$1, stat, contents });
-}
-
 /**
  * @module js
  * @license MIT
@@ -363,14 +326,14 @@ const jsPackager = {
           // Only collect require no flag
           if (flag === null) {
             // Module can read
-            if (fsSafeAccess(resolved)) {
+            if (gutil.fsSafeAccess(resolved)) {
               !ignore.has(resolved) && modules.add(resolved);
             } else {
               // Module can't read, add ext .js test again
               resolved = addExt(resolved);
 
               // Module can read
-              if (fsSafeAccess(resolved)) {
+              if (gutil.fsSafeAccess(resolved)) {
                 !ignore.has(resolved) && modules.add(resolved);
               } else {
                 // Relative path from cwd
@@ -414,7 +377,7 @@ const jsPackager = {
     return { id, dependencies, contents, modules };
   },
   /**
-   *
+   * @method transform
    * @param {string} id
    * @param {Set} dependencies
    * @param {string} contents
@@ -469,18 +432,18 @@ async function registerLoader(loader, id, options) {
   const dependencies = new Set();
   // Get real path and stat
   const fpath = require.resolve(`./builtins/loaders/${loader}`);
-  const stat = await fsReadStat(fpath);
+  const stat = await gutil.fsReadStat(fpath);
 
   // Read file contents
-  let contents = await fsReadFile(fpath);
+  let contents = await gutil.fsReadFile(fpath);
 
   // Get code
   contents = contents.toString();
 
-  // Execute load hook
-  contents = await gutil.pipeline(plugins, 'load', path$$1, contents, { root, base });
-  // Execute transform hook
-  contents = await gutil.pipeline(plugins, 'transform', path$$1, contents, { root, base });
+  // Execute loaded hook
+  contents = await gutil.pipeline(plugins, 'loaded', path$$1, contents, { root, base });
+  // Execute parsed hook
+  contents = await gutil.pipeline(plugins, 'parsed', path$$1, contents, { root, base });
   // Transform code
   contents = await jsPackager.transform(id, dependencies, contents, options);
 
@@ -489,8 +452,8 @@ async function registerLoader(loader, id, options) {
 
   // Resolve path
   path$$1 = await jsPackager.resolve(path$$1);
-  // Execute bundle hook
-  contents = await gutil.pipeline(plugins, 'bundle', path$$1, contents, { root, base });
+  // Execute transformed hook
+  contents = await gutil.pipeline(plugins, 'transformed', path$$1, contents, { root, base });
 
   // To buffer
   contents = gutil.buffer(contents);
@@ -598,7 +561,7 @@ const css = {
           let resolved = resolve(dependency, path$$1, { root });
 
           // Module can read
-          if (fsSafeAccess(resolved)) {
+          if (gutil.fsSafeAccess(resolved)) {
             !ignore.has(resolved) && modules.add(resolved);
           } else {
             // Relative file path from cwd
@@ -637,7 +600,7 @@ const css = {
     return { id, dependencies, contents, modules };
   },
   /**
-   *
+   * @method transform
    * @param {string} id
    * @param {Set} dependencies
    * @param {string} contents
@@ -706,7 +669,7 @@ const json = {
     return { id, dependencies, contents, modules };
   },
   /**
-   *
+   * @method transform
    * @param {string} id
    * @param {Set} dependencies
    * @param {string} contents
@@ -759,7 +722,7 @@ const html = {
     return { id, dependencies, contents, modules };
   },
   /**
-   *
+   * @method transform
    * @param {string} id
    * @param {Set} dependencies
    * @param {string} contents
@@ -816,8 +779,8 @@ async function parser(vinyl, options) {
     // Get code
     contents = contents.toString();
 
-    // Execute load hook
-    contents = await gutil.pipeline(plugins, 'load', path$$1, contents, { root, base });
+    // Execute loaded hook
+    contents = await gutil.pipeline(plugins, 'loaded', path$$1, contents, { root, base });
 
     // Parse metadata
     const meta = await packager.parse(path$$1, contents, options);
@@ -825,8 +788,8 @@ async function parser(vinyl, options) {
     // Override contents
     contents = meta.contents;
 
-    // Execute transform hook
-    contents = await gutil.pipeline(plugins, 'transform', path$$1, contents, { root, base });
+    // Execute parsed hook
+    contents = await gutil.pipeline(plugins, 'parsed', path$$1, contents, { root, base });
     // Transform code
     contents = await packager.transform(meta.id, meta.dependencies, contents, options);
 
@@ -835,8 +798,8 @@ async function parser(vinyl, options) {
 
     // Resolve path
     path$$1 = await packager.resolve(path$$1);
-    // Execute bundle hook
-    contents = await gutil.pipeline(plugins, 'bundle', path$$1, contents, { root, base });
+    // Execute transformed hook
+    contents = await gutil.pipeline(plugins, 'transformed', path$$1, contents, { root, base });
 
     // Override dependencies
     if (cacheable) dependencies = meta.modules;
@@ -880,7 +843,7 @@ async function bundler(vinyl, options) {
       if (cacheable && cache.has(path$$1)) {
         meta = cache.get(path$$1);
       } else {
-        const file = entry ? vinyl : await loadModule(path$$1, options);
+        const file = entry ? vinyl : await gutil.fetchModule(path$$1, options);
 
         // Execute parser
         meta = await parser(file, options);
