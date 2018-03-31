@@ -323,9 +323,6 @@ const jsPackager = {
           // Resolve dependency
           let resolved = resolve(dependency, path$$1, { root, base });
 
-          // If no ext the add ext
-          if (!fileExt(resolved)) resolved = addExt(resolved);
-
           // Only collect require no flag
           if (flag === null) {
             // Module can read
