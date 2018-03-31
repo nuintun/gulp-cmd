@@ -323,13 +323,16 @@ const jsPackager = {
           // Resolve dependency
           let resolved = resolve(dependency, path$$1, { root, base });
 
+          // If no ext the add ext
+          if (!fileExt(resolved)) resolved = addExt(resolved);
+
           // Only collect require no flag
           if (flag === null) {
             // Module can read
             if (gutil.fsSafeAccess(resolved)) {
               !ignore.has(resolved) && modules.add(resolved);
             } else {
-              // Module can't read, add ext .js test again
+              // Module can't read, add ext test again
               resolved = addExt(resolved);
 
               // Module can read
