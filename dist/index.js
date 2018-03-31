@@ -325,8 +325,8 @@ const jsPackager = {
 
           // Only collect require no flag
           if (flag === null) {
-            // Module can read
-            if (gutil.fsSafeAccess(resolved)) {
+            // If has ext and module can read
+            if (fileExt(resolved) && gutil.fsSafeAccess(resolved)) {
               !ignore.has(resolved) && modules.add(resolved);
             } else {
               // Module can't read, add ext test again
