@@ -844,7 +844,6 @@ async function bundler(vinyl, options) {
   const root = options.root;
   const base = options.base;
   const cache = options.cache;
-  const combine = options.combine;
 
   // Bundler
   const bundles = await new Bundler({
