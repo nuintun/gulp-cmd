@@ -16,11 +16,6 @@ import * as gutil from '@nuintun/gulp-util';
 export default function main(options) {
   options = utils.initOptions(options);
 
-  const cache = options.cache;
-  const ignore = options.ignore;
-  const loaders = options.loaders;
-  const cacheable = options.combine;
-
   // Stream
   return through(
     async function(vinyl, encoding, next) {
@@ -48,14 +43,18 @@ export default function main(options) {
       next(null, vinyl);
     },
     function(next) {
-      loaders.forEach(loader => {
+      const cacheable = options.combine;
+
+      options.loaders.forEach(loader => {
         if (!cacheable || utils.isIgnoreModule(loader.path, options)) {
           this.push(loader.vinyl);
         }
       });
 
       // Clear cache
-      cache.clear();
+      options.cache.clear();
+      options.loaders.clear();
+      options.micromatch.clear();
 
       // Next
       next();

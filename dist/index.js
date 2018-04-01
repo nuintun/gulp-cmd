@@ -98,7 +98,15 @@ function hideExt(path$$1) {
  * @return {boolean}
  */
 function isIgnoreModule(module, options) {
-  return micromatch(module, options.ignore).length > 0;
+  const cache = options.micromatch;
+
+  if (cache.has(module)) return cache.get(module);
+
+  const ignored = micromatch(module, options.ignore).length > 0;
+
+  cache.set(module, ignored);
+
+  return ignored;
 }
 
 /**
@@ -147,10 +155,12 @@ function initOptions(options) {
     throw new TypeError(`Options.css.loader must be a nonempty string.`);
   }
 
-  // Init cache
+  // Init files cache
   options.cache = new Map();
-  // Init loaders
+  // Init loaders cache
   options.loaders = new Map();
+  // Init micromatch cache
+  options.micromatch = new Map();
   // Init ignore
   options.ignore = Array.from(
     options.ignore.reduce((patterns, pattern) => {
@@ -160,7 +170,7 @@ function initOptions(options) {
 
         if (negate) pattern = pattern.slice(1);
 
-        pattern = path.resolve(pattern);
+        pattern = gutil.unixify(path.resolve(pattern));
 
         if (negate) pattern = `!${pattern}`;
 
@@ -878,11 +888,6 @@ async function bundler(vinyl, options) {
 function main(options) {
   options = initOptions(options);
 
-  const cache = options.cache;
-  const ignore = options.ignore;
-  const loaders = options.loaders;
-  const cacheable = options.combine;
-
   // Stream
   return through(
     async function(vinyl, encoding, next) {
@@ -910,14 +915,18 @@ function main(options) {
       next(null, vinyl);
     },
     function(next) {
-      loaders.forEach(loader => {
+      const cacheable = options.combine;
+
+      options.loaders.forEach(loader => {
         if (!cacheable || isIgnoreModule(loader.path, options)) {
           this.push(loader.vinyl);
         }
       });
 
       // Clear cache
-      cache.clear();
+      options.cache.clear();
+      options.loaders.clear();
+      options.micromatch.clear();
 
       // Next
       next();
