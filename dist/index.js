@@ -882,16 +882,19 @@ function main(options) {
         return next(null, vinyl);
       }
 
-      // Next
+      // Bundler
       try {
-        next(null, await bundler(vinyl, options));
+        vinyl = await bundler(vinyl, options);
       } catch (error) {
-        next(error);
+        return next(error);
       }
+
+      // Next
+      next(null, vinyl);
     },
     function(next) {
       loaders.forEach(loader => {
-        if (!cacheable || ignore.has(loader.path)) {
+        if (!cacheable || isIgnoreModule(loader.path, options)) {
           this.push(loader.vinyl);
         }
       });
