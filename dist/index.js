@@ -181,18 +181,18 @@ function initOptions(options) {
     }, new Set())
   );
 
+  // Init combine
+  const combine = options.combine;
+  const fnCombine = gutil.typpy(combine);
+
+  options.combine = module => (fnCombine ? combine(module) : combine);
+
   // Freeze
   options.js = Object.freeze(options.js);
   options.css = Object.freeze(options.css);
 
   // Can not override js packager
   delete options.packagers.js;
-
-  // Init combine
-  const combine = options.combine;
-  const fnCombine = gutil.typpy(combine);
-
-  options.combine = module => (fnCombine ? combine(module) : combine);
 
   // Freeze
   return Object.freeze(options);
