@@ -34,9 +34,9 @@ const through = require('@nuintun/through');
 function resolve(request, referer, options) {
   // Resolve
   if (gutil.isAbsolute(request)) {
-    request = path.join(options.root, request);
+    request = path.resolve(options.root, request);
   } else if (gutil.isRelative(request)) {
-    request = path.join(path.dirname(referer), request);
+    request = path.resolve(path.dirname(referer), request);
 
     // Out of bounds of root
     if (gutil.isOutBounds(request, options.root)) {
@@ -46,7 +46,7 @@ function resolve(request, referer, options) {
     const base = options.base || path.dirname(referer);
 
     // Use base or referer dirname
-    request = path.join(base, request);
+    request = path.resolve(base, request);
   }
 
   return request;
@@ -204,7 +204,7 @@ function moduleId(src, options) {
   const base = options.base;
   const isOutBase = gutil.isOutBounds(src, base);
   const repath = path.relative(isOutBase ? root : base, src);
-  const id = gutil.normalize(path.join(isOutBase ? '/' : '', repath));
+  const id = (isOutBase ? '/' : '') + gutil.normalize(repath);
 
   // Return id
   return id;
