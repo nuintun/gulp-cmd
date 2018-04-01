@@ -9,6 +9,7 @@
 
 'use strict';
 
+const micromatch = require('micromatch');
 const gutil = require('@nuintun/gulp-util');
 const path = require('path');
 const jsDeps = require('cmd-deps');
@@ -91,32 +92,13 @@ function hideExt(path$$1) {
 }
 
 /**
- * @function initIgnore
+ * @function isIgnoreModule
+ * @param {string} module
  * @param {Object} options
- * @return {Object}
+ * @return {boolean}
  */
-function initIgnore(options) {
-  const ignore = new Set();
-  const root = options.root;
-  const base = options.base;
-  const alias = options.alias;
-  const isUrl = gutil.isUrl;
-  const isAbsolute = gutil.isAbsolute;
-
-  options.ignore.forEach(id => {
-    // Compute id
-    id = parseAlias(id, alias);
-
-    // Local id add ignore
-    if (!isUrl(id)) {
-      const fpath = path.join(isAbsolute(id) ? root : base, id);
-
-      // Add file
-      ignore.add(fileExt(fpath) ? fpath : addExt(fpath));
-    }
-  });
-
-  return ignore;
+function isIgnoreModule(module, options) {
+  return micromatch(module, options.ignore).length > 0;
 }
 
 /**
@@ -170,7 +152,7 @@ function initOptions(options) {
   // Init loaders
   options.loaders = new Map();
   // Init ignore
-  options.ignore = initIgnore(options);
+  options.ignore = options.ignore.filter(pattern => gutil.typpy(pattern, String));
 
   // Freeze
   options.js = Object.freeze(options.js);
@@ -302,7 +284,6 @@ const jsPackager = {
   parse(path$$1, contents, options) {
     const root = options.root;
     const base = options.base;
-    const ignore = options.ignore;
 
     // Metadata
     const id = resolveModuleId(path$$1, options);
@@ -330,14 +311,14 @@ const jsPackager = {
           if (flag === null) {
             // If has ext and module can read
             if (fileExt(resolved) && gutil.fsSafeAccess(resolved)) {
-              !ignore.has(resolved) && modules.add(resolved);
+              !isIgnoreModule(resolved, options) && modules.add(resolved);
             } else {
               // Module can't read, add ext test again
               resolved = addExt(resolved);
 
               // Module can read
               if (gutil.fsSafeAccess(resolved)) {
-                !ignore.has(resolved) && modules.add(resolved);
+                !isIgnoreModule(resolved, options) && modules.add(resolved);
               } else {
                 // Relative path from cwd
                 const rpath = JSON.stringify(gutil.path2cwd(path$$1));
@@ -504,14 +485,13 @@ const css = {
    */
   async parse(path$$1, contents, options) {
     const root = options.root;
-    const ignore = options.ignore;
     const loader = options.css.loader;
     const { id: loaderId, path: loaderPath } = await registerLoader('css', loader, options);
 
     // Metadata
     const id = resolveModuleId(path$$1, options);
     const dependencies = new Set([loaderId]);
-    const modules = new Set(ignore.has(loaderPath) ? [] : [loaderPath]);
+    const modules = new Set(isIgnoreModule(loaderPath, options) ? [] : [loaderPath]);
 
     /**
      * @function onpath
@@ -565,7 +545,7 @@ const css = {
 
           // Module can read
           if (gutil.fsSafeAccess(resolved)) {
-            !ignore.has(resolved) && modules.add(resolved);
+            !isIgnoreModule(resolved, options) && modules.add(resolved);
           } else {
             // Relative file path from cwd
             const rpath = JSON.stringify(gutil.path2cwd(path$$1));

@@ -44,6 +44,7 @@ const inputOptions = {
     'util',
     'path',
     'cmd-deps',
+    'micromatch',
     '@nuintun/bundler',
     '@nuintun/through',
     '@nuintun/css-deps',
