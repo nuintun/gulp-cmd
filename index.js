@@ -43,10 +43,10 @@ export default function main(options) {
       next(null, vinyl);
     },
     function(next) {
-      const cacheable = options.combine;
+      const combine = options.combine;
 
       options.loaders.forEach(loader => {
-        if (!cacheable || utils.isIgnoreModule(loader.path, options)) {
+        if (!combine(loader.path) || utils.isIgnoreModule(loader.path, options)) {
           this.push(loader.vinyl);
         }
       });

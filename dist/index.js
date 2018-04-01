@@ -134,8 +134,8 @@ function initOptions(options) {
     plugins: { type: Array, default: [] },
     packagers: { type: Object, default: {} },
     strict: { type: Boolean, default: true },
-    combine: { type: Boolean, default: false },
     map: { type: [null, Function], default: null },
+    combine: { type: [Boolean, Function], default: false },
     'js.flags': { type: Array, default: ['async'] },
     'css.loader': { type: String, default: 'css-loader' },
     'css.onpath': { type: [null, Function], default: null }
@@ -187,6 +187,12 @@ function initOptions(options) {
 
   // Can not override js packager
   delete options.packagers.js;
+
+  // Init combine
+  const combine = options.combine;
+  const fnCombine = gutil.typpy(combine);
+
+  options.combine = module => (fnCombine ? combine(module) : combine);
 
   // Freeze
   return Object.freeze(options);
@@ -784,7 +790,7 @@ async function parser(vinyl, options) {
     const root = options.root;
     const base = options.base;
     const plugins = options.plugins;
-    const cacheable = options.combine;
+    const combine = options.combine;
 
     // Get code
     contents = contents.toString();
@@ -812,7 +818,7 @@ async function parser(vinyl, options) {
     contents = await gutil.pipeline(plugins, 'transformed', path$$1, contents, { root, base });
 
     // Override dependencies
-    if (cacheable) dependencies = meta.modules;
+    if (combine(path$$1)) dependencies = meta.modules;
 
     // To buffer
     contents = gutil.buffer(contents);
@@ -838,7 +844,7 @@ async function bundler(vinyl, options) {
   const root = options.root;
   const base = options.base;
   const cache = options.cache;
-  const cacheable = options.combine;
+  const combine = options.combine;
 
   // Bundler
   const bundles = await new Bundler({
@@ -850,19 +856,20 @@ async function bundler(vinyl, options) {
       const entry = input === path$$1;
 
       // Hit cache
-      if (cacheable && cache.has(path$$1)) {
+      if (cache.has(path$$1)) {
         meta = cache.get(path$$1);
       } else {
         const file = entry ? vinyl : await gutil.fetchModule(path$$1, options);
 
         // Execute parser
         meta = await parser(file, options);
+
+        // Set cache
+        cache.set(path$$1, meta);
       }
 
       // If is entry file override file path
       if (entry) vinyl.path = meta.path;
-      // Set cache if combine is true
-      if (cacheable) cache.set(path$$1, meta);
 
       // Return meta
       return meta;
@@ -915,10 +922,10 @@ function main(options) {
       next(null, vinyl);
     },
     function(next) {
-      const cacheable = options.combine;
+      const combine = options.combine;
 
       options.loaders.forEach(loader => {
-        if (!cacheable || isIgnoreModule(loader.path, options)) {
+        if (!combine(loader.path) || isIgnoreModule(loader.path, options)) {
           this.push(loader.vinyl);
         }
       });
