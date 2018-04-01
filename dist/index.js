@@ -34,9 +34,9 @@ const through = require('@nuintun/through');
 function resolve(request, referer, options) {
   // Resolve
   if (gutil.isAbsolute(request)) {
-    request = path.resolve(options.root, request);
+    request = path.join(options.root, request);
   } else if (gutil.isRelative(request)) {
-    request = path.resolve(path.dirname(referer), request);
+    request = path.join(path.dirname(referer), request);
 
     // Out of bounds of root
     if (gutil.isOutBounds(request, options.root)) {
@@ -46,7 +46,7 @@ function resolve(request, referer, options) {
     const base = options.base || path.dirname(referer);
 
     // Use base or referer dirname
-    request = path.resolve(base, request);
+    request = path.join(base, request);
   }
 
   return request;
@@ -183,7 +183,7 @@ function initOptions(options) {
 
   // Init combine
   const combine = options.combine;
-  const fnCombine = gutil.typpy(combine);
+  const fnCombine = gutil.typpy(combine, Function);
 
   options.combine = module => (fnCombine ? combine(module) : combine);
 
