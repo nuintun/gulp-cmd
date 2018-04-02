@@ -132,13 +132,14 @@ function initOptions(options) {
     indent: { type: Number, default: 2 },
     ignore: { type: Array, default: [] },
     plugins: { type: Array, default: [] },
+    map: { type: Function, default: null },
     packagers: { type: Object, default: {} },
     strict: { type: Boolean, default: true },
-    map: { type: [null, Function], default: null },
+    onbundle: { type: Function, default: null },
     combine: { type: [Boolean, Function], default: false },
     'js.flags': { type: Array, default: ['async'] },
-    'css.loader': { type: String, default: 'css-loader' },
-    'css.onpath': { type: [null, Function], default: null }
+    'css.onpath': { type: Function, default: null },
+    'css.loader': { type: String, default: 'css-loader' }
   });
 
   // Init root and base
@@ -883,6 +884,9 @@ async function bundler(vinyl, options) {
       return { path: path$$1, dependencies, contents };
     }
   });
+
+  // Exec onbundle
+  options.onbundle && options.onbundle(input, bundles);
 
   // Combine files
   vinyl.contents = gutil.combine(bundles);
