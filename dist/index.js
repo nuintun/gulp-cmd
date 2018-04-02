@@ -473,7 +473,7 @@ async function registerLoader(loader, id, options) {
   contents = await gutil.pipeline(plugins, 'transformed', path$$1, contents, { root, base });
 
   // To buffer
-  contents = gutil.buffer(contents);
+  contents = Buffer.from(contents);
 
   // Create vinyl file
   const vinyl = new gutil.VinylFile({ base, path: path$$1, stat, contents });
@@ -820,7 +820,7 @@ async function parser(vinyl, options) {
     dependencies = meta.modules;
 
     // To buffer
-    contents = gutil.buffer(contents);
+    contents = Buffer.from(contents);
   }
 
   return { path: path$$1, dependencies, contents };
