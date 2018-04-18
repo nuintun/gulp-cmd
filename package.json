@@ -17,19 +17,22 @@
     "node": ">=7.6.0"
   },
   "license": "MIT",
-  "main": "dist/index.js",
+  "main": "index.js",
   "keywords": ["gulp", "cmd", "concat", "commonjs", "transport", "gulpplugin"],
   "dependencies": {
     "cmd-deps": "https://github.com/nuintun/cmd-deps/archive/dev.tar.gz",
     "micromatch": "^3.1.10",
-    "@nuintun/bundler": "^0.2.3",
+    "@nuintun/bundler": "^0.3.0",
     "@nuintun/through": "^1.0.3",
     "@nuintun/css-deps": "https://github.com/nuintun/css-deps/archive/dev.tar.gz",
     "@nuintun/gulp-util": "https://github.com/nuintun/gulp-util/archive/dev.tar.gz"
   },
+  "scripts": {
+    "prepublishOnly": "node rollup.js"
+  },
   "devDependencies": {
     "gulp": "next",
-    "rollup": "^0.57.1",
+    "rollup": "^0.58.0",
     "fs-extra": "^5.0.0"
   },
   "homepage": "https://github.com/nuintun/gulp-cmd#readme"

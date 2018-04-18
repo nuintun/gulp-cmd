@@ -83,5 +83,4 @@ test
 package-lock.json
 
 # src file
-/lib
-/index.js
+/src/

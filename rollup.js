@@ -16,14 +16,15 @@ const pkg = require('./package.json');
  * @param {Object} outputOptions
  */
 async function build(inputOptions, outputOptions) {
-  await fs.remove('dist');
+  await fs.remove('index.js');
+  await fs.remove('builtins');
 
   const bundle = await rollup.rollup(inputOptions);
 
   await bundle.write(outputOptions);
   console.log(`Build ${outputOptions.file} success!`);
-  await fs.copy('lib/builtins/loaders', 'dist/builtins/loaders');
-  console.log(`Build dist/builtins/loaders success!`);
+  await fs.copy('src/lib/builtins/loaders', 'builtins/loaders');
+  console.log(`Build builtins/loaders success!`);
 }
 
 const banner = `/**
@@ -37,7 +38,7 @@ const banner = `/**
 `;
 
 const inputOptions = {
-  input: 'index.js',
+  input: 'src/index.js',
   preferConst: true,
   external: [
     'fs',
@@ -59,7 +60,7 @@ const outputOptions = {
   indent: true,
   legacy: true,
   interop: false,
-  file: 'dist/index.js'
+  file: 'index.js'
 };
 
 build(inputOptions, outputOptions);
