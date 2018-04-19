@@ -84,3 +84,6 @@ package-lock.json
 
 # src file
 /src/
+
+# rollup configuration
+/rollup.js
