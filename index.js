@@ -796,7 +796,7 @@ async function parser(vinyl, options) {
     contents = contents.toString();
 
     // Execute loaded hook
-    contents = await gutil.pipeline(plugins, 'loaded', path$$1, contents, { root, base });
+    contents = await gutil.pipeline(plugins, 'load', path$$1, contents, { root, base });
 
     // Parse metadata
     const meta = await packager.parse(path$$1, contents, options);
@@ -805,7 +805,7 @@ async function parser(vinyl, options) {
     contents = meta.contents;
 
     // Execute parsed hook
-    contents = await gutil.pipeline(plugins, 'parsed', path$$1, contents, { root, base });
+    contents = await gutil.pipeline(plugins, 'transform', path$$1, contents, { root, base });
     // Transform code
     contents = await packager.transform(meta.id, meta.dependencies, contents, options);
 
@@ -815,7 +815,7 @@ async function parser(vinyl, options) {
     // Resolve path
     path$$1 = await packager.resolve(path$$1);
     // Execute transformed hook
-    contents = await gutil.pipeline(plugins, 'transformed', path$$1, contents, { root, base });
+    contents = await gutil.pipeline(plugins, 'bundle', path$$1, contents, { root, base });
 
     // Override dependencies
     dependencies = meta.modules;

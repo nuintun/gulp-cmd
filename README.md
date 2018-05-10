@@ -120,8 +120,8 @@ gulp.task('default', function() {
 
 > 注意事项：_模块 id 以 `/` 结尾会默认用 `index.js` 或者 `index.css` 补全_， id 以 `/` 开头的模块会从 wwwroot 路径寻找。id 规则简化，不支持带 `search` 参数的用法，只支持标准路径，和 seajs 的[模块标识](https://github.com/seajs/seajs/issues/258)中有些区别。css 的 import 规则和原生一致，需要注意的是尽量不要引入远程资源。
 
-[npm-image]: http://img.shields.io/npm/v/gulp-cmd.svg?style=flat-square
-[npm-url]: https://www.npmjs.org/package/gulp-cmd
-[download-image]: http://img.shields.io/npm/dm/gulp-cmd.svg?style=flat-square
+[npm-image]: http://img.shields.io/npm/v/@nuintun/gulp-cmd.svg?style=flat-square
+[npm-url]: https://www.npmjs.org/package/@nuintun/gulp-cmd
+[download-image]: http://img.shields.io/npm/dm/@nuintun/gulp-cmd.svg?style=flat-square
 [david-image]: http://img.shields.io/david/nuintun/gulp-cmd.svg?style=flat-square
 [david-url]: https://david-dm.org/nuintun/gulp-cmd
