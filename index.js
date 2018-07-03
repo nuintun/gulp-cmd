@@ -286,6 +286,18 @@ function wrapModule(id, deps, code, options) {
 }
 
 /**
+ * @module lifecycle
+ * @license MIT
+ * @version 2018/07/03
+ */
+
+const lifecycle = {
+  LOAD: 'load',
+  TRANSFORM: 'transform',
+  BUNDLE: 'bundle'
+};
+
+/**
  * @module js
  * @license MIT
  * @version 2018/03/26
@@ -459,19 +471,19 @@ async function registerLoader(loader, id, options) {
   contents = contents.toString();
 
   // Execute loaded hook
-  contents = await gutil.pipeline(plugins, 'loaded', path$$1, contents, { root, base });
+  contents = await gutil.pipeline(plugins, lifecycle.LOAD, path$$1, contents, { root, base });
   // Execute parsed hook
-  contents = await gutil.pipeline(plugins, 'parsed', path$$1, contents, { root, base });
+  contents = await gutil.pipeline(plugins, lifecycle.TRANSFORM, path$$1, contents, { root, base });
   // Transform code
   contents = await jsPackager.transform(id, dependencies, contents, options);
 
   // If is module then wrap module
-  if (jsPackager.module) contents = wrapModule(id, dependencies, contents, options);
+  contents = wrapModule(id, dependencies, contents, options);
 
   // Resolve path
   path$$1 = await jsPackager.resolve(path$$1);
   // Execute transformed hook
-  contents = await gutil.pipeline(plugins, 'transformed', path$$1, contents, { root, base });
+  contents = await gutil.pipeline(plugins, lifecycle.BUNDLE, path$$1, contents, { root, base });
 
   // To buffer
   contents = Buffer.from(contents);
@@ -759,7 +771,7 @@ const html = {
  * @version 2018/03/26
  */
 
-const packagers = /*#__PURE__*/(Object.freeze || Object)({
+const packagers = /*#__PURE__*/Object.freeze({
   html: html,
   tpl: html,
   js: jsPackager,
@@ -796,7 +808,7 @@ async function parser(vinyl, options) {
     contents = contents.toString();
 
     // Execute loaded hook
-    contents = await gutil.pipeline(plugins, 'load', path$$1, contents, { root, base });
+    contents = await gutil.pipeline(plugins, lifecycle.LOAD, path$$1, contents, { root, base });
 
     // Parse metadata
     const meta = await packager.parse(path$$1, contents, options);
@@ -805,7 +817,7 @@ async function parser(vinyl, options) {
     contents = meta.contents;
 
     // Execute parsed hook
-    contents = await gutil.pipeline(plugins, 'transform', path$$1, contents, { root, base });
+    contents = await gutil.pipeline(plugins, lifecycle.TRANSFORM, path$$1, contents, { root, base });
     // Transform code
     contents = await packager.transform(meta.id, meta.dependencies, contents, options);
 
@@ -815,7 +827,7 @@ async function parser(vinyl, options) {
     // Resolve path
     path$$1 = await packager.resolve(path$$1);
     // Execute transformed hook
-    contents = await gutil.pipeline(plugins, 'bundle', path$$1, contents, { root, base });
+    contents = await gutil.pipeline(plugins, lifecycle.BUNDLE, path$$1, contents, { root, base });
 
     // Override dependencies
     dependencies = meta.modules;

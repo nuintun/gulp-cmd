@@ -6,6 +6,7 @@
 
 import { join } from 'path';
 import * as utils from './utils';
+import lifecycle from './lifecycle';
 import * as gutil from '@nuintun/gulp-util';
 import jsPackager from './builtins/packagers/js';
 
@@ -55,9 +56,9 @@ export default async function registerLoader(loader, id, options) {
   contents = contents.toString();
 
   // Execute loaded hook
-  contents = await gutil.pipeline(plugins, 'loaded', path, contents, { root, base });
+  contents = await gutil.pipeline(plugins, lifecycle.LOAD, path, contents, { root, base });
   // Execute parsed hook
-  contents = await gutil.pipeline(plugins, 'parsed', path, contents, { root, base });
+  contents = await gutil.pipeline(plugins, lifecycle.TRANSFORM, path, contents, { root, base });
   // Transform code
   contents = await jsPackager.transform(id, dependencies, contents, options);
 
@@ -67,7 +68,7 @@ export default async function registerLoader(loader, id, options) {
   // Resolve path
   path = await jsPackager.resolve(path);
   // Execute transformed hook
-  contents = await gutil.pipeline(plugins, 'transformed', path, contents, { root, base });
+  contents = await gutil.pipeline(plugins, lifecycle.BUNDLE, path, contents, { root, base });
 
   // To buffer
   contents = Buffer.from(contents);

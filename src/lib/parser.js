@@ -5,6 +5,7 @@
  */
 
 import * as utils from './utils';
+import lifecycle from './lifecycle';
 import * as gutil from '@nuintun/gulp-util';
 import * as packagers from './builtins/packagers/index';
 
@@ -31,7 +32,7 @@ export default async function parser(vinyl, options) {
     contents = contents.toString();
 
     // Execute loaded hook
-    contents = await gutil.pipeline(plugins, 'load', path, contents, { root, base });
+    contents = await gutil.pipeline(plugins, lifecycle.LOAD, path, contents, { root, base });
 
     // Parse metadata
     const meta = await packager.parse(path, contents, options);
@@ -40,7 +41,7 @@ export default async function parser(vinyl, options) {
     contents = meta.contents;
 
     // Execute parsed hook
-    contents = await gutil.pipeline(plugins, 'transform', path, contents, { root, base });
+    contents = await gutil.pipeline(plugins, lifecycle.TRANSFORM, path, contents, { root, base });
     // Transform code
     contents = await packager.transform(meta.id, meta.dependencies, contents, options);
 
@@ -50,7 +51,7 @@ export default async function parser(vinyl, options) {
     // Resolve path
     path = await packager.resolve(path);
     // Execute transformed hook
-    contents = await gutil.pipeline(plugins, 'bundle', path, contents, { root, base });
+    contents = await gutil.pipeline(plugins, lifecycle.BUNDLE, path, contents, { root, base });
 
     // Override dependencies
     dependencies = meta.modules;
