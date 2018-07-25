@@ -16,8 +16,6 @@ import * as gutil from '@nuintun/gulp-util';
  */
 export default async function bundler(vinyl, options) {
   const input = vinyl.path;
-  const root = options.root;
-  const base = options.base;
   const cache = options.cache;
 
   // Is combine
