@@ -29,7 +29,7 @@
   "dependencies": {
     "cmd-deps": "https://github.com/nuintun/cmd-deps/archive/dev.tar.gz",
     "micromatch": "^3.1.10",
-    "@nuintun/bundler": "^0.3.7",
+    "@nuintun/bundler": "^0.3.8",
     "@nuintun/through": "^1.1.0",
     "@nuintun/css-deps": "https://github.com/nuintun/css-deps/archive/dev.tar.gz",
     "@nuintun/gulp-util": "https://github.com/nuintun/gulp-util/archive/dev.tar.gz"
@@ -39,7 +39,7 @@
   },
   "devDependencies": {
     "gulp": "next",
-    "rollup": "^0.65.0",
+    "rollup": "^0.66.2",
     "fs-extra": "^7.0.0"
   },
   "homepage": "https://github.com/nuintun/gulp-cmd#readme"
