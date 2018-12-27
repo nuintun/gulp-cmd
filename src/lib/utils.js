@@ -6,6 +6,7 @@
 
 import micromatch from 'micromatch';
 import * as gutil from '@nuintun/gulp-util';
+import optionsSchemas from '../schemas/options';
 import { resolve as pResolve, join, dirname, relative, extname } from 'path';
 
 /**
@@ -100,32 +101,7 @@ export function isIgnoreModule(module, options) {
  * @returns {Object}
  */
 export function initOptions(options) {
-  options = gutil.inspectAttrs(options, {
-    root: {
-      type: String,
-      default: process.cwd()
-    },
-    base: {
-      required: true,
-      type: String,
-      onRequired: 'Options.%s is required.',
-      onTypeError: 'Options.%s must be a string.'
-    },
-    js: { type: Object, default: {} },
-    css: { type: Object, default: {} },
-    alias: { type: Object, default: {} },
-    indent: { type: Number, default: 2 },
-    ignore: { type: Array, default: [] },
-    plugins: { type: Array, default: [] },
-    map: { type: Function, default: null },
-    packagers: { type: Object, default: {} },
-    strict: { type: Boolean, default: true },
-    onbundle: { type: Function, default: null },
-    combine: { type: [Boolean, Function], default: false },
-    'js.flags': { type: Array, default: ['async'] },
-    'css.onpath': { type: Function, default: null },
-    'css.loader': { type: String, default: 'css-loader' }
-  });
+  gutil.validateOptions(optionsSchemas, options);
 
   // Init root and base
   options.root = pResolve(options.root);

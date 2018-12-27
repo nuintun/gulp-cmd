@@ -32,29 +32,36 @@ export default async function parser(vinyl, options) {
     contents = contents.toString();
 
     // Execute loaded hook
-    contents = await gutil.pipeline(plugins, lifecycle.LOAD, path, contents, { root, base });
+    contents = await gutil.pipeline(plugins, lifecycle.moduleDidLoad, path, contents, { root, base });
 
     // Parse metadata
     const meta = await packager.parse(path, contents, options);
 
+    // Override dependencies
+    dependencies = meta.modules;
+
     // Override contents
-    contents = meta.contents;
+    contents = meta.contents.toString();
 
     // Execute parsed hook
-    contents = await gutil.pipeline(plugins, lifecycle.TRANSFORM, path, contents, { root, base });
+    contents = await gutil.pipeline(plugins, lifecycle.moduleDidParse, path, contents, { root, base });
     // Transform code
     contents = await packager.transform(meta.id, meta.dependencies, contents, options);
+
+    // Override contents
+    contents = contents.toString();
+
+    // Resolve path
+    path = await packager.resolve(path);
+
+    // Execute parsed hook
+    contents = await gutil.pipeline(plugins, lifecycle.moduleDidTransform, path, contents, { root, base });
 
     // If is module then wrap module
     if (packager.module) contents = utils.wrapModule(meta.id, meta.dependencies, contents, options);
 
-    // Resolve path
-    path = await packager.resolve(path);
     // Execute transformed hook
-    contents = await gutil.pipeline(plugins, lifecycle.BUNDLE, path, contents, { root, base });
-
-    // Override dependencies
-    dependencies = meta.modules;
+    contents = await gutil.pipeline(plugins, lifecycle.moduleWillBundle, path, contents, { root, base });
 
     // To buffer
     contents = Buffer.from(contents);

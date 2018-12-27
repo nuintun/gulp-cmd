@@ -17,6 +17,143 @@ const cssDeps = require('@nuintun/css-deps');
 const Bundler = require('@nuintun/bundler');
 const through = require('@nuintun/through');
 
+const cwd = process.cwd();
+
+const optionsSchemas = {
+  title: 'gulp-css',
+  description: 'A gulp plugin for cmd transport and concat.',
+  type: 'object',
+  properties: {
+    root: {
+      type: 'string',
+      default: cwd
+    },
+    base: {
+      type: 'string'
+    },
+    indent: {
+      type: 'integer',
+      default: 2
+    },
+    strict: {
+      type: 'boolean',
+      default: true
+    },
+    ignore: {
+      type: 'array',
+      items: {
+        type: 'string'
+      },
+      default: []
+    },
+    alias: {
+      type: 'object',
+      default: {}
+    },
+    map: {
+      instanceof: 'Function'
+    },
+    onbundle: {
+      instanceof: 'Function'
+    },
+    combine: {
+      oneOf: [
+        {
+          type: 'boolean'
+        },
+        {
+          instanceof: 'Function'
+        }
+      ],
+      default: false,
+      errorMessage: 'should be boolean or function'
+    },
+    js: {
+      type: 'object',
+      properties: {
+        flags: {
+          type: 'array',
+          items: {
+            type: 'string'
+          },
+          default: ['async']
+        }
+      },
+      default: {}
+    },
+    css: {
+      type: 'object',
+      properties: {
+        loader: {
+          type: 'string',
+          default: 'css-loader'
+        },
+        onpath: {
+          instanceof: 'Function'
+        }
+      },
+      default: {}
+    },
+    packagers: {
+      type: 'object',
+      patternProperties: {
+        '^.*$': {
+          type: 'object',
+          properties: {
+            module: {
+              type: 'boolean'
+            },
+            resolve: {
+              instanceof: 'Function',
+              errorMessage: 'should be function'
+            },
+            parse: {
+              instanceof: 'Function',
+              errorMessage: 'should be function'
+            },
+            transform: {
+              instanceof: 'Function',
+              errorMessage: 'should be function'
+            }
+          },
+          required: ['resolve', 'parse', 'transform']
+        }
+      },
+      default: {}
+    },
+    plugins: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          name: {
+            type: 'string'
+          },
+          moduleDidLoad: {
+            instanceof: 'Function',
+            errorMessage: 'should be function'
+          },
+          moduleDidParse: {
+            instanceof: 'Function',
+            errorMessage: 'should be function'
+          },
+          moduleDidTransform: {
+            instanceof: 'Function',
+            errorMessage: 'should be function'
+          },
+          moduleWillBundle: {
+            instanceof: 'Function',
+            errorMessage: 'should be function'
+          }
+        }
+      },
+      default: []
+    }
+  },
+  required: ['base'],
+  additionalProperties: false
+};
+
 /**
  * @module utils
  * @license MIT
@@ -115,32 +252,7 @@ function isIgnoreModule(module, options) {
  * @returns {Object}
  */
 function initOptions(options) {
-  options = gutil.inspectAttrs(options, {
-    root: {
-      type: String,
-      default: process.cwd()
-    },
-    base: {
-      required: true,
-      type: String,
-      onRequired: 'Options.%s is required.',
-      onTypeError: 'Options.%s must be a string.'
-    },
-    js: { type: Object, default: {} },
-    css: { type: Object, default: {} },
-    alias: { type: Object, default: {} },
-    indent: { type: Number, default: 2 },
-    ignore: { type: Array, default: [] },
-    plugins: { type: Array, default: [] },
-    map: { type: Function, default: null },
-    packagers: { type: Object, default: {} },
-    strict: { type: Boolean, default: true },
-    onbundle: { type: Function, default: null },
-    combine: { type: [Boolean, Function], default: false },
-    'js.flags': { type: Array, default: ['async'] },
-    'css.onpath': { type: Function, default: null },
-    'css.loader': { type: String, default: 'css-loader' }
-  });
+  gutil.validateOptions(optionsSchemas, options);
 
   // Init root and base
   options.root = path.resolve(options.root);
@@ -292,9 +404,10 @@ function wrapModule(id, deps, code, options) {
  */
 
 const lifecycle = {
-  LOAD: 'load',
-  TRANSFORM: 'transform',
-  BUNDLE: 'bundle'
+  moduleDidLoad: 'moduleDidLoad',
+  moduleDidParse: 'moduleDidParse',
+  moduleDidTransform: 'moduleDidTransform',
+  moduleWillBundle: 'moduleWillBundle'
 };
 
 /**
@@ -808,29 +921,36 @@ async function parser(vinyl, options) {
     contents = contents.toString();
 
     // Execute loaded hook
-    contents = await gutil.pipeline(plugins, lifecycle.LOAD, path$$1, contents, { root, base });
+    contents = await gutil.pipeline(plugins, lifecycle.moduleDidLoad, path$$1, contents, { root, base });
 
     // Parse metadata
     const meta = await packager.parse(path$$1, contents, options);
 
+    // Override dependencies
+    dependencies = meta.modules;
+
     // Override contents
-    contents = meta.contents;
+    contents = meta.contents.toString();
 
     // Execute parsed hook
-    contents = await gutil.pipeline(plugins, lifecycle.TRANSFORM, path$$1, contents, { root, base });
+    contents = await gutil.pipeline(plugins, lifecycle.moduleDidParse, path$$1, contents, { root, base });
     // Transform code
     contents = await packager.transform(meta.id, meta.dependencies, contents, options);
+
+    // Override contents
+    contents = contents.toString();
+
+    // Resolve path
+    path$$1 = await packager.resolve(path$$1);
+
+    // Execute parsed hook
+    contents = await gutil.pipeline(plugins, lifecycle.moduleDidTransform, path$$1, contents, { root, base });
 
     // If is module then wrap module
     if (packager.module) contents = wrapModule(meta.id, meta.dependencies, contents, options);
 
-    // Resolve path
-    path$$1 = await packager.resolve(path$$1);
     // Execute transformed hook
-    contents = await gutil.pipeline(plugins, lifecycle.BUNDLE, path$$1, contents, { root, base });
-
-    // Override dependencies
-    dependencies = meta.modules;
+    contents = await gutil.pipeline(plugins, lifecycle.moduleWillBundle, path$$1, contents, { root, base });
 
     // To buffer
     contents = Buffer.from(contents);

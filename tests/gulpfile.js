@@ -83,13 +83,16 @@ const css = {
 const plugins = [
   {
     name: 'Adam',
-    loaded(path, contents, options) {
+    moduleDidLoad(path, contents, options) {
       return contents;
     },
-    parsed(path, contents, options) {
+    moduleDidParse(path, contents, options) {
       return contents;
     },
-    transformed(path, contents, options) {
+    moduleDidTransform(path, contents, options) {
+      return contents;
+    },
+    moduleWillBundle(path, contents, options) {
       return contents;
     }
   }

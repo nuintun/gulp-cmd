@@ -5,7 +5,8 @@
  */
 
 export default {
-  LOAD: 'load',
-  TRANSFORM: 'transform',
-  BUNDLE: 'bundle'
+  moduleDidLoad: 'moduleDidLoad',
+  moduleDidParse: 'moduleDidParse',
+  moduleDidTransform: 'moduleDidTransform',
+  moduleWillBundle: 'moduleWillBundle'
 };
