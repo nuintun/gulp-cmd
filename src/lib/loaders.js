@@ -57,6 +57,8 @@ export default async function registerLoader(loader, id, options) {
 
   // Execute did load hook
   contents = await gutil.pipeline(plugins, lifecycle.moduleDidLoad, path, contents, { root, base });
+  // Execute did parse hook
+  contents = await gutil.pipeline(plugins, lifecycle.moduleDidParse, path, contents, { root, base });
 
   // Transform code
   contents = await jsPackager.transform(id, dependencies, contents, options);
