@@ -407,7 +407,7 @@ const lifecycle = {
   moduleDidLoad: 'moduleDidLoad',
   moduleDidParse: 'moduleDidParse',
   moduleDidTransform: 'moduleDidTransform',
-  moduleWillBundle: 'moduleWillBundle'
+  moduleDidComplete: 'moduleDidComplete'
 };
 
 /**
@@ -583,8 +583,10 @@ async function registerLoader(loader, id, options) {
   // Get code
   contents = contents.toString();
 
-  // Execute loaded hook
+  // Execute did load hook
   contents = await gutil.pipeline(plugins, lifecycle.moduleDidLoad, path$$1, contents, { root, base });
+  // Execute did parse hook
+  contents = await gutil.pipeline(plugins, lifecycle.moduleDidParse, path$$1, contents, { root, base });
 
   // Transform code
   contents = await jsPackager.transform(id, dependencies, contents, options);
@@ -595,14 +597,14 @@ async function registerLoader(loader, id, options) {
   // Resolve path
   path$$1 = await jsPackager.resolve(path$$1);
 
-  // Execute parsed hook
+  // Execute did transform hook
   contents = await gutil.pipeline(plugins, lifecycle.moduleDidTransform, path$$1, contents, { root, base });
 
   // If is module then wrap module
   contents = wrapModule(id, dependencies, contents, options);
 
-  // Execute transformed hook
-  contents = await gutil.pipeline(plugins, lifecycle.moduleWillBundle, path$$1, contents, { root, base });
+  // Execute did complete hook
+  contents = await gutil.pipeline(plugins, lifecycle.moduleDidComplete, path$$1, contents, { root, base });
 
   // To buffer
   contents = Buffer.from(contents);
@@ -926,7 +928,7 @@ async function parser(vinyl, options) {
     // Get code
     contents = contents.toString();
 
-    // Execute loaded hook
+    // Execute did load hook
     contents = await gutil.pipeline(plugins, lifecycle.moduleDidLoad, path$$1, contents, { root, base });
 
     // Parse metadata
@@ -938,7 +940,7 @@ async function parser(vinyl, options) {
     // Override contents
     contents = meta.contents.toString();
 
-    // Execute parsed hook
+    // Execute did parse hook
     contents = await gutil.pipeline(plugins, lifecycle.moduleDidParse, path$$1, contents, { root, base });
     // Transform code
     contents = await packager.transform(meta.id, meta.dependencies, contents, options);
@@ -949,14 +951,14 @@ async function parser(vinyl, options) {
     // Resolve path
     path$$1 = await packager.resolve(path$$1);
 
-    // Execute parsed hook
+    // Execute did transform hook
     contents = await gutil.pipeline(plugins, lifecycle.moduleDidTransform, path$$1, contents, { root, base });
 
     // If is module then wrap module
     if (packager.module) contents = wrapModule(meta.id, meta.dependencies, contents, options);
 
-    // Execute transformed hook
-    contents = await gutil.pipeline(plugins, lifecycle.moduleWillBundle, path$$1, contents, { root, base });
+    // Execute did complete hook
+    contents = await gutil.pipeline(plugins, lifecycle.moduleDidComplete, path$$1, contents, { root, base });
 
     // To buffer
     contents = Buffer.from(contents);
