@@ -584,19 +584,25 @@ async function registerLoader(loader, id, options) {
   contents = contents.toString();
 
   // Execute loaded hook
-  contents = await gutil.pipeline(plugins, lifecycle.LOAD, path$$1, contents, { root, base });
-  // Execute parsed hook
-  contents = await gutil.pipeline(plugins, lifecycle.TRANSFORM, path$$1, contents, { root, base });
+  contents = await gutil.pipeline(plugins, lifecycle.moduleDidLoad, path$$1, contents, { root, base });
+
   // Transform code
   contents = await jsPackager.transform(id, dependencies, contents, options);
+
+  // Override contents
+  contents = contents.toString();
+
+  // Resolve path
+  path$$1 = await jsPackager.resolve(path$$1);
+
+  // Execute parsed hook
+  contents = await gutil.pipeline(plugins, lifecycle.moduleDidTransform, path$$1, contents, { root, base });
 
   // If is module then wrap module
   contents = wrapModule(id, dependencies, contents, options);
 
-  // Resolve path
-  path$$1 = await jsPackager.resolve(path$$1);
   // Execute transformed hook
-  contents = await gutil.pipeline(plugins, lifecycle.BUNDLE, path$$1, contents, { root, base });
+  contents = await gutil.pipeline(plugins, lifecycle.moduleWillBundle, path$$1, contents, { root, base });
 
   // To buffer
   contents = Buffer.from(contents);
