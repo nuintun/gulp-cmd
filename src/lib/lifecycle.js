@@ -8,5 +8,5 @@ export default {
   moduleDidLoad: 'moduleDidLoad',
   moduleDidParse: 'moduleDidParse',
   moduleDidTransform: 'moduleDidTransform',
-  moduleWillBundle: 'moduleWillBundle'
+  moduleDidComplete: 'moduleDidComplete'
 };

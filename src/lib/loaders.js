@@ -55,7 +55,7 @@ export default async function registerLoader(loader, id, options) {
   // Get code
   contents = contents.toString();
 
-  // Execute loaded hook
+  // Execute did load hook
   contents = await gutil.pipeline(plugins, lifecycle.moduleDidLoad, path, contents, { root, base });
 
   // Transform code
@@ -67,14 +67,14 @@ export default async function registerLoader(loader, id, options) {
   // Resolve path
   path = await jsPackager.resolve(path);
 
-  // Execute parsed hook
+  // Execute did transform hook
   contents = await gutil.pipeline(plugins, lifecycle.moduleDidTransform, path, contents, { root, base });
 
   // If is module then wrap module
   if (jsPackager.module) contents = utils.wrapModule(id, dependencies, contents, options);
 
-  // Execute transformed hook
-  contents = await gutil.pipeline(plugins, lifecycle.moduleWillBundle, path, contents, { root, base });
+  // Execute did complete hook
+  contents = await gutil.pipeline(plugins, lifecycle.moduleDidComplete, path, contents, { root, base });
 
   // To buffer
   contents = Buffer.from(contents);
