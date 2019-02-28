@@ -27,19 +27,19 @@
     "gulpplugin"
   ],
   "dependencies": {
-    "cmd-deps": "https://github.com/nuintun/cmd-deps/archive/dev.tar.gz",
+    "cmd-deps": "https://github.com/nuintun/cmd-deps/archive/master.tar.gz",
     "micromatch": "^3.1.10",
     "@nuintun/bundler": "^1.0.0",
     "@nuintun/through": "^1.1.1",
-    "@nuintun/css-deps": "https://github.com/nuintun/css-deps/archive/dev.tar.gz",
-    "@nuintun/gulp-util": "https://github.com/nuintun/gulp-util/archive/dev.tar.gz"
+    "@nuintun/css-deps": "https://github.com/nuintun/css-deps/archive/master.tar.gz",
+    "@nuintun/gulp-util": "https://github.com/nuintun/gulp-util/archive/master.tar.gz"
   },
   "scripts": {
     "prepublishOnly": "node rollup.js"
   },
   "devDependencies": {
     "gulp": "^4.0.0",
-    "rollup": "^1.3.0",
+    "rollup": "^1.3.2",
     "fs-extra": "^7.0.1"
   },
   "homepage": "https://github.com/nuintun/gulp-cmd#readme"
