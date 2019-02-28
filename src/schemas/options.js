@@ -10,7 +10,8 @@ export default {
       default: cwd
     },
     base: {
-      type: 'string'
+      type: 'string',
+      default: ''
     },
     indent: {
       type: 'integer',
