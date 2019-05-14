@@ -411,9 +411,9 @@ cloneable-readable@^1.0.0:
     readable-stream "^2.3.5"
 
 cmd-deps@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/cmd-deps/-/cmd-deps-3.0.0.tgz#1f269848e47e4ee5921a335164e143029f1b5db3"
-  integrity sha512-Lj6i156PR9H5cXduHBD3Fafnbb6jF6totYz/DcunaWA5d8vwSaHo5Zkpl4Z/dvot9xVFAq9CObtsqdniBDMlLg==
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/cmd-deps/-/cmd-deps-3.0.1.tgz#7e9b3448b62f31fed747d816116bdbb4f08de9b4"
+  integrity sha512-SYVgyN7Y1WfUHOIpSdWiefz1CmfhoFz1R9OZb6BvRNdfNbygSEp84LgRGNUV6pXLGS7/WYB8MZiw7KMsl25LcQ==
   dependencies:
     acorn "^6.1.1"
 
