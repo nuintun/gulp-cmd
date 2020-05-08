@@ -29,7 +29,7 @@
   "dependencies": {
     "cmd-deps": "^3.0.0",
     "micromatch": "^3.1.10",
-    "@nuintun/bundler": "^1.0.1",
+    "@nuintun/bundler": "^2.0.0",
     "@nuintun/through": "^1.1.1",
     "@nuintun/css-deps": "^2.0.0",
     "@nuintun/gulp-util": "^1.0.0"

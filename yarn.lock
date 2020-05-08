@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@nuintun/bundler@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@nuintun/bundler/-/bundler-1.0.1.tgz#c0bbbe7ffe28fcb25fbeb335f0d4c7d0787c5a04"
-  integrity sha512-Hq10a0g28TSNANbhzhLFFiAlY3qyXZkUbwo11lDEMF9PVYMmTTete2c1olKvZAv6TZW0O6TEmTIgzG8pOyc9tw==
+"@nuintun/bundler@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@nuintun/bundler/-/bundler-2.0.0.tgz#3ddc8db94fff2c131279762777db94de47c91a1c"
+  integrity sha512-1algFhwSZcWJ7Lmrk3rWsasr3waBXUc/I4zZWqzUYlB4okwP4sJba1nzef/LA5Rc9Ok8o7v7MdF3gYHcskO5PA==
 
 "@nuintun/css-deps@^2.0.0":
   version "2.0.0"
