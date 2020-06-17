@@ -14,7 +14,10 @@ import * as gutil from '@nuintun/gulp-util';
  * @param {string} referrer
  */
 function oncycle(path, referrer) {
-  gutil.logger.error(`Found circular dependency ${path} in ${referrer}`);
+  path = JSON.stringify(gutil.path2cwd(path));
+  referrer = JSON.stringify(gutil.path2cwd(referrer));
+
+  gutil.logger.error(gutil.chalk.red(`Found circular dependency ${path} in ${referrer}`), '\x07');
 }
 
 /**
