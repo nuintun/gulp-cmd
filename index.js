@@ -602,7 +602,7 @@ async function registerLoader(loader, id, options) {
   contents = await gutil.pipeline(plugins, lifecycle.moduleDidTransform, path$1, contents, { root, base });
 
   // If is module then wrap module
-  contents = wrapModule(id, dependencies, contents, options);
+  if (jsPackager.module) contents = wrapModule(id, dependencies, contents, options);
 
   // Execute did complete hook
   contents = await gutil.pipeline(plugins, lifecycle.moduleDidComplete, path$1, contents, { root, base });
@@ -699,10 +699,7 @@ const css = {
             const rpath = JSON.stringify(gutil.path2cwd(path));
 
             // Output warn
-            gutil.logger.warn(
-              gutil.chalk.yellow(`Found import media queries ${media} at ${rpath}, unsupported.`),
-              '\x07'
-            );
+            gutil.logger.warn(gutil.chalk.yellow(`Found import media queries ${media} at ${rpath}, unsupported.`), '\x07');
           }
 
           // Normalize
@@ -719,10 +716,7 @@ const css = {
             const rpath = JSON.stringify(gutil.path2cwd(path));
 
             // Output warn
-            gutil.logger.warn(
-              gutil.chalk.yellow(`Module ${JSON.stringify(dependency)} at ${rpath} can't be found.`),
-              '\x07'
-            );
+            gutil.logger.warn(gutil.chalk.yellow(`Module ${JSON.stringify(dependency)} at ${rpath} can't be found.`), '\x07');
           }
 
           // Use css resolve rule
@@ -894,6 +888,7 @@ const html = {
  */
 
 const packagers = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   html: html,
   tpl: html,
   js: jsPackager,
@@ -989,7 +984,6 @@ async function bundler(vinyl, options) {
 
   // Bundler
   const bundles = await new Bundler({
-    input,
     resolve: path => path,
     parse: async path => {
       let meta;
@@ -1013,8 +1007,8 @@ async function bundler(vinyl, options) {
       path = meta.path;
 
       // Get meta
-      const dependencies = combine ? meta.dependencies : new Set();
       const contents = meta.contents;
+      const dependencies = combine ? Array.from(meta.dependencies) : [];
 
       // If is entry file override file path
       if (entry) vinyl.path = path;
@@ -1022,7 +1016,7 @@ async function bundler(vinyl, options) {
       // Return meta
       return { path, dependencies, contents };
     }
-  });
+  }).parse(input);
 
   // Exec onbundle
   options.onbundle && options.onbundle(input, bundles);
@@ -1048,7 +1042,7 @@ function main(options) {
 
   // Stream
   return through(
-    async function(vinyl, encoding, next) {
+    async function (vinyl, encoding, next) {
       vinyl = gutil.VinylFile.wrap(vinyl);
       vinyl.base = options.base;
 
@@ -1072,7 +1066,7 @@ function main(options) {
       // Next
       next(null, vinyl);
     },
-    function(next) {
+    function (next) {
       const combine = options.combine;
 
       options.loaders.forEach(loader => {

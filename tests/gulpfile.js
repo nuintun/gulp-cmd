@@ -117,7 +117,7 @@ function build() {
     .src('assets/view/**/*.js', { base: 'assets' })
     .pipe(
       through((vinyl, enc, next) => {
-        bundler.logger('Building', bundler.chalk.green(unixify(vinyl.relative)));
+        bundler.logger.log('Building', bundler.chalk.green(unixify(vinyl.relative)));
         next(null, vinyl);
       })
     )
@@ -138,7 +138,7 @@ function build() {
           });
 
           fs.writeFile('manifest.json', JSON.stringify(json, null, 2), error => {
-            bundler.logger('Building', bundler.chalk.green('manifest.json'));
+            bundler.logger.log('Building', bundler.chalk.green('manifest.json'));
             next();
           });
         }

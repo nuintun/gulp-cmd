@@ -23,7 +23,6 @@ export default async function bundler(vinyl, options) {
 
   // Bundler
   const bundles = await new Bundler({
-    input,
     resolve: path => path,
     parse: async path => {
       let meta;
@@ -47,8 +46,8 @@ export default async function bundler(vinyl, options) {
       path = meta.path;
 
       // Get meta
-      const dependencies = combine ? meta.dependencies : new Set();
       const contents = meta.contents;
+      const dependencies = combine ? Array.from(meta.dependencies) : [];
 
       // If is entry file override file path
       if (entry) vinyl.path = path;
@@ -56,7 +55,7 @@ export default async function bundler(vinyl, options) {
       // Return meta
       return { path, dependencies, contents };
     }
-  });
+  }).parse(input);
 
   // Exec onbundle
   options.onbundle && options.onbundle(input, bundles);

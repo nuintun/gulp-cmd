@@ -18,7 +18,7 @@ export default function main(options) {
 
   // Stream
   return through(
-    async function(vinyl, encoding, next) {
+    async function (vinyl, encoding, next) {
       vinyl = gutil.VinylFile.wrap(vinyl);
       vinyl.base = options.base;
 
@@ -42,7 +42,7 @@ export default function main(options) {
       // Next
       next(null, vinyl);
     },
-    function(next) {
+    function (next) {
       const combine = options.combine;
 
       options.loaders.forEach(loader => {

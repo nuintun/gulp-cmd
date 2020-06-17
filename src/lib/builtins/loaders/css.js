@@ -69,6 +69,6 @@ const node = createStyleNode();
  * @description Insert css text
  * @param {string} css
  */
-module.exports = function(css) {
+module.exports = function (css) {
   css && typeof css === 'string' && insertRule(node, css);
 };
