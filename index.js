@@ -2,7 +2,7 @@
  * @module @nuintun/gulp-cmd
  * @author nuintun
  * @license MIT
- * @version 1.0.0
+ * @version 2.0.0
  * @description A gulp plugin for cmd transport and concat.
  * @see https://github.com/nuintun/gulp-cmd#readme
  */
@@ -970,6 +970,15 @@ async function parser(vinyl, options) {
  */
 
 /**
+ * @function oncycle
+ * @param {string} path
+ * @param {string} referrer
+ */
+function oncycle(path, referrer) {
+  throw new ReferenceError(`Found circular dependency ${path} in ${referrer}`);
+}
+
+/**
  * @function bundler
  * @param {Vinyl} vinyl
  * @param {Object} options
@@ -984,6 +993,7 @@ async function bundler(vinyl, options) {
 
   // Bundler
   const bundles = await new Bundler({
+    oncycle,
     resolve: path => path,
     parse: async path => {
       let meta;

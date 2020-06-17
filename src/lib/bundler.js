@@ -9,6 +9,15 @@ import Bundler from '@nuintun/bundler';
 import * as gutil from '@nuintun/gulp-util';
 
 /**
+ * @function oncycle
+ * @param {string} path
+ * @param {string} referrer
+ */
+function oncycle(path, referrer) {
+  throw new ReferenceError(`Found circular dependency ${path} in ${referrer}`);
+}
+
+/**
  * @function bundler
  * @param {Vinyl} vinyl
  * @param {Object} options
@@ -23,6 +32,7 @@ export default async function bundler(vinyl, options) {
 
   // Bundler
   const bundles = await new Bundler({
+    oncycle,
     resolve: path => path,
     parse: async path => {
       let meta;
