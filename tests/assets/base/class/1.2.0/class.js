@@ -31,7 +31,7 @@ module.exports = Class;
 //    }
 // })
 //
-Class.create = function(parent, properties) {
+Class.create = function (parent, properties) {
   if (!isFunction(parent)) {
     properties = parent;
     parent = null;
@@ -79,7 +79,7 @@ function implement(properties) {
 }
 
 // Create a sub Class based on `Class`.
-Class.extend = function(properties) {
+Class.extend = function (properties) {
   properties || (properties = {});
   properties.Extends = this;
 
@@ -94,7 +94,7 @@ function classify(cls) {
 
 // Mutators define special properties.
 Class.Mutators = {
-  Extends: function(parent) {
+  Extends: function (parent) {
     var existed = this.prototype;
     var proto = createProto(parent.prototype);
 
@@ -111,7 +111,7 @@ Class.Mutators = {
     // needed later.
     this.superclass = parent.prototype;
   },
-  Implements: function(items) {
+  Implements: function (items) {
     isArray(items) || (items = [items]);
     var proto = this.prototype,
       item;
@@ -120,7 +120,7 @@ Class.Mutators = {
       mix(proto, item.prototype || item);
     }
   },
-  Statics: function(staticProperties) {
+  Statics: function (staticProperties) {
     mix(this, staticProperties);
   }
 };
@@ -130,10 +130,10 @@ function Ctor() {}
 
 // See: http://jsperf.com/object-create-vs-new-ctor
 var createProto = Object.__proto__
-  ? function(proto) {
+  ? function (proto) {
       return { __proto__: proto };
     }
-  : function(proto) {
+  : function (proto) {
       Ctor.prototype = proto;
       return new Ctor();
     };
@@ -159,19 +159,19 @@ var toString = Object.prototype.toString;
 
 var isArray =
   Array.isArray ||
-  function(val) {
+  function (val) {
     return toString.call(val) === '[object Array]';
   };
 
-var isFunction = function(val) {
+var isFunction = function (val) {
   return toString.call(val) === '[object Function]';
 };
 
 var indexOf = Array.prototype.indexOf
-  ? function(arr, item) {
+  ? function (arr, item) {
       return arr.indexOf(item);
     }
-  : function(arr, item) {
+  : function (arr, item) {
       for (var i = 0, len = arr.length; i < len; i++) {
         if (arr[i] === item) {
           return i;

@@ -43,7 +43,7 @@ var Widget = Base.extend({
   },
   // 初始化方法，确定组件创建时的基本流程：
   // 初始化 attrs --》 初始化 props --》 初始化 events --》 子类的初始化
-  initialize: function(config) {
+  initialize: function (config) {
     this.cid = uniqueCid();
 
     // 初始化 attrs
@@ -67,7 +67,7 @@ var Widget = Base.extend({
     this._isTemplate = !(config && config.element);
   },
   // 解析通过 data-attr 设置的 api
-  _parseDataAttrsConfig: function(config) {
+  _parseDataAttrsConfig: function (config) {
     var element, dataAttrsConfig;
     if (config) {
       element = config.initElement ? $(config.initElement) : $(config.element);
@@ -81,7 +81,7 @@ var Widget = Base.extend({
     return dataAttrsConfig;
   },
   // 构建 this.element
-  parseElement: function() {
+  parseElement: function () {
     var element = this.element;
 
     if (element) {
@@ -97,13 +97,13 @@ var Widget = Base.extend({
     }
   },
   // 从模板中构建 this.element
-  parseElementFromTemplate: function() {
+  parseElementFromTemplate: function () {
     this.element = $(this.get('template'));
   },
   // 负责 properties 的初始化，提供给子类覆盖
-  initProps: function() {},
+  initProps: function () {},
   // 注册事件代理
-  delegateEvents: function(element, events, handler) {
+  delegateEvents: function (element, events, handler) {
     var argus = trimRightUndefine(Array.prototype.slice.call(arguments));
 
     // widget.delegateEvents()
@@ -144,8 +144,8 @@ var Widget = Base.extend({
       var eventType = args.type;
       var selector = args.selector;
 
-      (function(handler, widget) {
-        var callback = function(ev) {
+      (function (handler, widget) {
+        var callback = function (ev) {
           if (isFunction(handler)) {
             handler.call(widget, ev);
           } else {
@@ -167,7 +167,7 @@ var Widget = Base.extend({
     return this;
   },
   // 卸载事件代理
-  undelegateEvents: function(element, eventKey) {
+  undelegateEvents: function (element, eventKey) {
     var argus = trimRightUndefine(Array.prototype.slice.call(arguments));
 
     if (!eventKey) {
@@ -205,11 +205,11 @@ var Widget = Base.extend({
     return this;
   },
   // 提供给子类覆盖的初始化方法
-  setup: function() {},
+  setup: function () {},
   // 将 widget 渲染到页面上
   // 渲染不仅仅包括插入到 DOM 树中，还包括样式渲染等
   // 约定：子类覆盖时，需保持 `return this`
-  render: function() {
+  render: function () {
     // 让渲染相关属性的初始值生效，并绑定到 change 事件
     if (!this.rendered) {
       this._renderAndBindAttrs();
@@ -233,7 +233,7 @@ var Widget = Base.extend({
     return this;
   },
   // 让属性的初始值生效，并绑定到 change:attr 事件上
-  _renderAndBindAttrs: function() {
+  _renderAndBindAttrs: function () {
     var widget = this;
     var attrs = widget.attrs;
 
@@ -250,35 +250,35 @@ var Widget = Base.extend({
         }
 
         // 将 _onRenderXx 自动绑定到 change:xx 事件上
-        (function(m) {
-          widget.on('change:' + attr, function(val, prev, key) {
+        (function (m) {
+          widget.on('change:' + attr, function (val, prev, key) {
             widget[m](val, prev, key);
           });
         })(m);
       }
     }
   },
-  _onRenderId: function(val) {
+  _onRenderId: function (val) {
     this.element.attr('id', val);
   },
-  _onRenderClassName: function(val) {
+  _onRenderClassName: function (val) {
     this.element.addClass(val);
   },
-  _onRenderStyle: function(val) {
+  _onRenderStyle: function (val) {
     this.element.css(val);
   },
   // 让 element 与 Widget 实例建立关联
-  _stamp: function() {
+  _stamp: function () {
     var cid = this.cid;
 
     (this.initElement || this.element).attr(DATA_WIDGET_CID, cid);
     cachedInstances[cid] = this;
   },
   // 在 this.element 内寻找匹配节点
-  $: function(selector) {
+  $: function (selector) {
     return this.element.find(selector);
   },
-  destroy: function() {
+  destroy: function () {
     this.undelegateEvents();
     delete cachedInstances[this.cid];
 
@@ -302,14 +302,14 @@ var Widget = Base.extend({
 });
 
 // For memory leak
-$(window).unload(function() {
+$(window).unload(function () {
   for (var cid in cachedInstances) {
     cachedInstances[cid].destroy();
   }
 });
 
 // 查询与 selector 匹配的第一个 DOM 节点，得到与该 DOM 节点相关联的 Widget 实例
-Widget.query = function(selector) {
+Widget.query = function (selector) {
   var element = $(selector).eq(0);
   var cid;
 
@@ -344,7 +344,7 @@ function isFunction(val) {
 // Zepto 上没有 contains 方法
 var contains =
   $.contains ||
-  function(a, b) {
+  function (a, b) {
     //noinspection JSBitwiseOperatorUsage
     return !!(a.compareDocumentPosition(b) & 16);
   };
@@ -387,7 +387,7 @@ function parseEventKey(eventKey, widget) {
 
 // 解析 eventKey 中的 {{xx}}, {{yy}}
 function parseExpressionInEventKey(selector, widget) {
-  return selector.replace(EXPRESSION_FLAG, function(m, name) {
+  return selector.replace(EXPRESSION_FLAG, function (m, name) {
     var parts = name.split('.');
     var point = widget,
       part;

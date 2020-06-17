@@ -36,12 +36,12 @@ function Target(target, name) {
 // 往 target 发送消息, 出于安全考虑, 发送消息会带上前缀
 if (supportPostMessage) {
   // IE8+ 以及现代浏览器支持
-  Target.prototype.send = function(msg) {
+  Target.prototype.send = function (msg) {
     this.target.postMessage(prefix + msg, '*');
   };
 } else {
   // 兼容IE 6/7
-  Target.prototype.send = function(msg) {
+  Target.prototype.send = function (msg) {
     var targetFunc = window.navigator[prefix + this.name];
     if (typeof targetFunc == 'function') {
       targetFunc(prefix + msg, window);
@@ -63,14 +63,14 @@ function Messenger(messengerName, projectName) {
 }
 
 // 添加一个消息对象
-Messenger.prototype.addTarget = function(target, name) {
+Messenger.prototype.addTarget = function (target, name) {
   this.targets[name] = new Target(target, name);
 };
 
 // 初始化消息监听
-Messenger.prototype.initListen = function() {
+Messenger.prototype.initListen = function () {
   var self = this;
-  var generalCallback = function(msg) {
+  var generalCallback = function (msg) {
     if (typeof msg == 'object' && msg.data) {
       msg = msg.data;
     }
@@ -94,17 +94,17 @@ Messenger.prototype.initListen = function() {
 };
 
 // 监听消息
-Messenger.prototype.listen = function(callback) {
+Messenger.prototype.listen = function (callback) {
   this.listenFunc.push(callback);
 };
 
 // 注销监听
-Messenger.prototype.clear = function() {
+Messenger.prototype.clear = function () {
   this.listenFunc = [];
 };
 
 // 广播消息
-Messenger.prototype.send = function(msg) {
+Messenger.prototype.send = function (msg) {
   var targets = this.targets,
     target;
   for (target in targets) {

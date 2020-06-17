@@ -11,7 +11,7 @@
  * @param   {Object, String} content    数据。如果为字符串则编译并缓存编译结果
  * @return  {String, Function}          渲染好的HTML字符串或者渲染方法
  */
-var template = function(filename, content) {
+var template = function (filename, content) {
   return typeof content === 'string'
     ? compile(content, {
         filename: filename
@@ -38,7 +38,7 @@ var cacheStore = (template.cache = {});
  * @param   {String} name    名称
  * @param   {*} value      值
  */
-template.config = function(name, value) {
+template.config = function (name, value) {
   defaults[name] = value;
 };
 
@@ -49,7 +49,7 @@ template.config = function(name, value) {
  * @param   {Object} options   数据
  * @return  {String}           渲染好的字符串
  */
-template.render = function(source, options) {
+template.render = function (source, options) {
   return compile(source, options);
 };
 
@@ -60,7 +60,7 @@ template.render = function(source, options) {
  * @param   {Object}    数据
  * @return  {String}    渲染好的字符串
  */
-var renderFile = (template.renderFile = function(filename, data) {
+var renderFile = (template.renderFile = function (filename, data) {
   var fn =
     template.get(filename) ||
     showDebugInfo({
@@ -77,7 +77,7 @@ var renderFile = (template.renderFile = function(filename, data) {
  * @param   {String} filename   模板名
  * @return   {Function}         编译好的函数
  */
-template.get = function(filename) {
+template.get = function (filename) {
   var cache;
 
   if (cacheStore[filename]) {
@@ -98,7 +98,7 @@ template.get = function(filename) {
   return cache;
 };
 
-var toString = function(value, type) {
+var toString = function (value, type) {
   if (typeof value !== 'string') {
     type = typeof value;
     if (type === 'number') {
@@ -121,21 +121,21 @@ var escapeMap = {
   '&': '&#38;'
 };
 
-var escapeFn = function(s) {
+var escapeFn = function (s) {
   return escapeMap[s];
 };
 
-var escapeHTML = function(content) {
+var escapeHTML = function (content) {
   return toString(content).replace(/&(?![\w#]+;)|[<>"']/g, escapeFn);
 };
 
 var isArray =
   Array.isArray ||
-  function(obj) {
+  function (obj) {
     return {}.toString.call(obj) === '[object Array]';
   };
 
-var each = function(data, callback) {
+var each = function (data, callback) {
   var i, len;
 
   if (isArray(data)) {
@@ -162,7 +162,7 @@ var utils = (template.utils = {
  * @param   {String} name       名称
  * @param   {Function} helper   方法
  */
-template.helper = function(name, helper) {
+template.helper = function (name, helper) {
   helpers[name] = helper;
 };
 
@@ -173,7 +173,7 @@ var helpers = (template.helpers = utils.$helpers);
  * @name    template.onerror
  * @event
  */
-template.onerror = function(e) {
+template.onerror = function (e) {
   var message = 'Template Error\n\n';
 
   for (var name in e) {
@@ -188,10 +188,10 @@ template.onerror = function(e) {
 };
 
 // 模板调试器
-var showDebugInfo = function(e) {
+var showDebugInfo = function (e) {
   template.onerror(e);
 
-  return function() {
+  return function () {
     return '{Template Error}';
   };
 };
@@ -214,7 +214,7 @@ var showDebugInfo = function(e) {
  *
  * @return  {Function}  渲染方法
  */
-var compile = (template.compile = function(source, options) {
+var compile = (template.compile = function (source, options) {
   // 合并默认配置
   options = options || {};
 
@@ -255,7 +255,7 @@ var compile = (template.compile = function(source, options) {
   }
 
   RenderFn.prototype = Render.prototype;
-  RenderFn.toString = function() {
+  RenderFn.toString = function () {
     return Render.toString();
   };
 
@@ -330,17 +330,13 @@ function compiler(source, options) {
   var concat = isNewEngine ? '$out+=text;return $out;' : '$out.push(text);';
   var print = 'function(){' + "var text=''.concat.apply('',arguments);" + concat + '}';
   var include =
-    'function(filename,data){' +
-    'data=data||$data;' +
-    'var text=$utils.$include(filename,data,$filename);' +
-    concat +
-    '}';
+    'function(filename,data){' + 'data=data||$data;' + 'var text=$utils.$include(filename,data,$filename);' + concat + '}';
   var headerCode = "'use strict';" + 'var $utils=this,$helpers=$utils.$helpers,' + (debug ? '$line=0,' : '');
   var mainCode = replaces[0];
   var footerCode = 'return new String(' + replaces[3] + ');';
 
   // html与逻辑语法分离
-  forEach(source.split(openTag), function(code) {
+  forEach(source.split(openTag), function (code) {
     code = code.split(closeTag);
 
     var $0 = code[0];
@@ -416,7 +412,7 @@ function compiler(source, options) {
       code = parser(code, options);
     } else if (debug) {
       // 记录行号
-      code = code.replace(/\n/g, function() {
+      code = code.replace(/\n/g, function () {
         line++;
 
         return '$line=' + line + ';';
@@ -451,7 +447,7 @@ function compiler(source, options) {
     }
 
     // 提取模板中的变量名
-    forEach(getVariable(code), function(name) {
+    forEach(getVariable(code), function (name) {
       // name 值可能为空，在安卓低版本浏览器下
       if (!name || uniq[name]) {
         return;

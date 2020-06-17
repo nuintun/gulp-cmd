@@ -10,7 +10,7 @@ function Shim(target) {
 }
 
 // 根据目标元素计算 iframe 的显隐、宽高、定位
-Shim.prototype.sync = function() {
+Shim.prototype.sync = function () {
   var target = this.target;
   var iframe = this.iframe;
 
@@ -42,7 +42,7 @@ Shim.prototype.sync = function() {
 };
 
 // 销毁 iframe 等
-Shim.prototype.destroy = function() {
+Shim.prototype.destroy = function () {
   if (this.iframe) {
     this.iframe.remove();
     delete this.iframe;
@@ -54,9 +54,9 @@ if (isIE6) {
   module.exports = Shim;
 } else {
   // 除了 IE6 都返回空函数
-  var Noop = function() {};
+  var Noop = function () {};
 
-  Noop.prototype.sync = function() {
+  Noop.prototype.sync = function () {
     return this;
   };
   Noop.prototype.destroy = Noop;

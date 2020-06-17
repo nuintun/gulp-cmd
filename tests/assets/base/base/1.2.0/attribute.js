@@ -7,7 +7,7 @@
 
 // 负责 attributes 的初始化
 // attributes 是与实例相关的状态信息，可读可写，发生变化时，会自动触发相关事件
-exports.initAttrs = function(config) {
+exports.initAttrs = function (config) {
   // initAttrs 是在初始化时调用的，默认情况下实例上肯定没有 attrs，不存在覆盖问题
   var attrs = (this.attrs = {});
 
@@ -31,7 +31,7 @@ exports.initAttrs = function(config) {
 };
 
 // Get the value of an attribute.
-exports.get = function(key) {
+exports.get = function (key) {
   var attr = this.attrs[key] || {};
   var val = attr.value;
   return attr.getter ? attr.getter.call(this, val, key) : val;
@@ -39,7 +39,7 @@ exports.get = function(key) {
 
 // Set a hash of model attributes on the object, firing `"change"` unless
 // you choose to silence it.
-exports.set = function(key, val, options) {
+exports.set = function (key, val, options) {
   var attrs = {};
 
   // set("key", val, options)
@@ -102,7 +102,7 @@ exports.set = function(key, val, options) {
 
 // Call this method to manually fire a `"change"` event for triggering
 // a `"change:attribute"` event for each changed attribute.
-exports.change = function() {
+exports.change = function () {
   var changed = this.__changedAttrs;
 
   if (changed) {
@@ -135,7 +135,7 @@ var hasOwn = Object.prototype.hasOwnProperty;
  */
 /** Detect if own properties are iterated after inherited properties (IE < 9) */
 var iteratesOwnLast;
-(function() {
+(function () {
   var props = [];
 
   function Ctor() {
@@ -151,7 +151,7 @@ var iteratesOwnLast;
 
 var isArray =
   Array.isArray ||
-  function(val) {
+  function (val) {
     return toString.call(val) === '[object Array]';
   };
 
@@ -244,7 +244,7 @@ function cloneValue(value, prev) {
 var keys = Object.keys;
 
 if (!keys) {
-  keys = function(o) {
+  keys = function (o) {
     var result = [];
 
     for (var name in o) {

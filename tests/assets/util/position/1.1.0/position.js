@@ -12,7 +12,7 @@ var isIE6 = ua.indexOf('msie 6') !== -1;
 
 // 将目标元素相对于基准元素进行定位
 // 这是 Position 的基础方法，接收两个参数，分别描述了目标元素和基准元素的定位点
-Position.pin = function(pinObject, baseObject) {
+Position.pin = function (pinObject, baseObject) {
   // 将两个参数转换成标准定位对象 { element: a, x: 0, y: 0 }
   pinObject = normalize(pinObject);
   baseObject = normalize(baseObject);
@@ -55,7 +55,7 @@ Position.pin = function(pinObject, baseObject) {
 
 // 将目标元素相对于基准元素进行居中定位
 // 接受两个参数，分别为目标元素和定位的基准元素，都是 DOM 节点类型
-Position.center = function(pinElement, baseElement) {
+Position.center = function (pinElement, baseElement) {
   Position.pin(
     {
       element: pinElement,
@@ -100,7 +100,7 @@ function normalize(posObject) {
   var isVIEWPORT = element === VIEWPORT || element._id === 'VIEWPORT';
 
   // 归一化 offset
-  result.offset = function() {
+  result.offset = function () {
     // 若定位 fixed 元素，则父元素的 offset 没有意义
     if (isPinFixed) {
       return {
@@ -118,7 +118,7 @@ function normalize(posObject) {
   };
 
   // 归一化 size, 含 padding 和 border
-  result.size = function() {
+  result.size = function () {
     var el = isVIEWPORT ? $(window) : $(element);
     return {
       width: el.outerWidth(),
@@ -154,7 +154,7 @@ function xyConverter(x, pinObject, type) {
   // 将百分比转为像素值
   if (x.indexOf('%') !== -1) {
     //支持小数
-    x = x.replace(/(\d+(?:\.\d+)?)%/gi, function(m, d) {
+    x = x.replace(/(\d+(?:\.\d+)?)%/gi, function (m, d) {
       return pinObject.size()[type] * (d / 100.0);
     });
   }

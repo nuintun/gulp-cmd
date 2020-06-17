@@ -6,12 +6,12 @@
 //  - http://lazutkin.com/blog/2008/may/18/aop-aspect-javascript-dojo/
 
 // 在指定方法执行前，先执行 callback
-exports.before = function(methodName, callback, context) {
+exports.before = function (methodName, callback, context) {
   return weave.call(this, 'before', methodName, callback, context);
 };
 
 // 在指定方法执行后，再执行 callback
-exports.after = function(methodName, callback, context) {
+exports.after = function (methodName, callback, context) {
   return weave.call(this, 'after', methodName, callback, context);
 };
 
@@ -46,7 +46,7 @@ function getMethod(host, methodName) {
 function wrap(methodName) {
   var old = this[methodName];
 
-  this[methodName] = function() {
+  this[methodName] = function () {
     var args = Array.prototype.slice.call(arguments);
     var beforeArgs = ['before:' + methodName].concat(args);
 

@@ -5,7 +5,7 @@
 var $ = require('jquery');
 
 // 得到某个 DOM 元素的 dataset
-exports.parseElement = function(element, raw) {
+exports.parseElement = function (element, raw) {
   element = $(element)[0];
   var dataset = {};
 
@@ -39,7 +39,7 @@ var parseJSON = this.JSON ? JSON.parse : $.parseJSON;
 
 // 仅处理字母开头的，其他情况转换为小写："data-x-y-123-_A" --> xY-123-_a
 function camelCase(str) {
-  return str.toLowerCase().replace(RE_DASH_WORD, function(all, letter) {
+  return str.toLowerCase().replace(RE_DASH_WORD, function (all, letter) {
     return (letter + '').toUpperCase();
   });
 }

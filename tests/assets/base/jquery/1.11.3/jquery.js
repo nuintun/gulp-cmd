@@ -39,7 +39,7 @@ function jQuery(window, noGlobal) {
 
   var version = '1.11.3',
     // Define a local copy of jQuery
-    jQuery = function(selector, context) {
+    jQuery = function (selector, context) {
       // The jQuery object is actually just the init constructor 'enhanced'
       // Need init if jQuery is called (just allow error to be thrown if not included)
       return new jQuery.fn.init(selector, context);
@@ -51,7 +51,7 @@ function jQuery(window, noGlobal) {
     rmsPrefix = /^-ms-/,
     rdashAlpha = /-([\da-z])/gi,
     // Used by jQuery.camelCase as callback to replace()
-    fcamelCase = function(all, letter) {
+    fcamelCase = function (all, letter) {
       return letter.toUpperCase();
     };
 
@@ -67,23 +67,25 @@ function jQuery(window, noGlobal) {
     // The default length of a jQuery object is 0
     length: 0,
 
-    toArray: function() {
+    toArray: function () {
       return slice.call(this);
     },
 
     // Get the Nth element in the matched element set OR
     // Get the whole matched element set as a clean array
-    get: function(num) {
+    get: function (num) {
       return num != null
         ? // Return just the one element from the set
-          num < 0 ? this[num + this.length] : this[num]
+          num < 0
+          ? this[num + this.length]
+          : this[num]
         : // Return all the elements in a clean array
           slice.call(this);
     },
 
     // Take an array of elements and push it onto the stack
     // (returning the new matched element set)
-    pushStack: function(elems) {
+    pushStack: function (elems) {
       // Build a new jQuery matched element set
       var ret = jQuery.merge(this.constructor(), elems);
 
@@ -98,37 +100,37 @@ function jQuery(window, noGlobal) {
     // Execute a callback for every element in the matched set.
     // (You can seed the arguments with an array of args, but this is
     // only used internally.)
-    each: function(callback, args) {
+    each: function (callback, args) {
       return jQuery.each(this, callback, args);
     },
 
-    map: function(callback) {
+    map: function (callback) {
       return this.pushStack(
-        jQuery.map(this, function(elem, i) {
+        jQuery.map(this, function (elem, i) {
           return callback.call(elem, i, elem);
         })
       );
     },
 
-    slice: function() {
+    slice: function () {
       return this.pushStack(slice.apply(this, arguments));
     },
 
-    first: function() {
+    first: function () {
       return this.eq(0);
     },
 
-    last: function() {
+    last: function () {
       return this.eq(-1);
     },
 
-    eq: function(i) {
+    eq: function (i) {
       var len = this.length,
         j = +i + (i < 0 ? len : 0);
       return this.pushStack(j >= 0 && j < len ? [this[j]] : []);
     },
 
-    end: function() {
+    end: function () {
       return this.prevObject || this.constructor(null);
     },
 
@@ -139,7 +141,7 @@ function jQuery(window, noGlobal) {
     splice: deletedIds.splice
   };
 
-  jQuery.extend = jQuery.fn.extend = function() {
+  jQuery.extend = jQuery.fn.extend = function () {
     var src,
       copyIsArray,
       copy,
@@ -215,31 +217,31 @@ function jQuery(window, noGlobal) {
     // Assume jQuery is ready without the ready module
     isReady: true,
 
-    error: function(msg) {
+    error: function (msg) {
       throw new Error(msg);
     },
 
-    noop: function() {},
+    noop: function () {},
 
     // See test/unit/core.js for details concerning isFunction.
     // Since version 1.3, DOM methods and functions like alert
     // aren't supported. They return false on IE (#2968).
-    isFunction: function(obj) {
+    isFunction: function (obj) {
       return jQuery.type(obj) === 'function';
     },
 
     isArray:
       Array.isArray ||
-      function(obj) {
+      function (obj) {
         return jQuery.type(obj) === 'array';
       },
 
-    isWindow: function(obj) {
+    isWindow: function (obj) {
       /* jshint eqeqeq: false */
       return obj != null && obj == obj.window;
     },
 
-    isNumeric: function(obj) {
+    isNumeric: function (obj) {
       // parseFloat NaNs numeric-cast false positives (null|true|false|"")
       // ...but misinterprets leading-number strings, particularly hex literals ("0x...")
       // subtraction forces infinities to NaN
@@ -247,7 +249,7 @@ function jQuery(window, noGlobal) {
       return !jQuery.isArray(obj) && obj - parseFloat(obj) + 1 >= 0;
     },
 
-    isEmptyObject: function(obj) {
+    isEmptyObject: function (obj) {
       var name;
       for (name in obj) {
         return false;
@@ -255,7 +257,7 @@ function jQuery(window, noGlobal) {
       return true;
     },
 
-    isPlainObject: function(obj) {
+    isPlainObject: function (obj) {
       var key;
 
       // Must be an Object.
@@ -267,11 +269,7 @@ function jQuery(window, noGlobal) {
 
       try {
         // Not own constructor property must be Object
-        if (
-          obj.constructor &&
-          !hasOwn.call(obj, 'constructor') &&
-          !hasOwn.call(obj.constructor.prototype, 'isPrototypeOf')
-        ) {
+        if (obj.constructor && !hasOwn.call(obj, 'constructor') && !hasOwn.call(obj.constructor.prototype, 'isPrototypeOf')) {
           return false;
         }
       } catch (e) {
@@ -295,42 +293,42 @@ function jQuery(window, noGlobal) {
       return key === undefined || hasOwn.call(obj, key);
     },
 
-    type: function(obj) {
+    type: function (obj) {
       if (obj == null) {
         return obj + '';
       }
-      return typeof obj === 'object' || typeof obj === 'function'
-        ? class2type[toString.call(obj)] || 'object'
-        : typeof obj;
+      return typeof obj === 'object' || typeof obj === 'function' ? class2type[toString.call(obj)] || 'object' : typeof obj;
     },
 
     // Evaluates a script in a global context
     // Workarounds based on findings by Jim Driscoll
     // http://weblogs.java.net/blog/driscoll/archive/2009/09/08/eval-javascript-global-context
-    globalEval: function(data) {
+    globalEval: function (data) {
       if (data && jQuery.trim(data)) {
         // We use execScript on Internet Explorer
         // We use an anonymous function so that context is window
         // rather than jQuery in Firefox
-        (window.execScript ||
-          function(data) {
+        (
+          window.execScript ||
+          function (data) {
             window['eval'].call(window, data);
-          })(data);
+          }
+        )(data);
       }
     },
 
     // Convert dashed to camelCase; used by the css and data modules
     // Microsoft forgot to hump their vendor prefix (#9572)
-    camelCase: function(string) {
+    camelCase: function (string) {
       return string.replace(rmsPrefix, 'ms-').replace(rdashAlpha, fcamelCase);
     },
 
-    nodeName: function(elem, name) {
+    nodeName: function (elem, name) {
       return elem.nodeName && elem.nodeName.toLowerCase() === name.toLowerCase();
     },
 
     // args is for internal usage only
-    each: function(obj, callback, args) {
+    each: function (obj, callback, args) {
       var value,
         i = 0,
         length = obj.length,
@@ -380,12 +378,12 @@ function jQuery(window, noGlobal) {
     },
 
     // Support: Android<4.1, IE<9
-    trim: function(text) {
+    trim: function (text) {
       return text == null ? '' : (text + '').replace(rtrim, '');
     },
 
     // results is for internal usage only
-    makeArray: function(arr, results) {
+    makeArray: function (arr, results) {
       var ret = results || [];
 
       if (arr != null) {
@@ -399,7 +397,7 @@ function jQuery(window, noGlobal) {
       return ret;
     },
 
-    inArray: function(elem, arr, i) {
+    inArray: function (elem, arr, i) {
       var len;
 
       if (arr) {
@@ -421,7 +419,7 @@ function jQuery(window, noGlobal) {
       return -1;
     },
 
-    merge: function(first, second) {
+    merge: function (first, second) {
       var len = +second.length,
         j = 0,
         i = first.length;
@@ -443,7 +441,7 @@ function jQuery(window, noGlobal) {
       return first;
     },
 
-    grep: function(elems, callback, invert) {
+    grep: function (elems, callback, invert) {
       var callbackInverse,
         matches = [],
         i = 0,
@@ -463,7 +461,7 @@ function jQuery(window, noGlobal) {
     },
 
     // arg is for internal usage only
-    map: function(elems, callback, arg) {
+    map: function (elems, callback, arg) {
       var value,
         i = 0,
         length = elems.length,
@@ -500,7 +498,7 @@ function jQuery(window, noGlobal) {
 
     // Bind a function to a context, optionally partially applying any
     // arguments.
-    proxy: function(fn, context) {
+    proxy: function (fn, context) {
       var args, proxy, tmp;
 
       if (typeof context === 'string') {
@@ -517,7 +515,7 @@ function jQuery(window, noGlobal) {
 
       // Simulated bind
       args = slice.call(arguments, 2);
-      proxy = function() {
+      proxy = function () {
         return fn.apply(context || this, args.concat(slice.call(arguments)));
       };
 
@@ -527,7 +525,7 @@ function jQuery(window, noGlobal) {
       return proxy;
     },
 
-    now: function() {
+    now: function () {
       return +new Date();
     },
 
@@ -537,7 +535,7 @@ function jQuery(window, noGlobal) {
   });
 
   // Populate the class2type map
-  jQuery.each('Boolean Number String Function Array Date RegExp Object Error'.split(' '), function(i, name) {
+  jQuery.each('Boolean Number String Function Array Date RegExp Object Error'.split(' '), function (i, name) {
     class2type['[object ' + name + ']'] = name.toLowerCase();
   });
 
@@ -571,7 +569,7 @@ function jQuery(window, noGlobal) {
      *
      * Date: 2014-12-16
      */
-    (function(window) {
+    (function (window) {
       var i,
         support,
         Expr,
@@ -600,7 +598,7 @@ function jQuery(window, noGlobal) {
         classCache = createCache(),
         tokenCache = createCache(),
         compilerCache = createCache(),
-        sortOrder = function(a, b) {
+        sortOrder = function (a, b) {
           if (a === b) {
             hasDuplicate = true;
           }
@@ -617,7 +615,7 @@ function jQuery(window, noGlobal) {
         slice = arr.slice,
         // Use a stripped-down indexOf as it's faster than native
         // http://jsperf.com/thor-indexof-vs-for/5
-        indexOf = function(list, elem) {
+        indexOf = function (list, elem) {
           var i = 0,
             len = list.length;
           for (; i < len; i++) {
@@ -719,7 +717,7 @@ function jQuery(window, noGlobal) {
         rescape = /'|\\/g,
         // CSS escapes http://www.w3.org/TR/CSS21/syndata.html#escaped-characters
         runescape = new RegExp('\\\\([\\da-f]{1,6}' + whitespace + '?|(' + whitespace + ')|.)', 'ig'),
-        funescape = function(_, escaped, escapedWhitespace) {
+        funescape = function (_, escaped, escapedWhitespace) {
           var high = '0x' + escaped - 0x10000;
           // NaN means non-codepoint
           // Support: Firefox<24
@@ -727,16 +725,16 @@ function jQuery(window, noGlobal) {
           return high !== high || escapedWhitespace
             ? escaped
             : high < 0
-              ? // BMP codepoint
-                String.fromCharCode(high + 0x10000)
-              : // Supplemental Plane codepoint (surrogate pair)
-                String.fromCharCode((high >> 10) | 0xd800, (high & 0x3ff) | 0xdc00);
+            ? // BMP codepoint
+              String.fromCharCode(high + 0x10000)
+            : // Supplemental Plane codepoint (surrogate pair)
+              String.fromCharCode((high >> 10) | 0xd800, (high & 0x3ff) | 0xdc00);
         },
         // Used for iframes
         // See setDocument()
         // Removing the function wrapper causes a "Permission Denied"
         // error in IE
-        unloadHandler = function() {
+        unloadHandler = function () {
           setDocument();
         };
 
@@ -750,12 +748,12 @@ function jQuery(window, noGlobal) {
         push = {
           apply: arr.length
             ? // Leverage slice if possible
-              function(target, els) {
+              function (target, els) {
                 push_native.apply(target, slice.call(els));
               }
             : // Support: IE<9
               // Otherwise append directly
-              function(target, els) {
+              function (target, els) {
                 var j = target.length,
                   i = 0;
                 // Can't trust NodeList.length
@@ -954,10 +952,7 @@ function jQuery(window, noGlobal) {
       function siblingCheck(a, b) {
         var cur = b && a,
           diff =
-            cur &&
-            a.nodeType === 1 &&
-            b.nodeType === 1 &&
-            (~b.sourceIndex || MAX_NEGATIVE) - (~a.sourceIndex || MAX_NEGATIVE);
+            cur && a.nodeType === 1 && b.nodeType === 1 && (~b.sourceIndex || MAX_NEGATIVE) - (~a.sourceIndex || MAX_NEGATIVE);
 
         // Use IE sourceIndex if available on both nodes
         if (diff) {
@@ -981,7 +976,7 @@ function jQuery(window, noGlobal) {
        * @param {String} type
        */
       function createInputPseudo(type) {
-        return function(elem) {
+        return function (elem) {
           var name = elem.nodeName.toLowerCase();
           return name === 'input' && elem.type === type;
         };
@@ -992,7 +987,7 @@ function jQuery(window, noGlobal) {
        * @param {String} type
        */
       function createButtonPseudo(type) {
-        return function(elem) {
+        return function (elem) {
           var name = elem.nodeName.toLowerCase();
           return (name === 'input' || name === 'button') && elem.type === type;
         };
@@ -1003,9 +998,9 @@ function jQuery(window, noGlobal) {
        * @param {Function} fn
        */
       function createPositionalPseudo(fn) {
-        return markFunction(function(argument) {
+        return markFunction(function (argument) {
           argument = +argument;
-          return markFunction(function(seed, matches) {
+          return markFunction(function (seed, matches) {
             var j,
               matchIndexes = fn([], seed.length, argument),
               i = matchIndexes.length;
@@ -1037,7 +1032,7 @@ function jQuery(window, noGlobal) {
        * @param {Element|Object} elem An element or a document
        * @returns {Boolean} True iff elem is a non-HTML XML node
        */
-      isXML = Sizzle.isXML = function(elem) {
+      isXML = Sizzle.isXML = function (elem) {
         // documentElement is verified for cases where it doesn't yet exist
         // (such as loading iframes in IE - #4833)
         var documentElement = elem && (elem.ownerDocument || elem).documentElement;
@@ -1049,7 +1044,7 @@ function jQuery(window, noGlobal) {
        * @param {Element|Object} [doc] An element or document object to use to set the document
        * @returns {Object} Returns the current document
        */
-      setDocument = Sizzle.setDocument = function(node) {
+      setDocument = Sizzle.setDocument = function (node) {
         var hasCompare,
           parent,
           doc = node ? node.ownerDocument || node : preferredDoc;
@@ -1087,7 +1082,7 @@ function jQuery(window, noGlobal) {
         // Support: IE<8
         // Verify that getAttribute really returns attributes and not properties
         // (excepting IE8 booleans)
-        support.attributes = assert(function(div) {
+        support.attributes = assert(function (div) {
           div.className = 'i';
           return !div.getAttribute('className');
         });
@@ -1096,7 +1091,7 @@ function jQuery(window, noGlobal) {
          ---------------------------------------------------------------------- */
 
         // Check if getElementsByTagName("*") returns only elements
-        support.getElementsByTagName = assert(function(div) {
+        support.getElementsByTagName = assert(function (div) {
           div.appendChild(doc.createComment(''));
           return !div.getElementsByTagName('*').length;
         });
@@ -1108,14 +1103,14 @@ function jQuery(window, noGlobal) {
         // Check if getElementById returns elements by name
         // The broken getElementById methods don't pick up programatically-set names,
         // so use a roundabout getElementsByName test
-        support.getById = assert(function(div) {
+        support.getById = assert(function (div) {
           docElem.appendChild(div).id = expando;
           return !doc.getElementsByName || !doc.getElementsByName(expando).length;
         });
 
         // ID find and filter
         if (support.getById) {
-          Expr.find['ID'] = function(id, context) {
+          Expr.find['ID'] = function (id, context) {
             if (typeof context.getElementById !== 'undefined' && documentIsHTML) {
               var m = context.getElementById(id);
               // Check parentNode to catch when Blackberry 4.6 returns
@@ -1123,9 +1118,9 @@ function jQuery(window, noGlobal) {
               return m && m.parentNode ? [m] : [];
             }
           };
-          Expr.filter['ID'] = function(id) {
+          Expr.filter['ID'] = function (id) {
             var attrId = id.replace(runescape, funescape);
-            return function(elem) {
+            return function (elem) {
               return elem.getAttribute('id') === attrId;
             };
           };
@@ -1134,9 +1129,9 @@ function jQuery(window, noGlobal) {
           // getElementById is not reliable as a find shortcut
           delete Expr.find['ID'];
 
-          Expr.filter['ID'] = function(id) {
+          Expr.filter['ID'] = function (id) {
             var attrId = id.replace(runescape, funescape);
-            return function(elem) {
+            return function (elem) {
               var node = typeof elem.getAttributeNode !== 'undefined' && elem.getAttributeNode('id');
               return node && node.value === attrId;
             };
@@ -1145,7 +1140,7 @@ function jQuery(window, noGlobal) {
 
         // Tag
         Expr.find['TAG'] = support.getElementsByTagName
-          ? function(tag, context) {
+          ? function (tag, context) {
               if (typeof context.getElementsByTagName !== 'undefined') {
                 return context.getElementsByTagName(tag);
 
@@ -1154,7 +1149,7 @@ function jQuery(window, noGlobal) {
                 return context.querySelectorAll(tag);
               }
             }
-          : function(tag, context) {
+          : function (tag, context) {
               var elem,
                 tmp = [],
                 i = 0,
@@ -1177,7 +1172,7 @@ function jQuery(window, noGlobal) {
         // Class
         Expr.find['CLASS'] =
           support.getElementsByClassName &&
-          function(className, context) {
+          function (className, context) {
             if (documentIsHTML) {
               return context.getElementsByClassName(className);
             }
@@ -1201,7 +1196,7 @@ function jQuery(window, noGlobal) {
         if ((support.qsa = rnative.test(doc.querySelectorAll))) {
           // Build QSA regex
           // Regex strategy adopted from Diego Perini
-          assert(function(div) {
+          assert(function (div) {
             // Select is set to empty string on purpose
             // This is to test IE's treatment of not explicitly
             // setting a boolean content attribute,
@@ -1250,7 +1245,7 @@ function jQuery(window, noGlobal) {
             }
           });
 
-          assert(function(div) {
+          assert(function (div) {
             // Support: Windows 8 Native Apps
             // The type and name attributes are restricted during .innerHTML assignment
             var input = doc.createElement('input');
@@ -1285,7 +1280,7 @@ function jQuery(window, noGlobal) {
               docElem.msMatchesSelector)
           ))
         ) {
-          assert(function(div) {
+          assert(function (div) {
             // Check to see if it's possible to do matchesSelector
             // on a disconnected node (IE 9)
             support.disconnectedMatch = matches.call(div, 'div');
@@ -1309,7 +1304,7 @@ function jQuery(window, noGlobal) {
         // As in, an element does not contain itself
         contains =
           hasCompare || rnative.test(docElem.contains)
-            ? function(a, b) {
+            ? function (a, b) {
                 var adown = a.nodeType === 9 ? a.documentElement : a,
                   bup = b && b.parentNode;
                 return (
@@ -1317,13 +1312,11 @@ function jQuery(window, noGlobal) {
                   !!(
                     bup &&
                     bup.nodeType === 1 &&
-                    (adown.contains
-                      ? adown.contains(bup)
-                      : a.compareDocumentPosition && a.compareDocumentPosition(bup) & 16)
+                    (adown.contains ? adown.contains(bup) : a.compareDocumentPosition && a.compareDocumentPosition(bup) & 16)
                   )
                 );
               }
-            : function(a, b) {
+            : function (a, b) {
                 if (b) {
                   while ((b = b.parentNode)) {
                     if (b === a) {
@@ -1339,7 +1332,7 @@ function jQuery(window, noGlobal) {
 
         // Document order sorting
         sortOrder = hasCompare
-          ? function(a, b) {
+          ? function (a, b) {
               // Flag for duplicate removal
               if (a === b) {
                 hasDuplicate = true;
@@ -1375,7 +1368,7 @@ function jQuery(window, noGlobal) {
 
               return compare & 4 ? -1 : 1;
             }
-          : function(a, b) {
+          : function (a, b) {
               // Exit early if the nodes are identical
               if (a === b) {
                 hasDuplicate = true;
@@ -1393,7 +1386,15 @@ function jQuery(window, noGlobal) {
               if (!aup || !bup) {
                 return a === doc
                   ? -1
-                  : b === doc ? 1 : aup ? -1 : bup ? 1 : sortInput ? indexOf(sortInput, a) - indexOf(sortInput, b) : 0;
+                  : b === doc
+                  ? 1
+                  : aup
+                  ? -1
+                  : bup
+                  ? 1
+                  : sortInput
+                  ? indexOf(sortInput, a) - indexOf(sortInput, b)
+                  : 0;
 
                 // If the nodes are siblings, we can do a quick check
               } else if (aup === bup) {
@@ -1419,17 +1420,21 @@ function jQuery(window, noGlobal) {
                 ? // Do a sibling check if the nodes have a common ancestor
                   siblingCheck(ap[i], bp[i])
                 : // Otherwise nodes in our document sort first
-                  ap[i] === preferredDoc ? -1 : bp[i] === preferredDoc ? 1 : 0;
+                ap[i] === preferredDoc
+                ? -1
+                : bp[i] === preferredDoc
+                ? 1
+                : 0;
             };
 
         return doc;
       };
 
-      Sizzle.matches = function(expr, elements) {
+      Sizzle.matches = function (expr, elements) {
         return Sizzle(expr, null, null, elements);
       };
 
-      Sizzle.matchesSelector = function(elem, expr) {
+      Sizzle.matchesSelector = function (elem, expr) {
         // Set document vars if needed
         if ((elem.ownerDocument || elem) !== document) {
           setDocument(elem);
@@ -1463,7 +1468,7 @@ function jQuery(window, noGlobal) {
         return Sizzle(expr, document, null, [elem]).length > 0;
       };
 
-      Sizzle.contains = function(context, elem) {
+      Sizzle.contains = function (context, elem) {
         // Set document vars if needed
         if ((context.ownerDocument || context) !== document) {
           setDocument(context);
@@ -1471,7 +1476,7 @@ function jQuery(window, noGlobal) {
         return contains(context, elem);
       };
 
-      Sizzle.attr = function(elem, name) {
+      Sizzle.attr = function (elem, name) {
         // Set document vars if needed
         if ((elem.ownerDocument || elem) !== document) {
           setDocument(elem);
@@ -1484,11 +1489,13 @@ function jQuery(window, noGlobal) {
         return val !== undefined
           ? val
           : support.attributes || !documentIsHTML
-            ? elem.getAttribute(name)
-            : (val = elem.getAttributeNode(name)) && val.specified ? val.value : null;
+          ? elem.getAttribute(name)
+          : (val = elem.getAttributeNode(name)) && val.specified
+          ? val.value
+          : null;
       };
 
-      Sizzle.error = function(msg) {
+      Sizzle.error = function (msg) {
         throw new Error('Syntax error, unrecognized expression: ' + msg);
       };
 
@@ -1496,7 +1503,7 @@ function jQuery(window, noGlobal) {
        * Document sorting and removing duplicates
        * @param {ArrayLike} results
        */
-      Sizzle.uniqueSort = function(results) {
+      Sizzle.uniqueSort = function (results) {
         var elem,
           duplicates = [],
           j = 0,
@@ -1529,7 +1536,7 @@ function jQuery(window, noGlobal) {
        * Utility function for retrieving the text value of an array of DOM nodes
        * @param {Array|Element} elem
        */
-      getText = Sizzle.getText = function(elem) {
+      getText = Sizzle.getText = function (elem) {
         var node,
           ret = '',
           i = 0,
@@ -1580,7 +1587,7 @@ function jQuery(window, noGlobal) {
         },
 
         preFilter: {
-          ATTR: function(match) {
+          ATTR: function (match) {
             match[1] = match[1].replace(runescape, funescape);
 
             // Move the given value to match[3] whether quoted or unquoted
@@ -1593,7 +1600,7 @@ function jQuery(window, noGlobal) {
             return match.slice(0, 4);
           },
 
-          CHILD: function(match) {
+          CHILD: function (match) {
             /* matches from matchExpr["CHILD"]
              1 type (only|nth|...)
              2 what (child|of-type)
@@ -1625,7 +1632,7 @@ function jQuery(window, noGlobal) {
             return match;
           },
 
-          PSEUDO: function(match) {
+          PSEUDO: function (match) {
             var excess,
               unquoted = !match[6] && match[2];
 
@@ -1657,24 +1664,24 @@ function jQuery(window, noGlobal) {
         },
 
         filter: {
-          TAG: function(nodeNameSelector) {
+          TAG: function (nodeNameSelector) {
             var nodeName = nodeNameSelector.replace(runescape, funescape).toLowerCase();
             return nodeNameSelector === '*'
-              ? function() {
+              ? function () {
                   return true;
                 }
-              : function(elem) {
+              : function (elem) {
                   return elem.nodeName && elem.nodeName.toLowerCase() === nodeName;
                 };
           },
 
-          CLASS: function(className) {
+          CLASS: function (className) {
             var pattern = classCache[className + ' '];
 
             return (
               pattern ||
               ((pattern = new RegExp('(^|' + whitespace + ')' + className + '(' + whitespace + '|$)')) &&
-                classCache(className, function(elem) {
+                classCache(className, function (elem) {
                   return pattern.test(
                     (typeof elem.className === 'string' && elem.className) ||
                       (typeof elem.getAttribute !== 'undefined' && elem.getAttribute('class')) ||
@@ -1684,8 +1691,8 @@ function jQuery(window, noGlobal) {
             );
           },
 
-          ATTR: function(name, operator, check) {
-            return function(elem) {
+          ATTR: function (name, operator, check) {
+            return function (elem) {
               var result = Sizzle.attr(elem, name);
 
               if (result == null) {
@@ -1700,32 +1707,32 @@ function jQuery(window, noGlobal) {
               return operator === '='
                 ? result === check
                 : operator === '!='
-                  ? result !== check
-                  : operator === '^='
-                    ? check && result.indexOf(check) === 0
-                    : operator === '*='
-                      ? check && result.indexOf(check) > -1
-                      : operator === '$='
-                        ? check && result.slice(-check.length) === check
-                        : operator === '~='
-                          ? (' ' + result.replace(rwhitespace, ' ') + ' ').indexOf(check) > -1
-                          : operator === '|='
-                            ? result === check || result.slice(0, check.length + 1) === check + '-'
-                            : false;
+                ? result !== check
+                : operator === '^='
+                ? check && result.indexOf(check) === 0
+                : operator === '*='
+                ? check && result.indexOf(check) > -1
+                : operator === '$='
+                ? check && result.slice(-check.length) === check
+                : operator === '~='
+                ? (' ' + result.replace(rwhitespace, ' ') + ' ').indexOf(check) > -1
+                : operator === '|='
+                ? result === check || result.slice(0, check.length + 1) === check + '-'
+                : false;
             };
           },
 
-          CHILD: function(type, what, argument, first, last) {
+          CHILD: function (type, what, argument, first, last) {
             var simple = type.slice(0, 3) !== 'nth',
               forward = type.slice(-4) !== 'last',
               ofType = what === 'of-type';
 
             return first === 1 && last === 0
               ? // Shortcut for :nth-*(n)
-                function(elem) {
+                function (elem) {
                   return !!elem.parentNode;
                 }
-              : function(elem, context, xml) {
+              : function (elem, context, xml) {
                   var cache,
                     outerCache,
                     node,
@@ -1779,11 +1786,7 @@ function jQuery(window, noGlobal) {
                       }
 
                       // Use previously-cached element index if available
-                    } else if (
-                      useCache &&
-                      (cache = (elem[expando] || (elem[expando] = {}))[type]) &&
-                      cache[0] === dirruns
-                    ) {
+                    } else if (useCache && (cache = (elem[expando] || (elem[expando] = {}))[type]) && cache[0] === dirruns) {
                       diff = cache[1];
 
                       // xml :nth-child(...) or :nth-last-child(...) or :nth(-last)?-of-type(...)
@@ -1810,16 +1813,14 @@ function jQuery(window, noGlobal) {
                 };
           },
 
-          PSEUDO: function(pseudo, argument) {
+          PSEUDO: function (pseudo, argument) {
             // pseudo-class names are case-insensitive
             // http://www.w3.org/TR/selectors/#pseudo-classes
             // Prioritize by case sensitivity in case custom pseudos are added with uppercase letters
             // Remember that setFilters inherits from pseudos
             var args,
               fn =
-                Expr.pseudos[pseudo] ||
-                Expr.setFilters[pseudo.toLowerCase()] ||
-                Sizzle.error('unsupported pseudo: ' + pseudo);
+                Expr.pseudos[pseudo] || Expr.setFilters[pseudo.toLowerCase()] || Sizzle.error('unsupported pseudo: ' + pseudo);
 
             // The user may use createPseudo to indicate that
             // arguments are needed to create the filter function
@@ -1832,7 +1833,7 @@ function jQuery(window, noGlobal) {
             if (fn.length > 1) {
               args = [pseudo, pseudo, '', argument];
               return Expr.setFilters.hasOwnProperty(pseudo.toLowerCase())
-                ? markFunction(function(seed, matches) {
+                ? markFunction(function (seed, matches) {
                     var idx,
                       matched = fn(seed, argument),
                       i = matched.length;
@@ -1841,7 +1842,7 @@ function jQuery(window, noGlobal) {
                       seed[idx] = !(matches[idx] = matched[i]);
                     }
                   })
-                : function(elem) {
+                : function (elem) {
                     return fn(elem, 0, args);
                   };
             }
@@ -1852,7 +1853,7 @@ function jQuery(window, noGlobal) {
 
         pseudos: {
           // Potentially complex pseudos
-          not: markFunction(function(selector) {
+          not: markFunction(function (selector) {
             // Trim the selector passed to compile
             // to avoid treating leading and trailing
             // spaces as combinators
@@ -1861,7 +1862,7 @@ function jQuery(window, noGlobal) {
               matcher = compile(selector.replace(rtrim, '$1'));
 
             return matcher[expando]
-              ? markFunction(function(seed, matches, context, xml) {
+              ? markFunction(function (seed, matches, context, xml) {
                   var elem,
                     unmatched = matcher(seed, null, xml, []),
                     i = seed.length;
@@ -1873,7 +1874,7 @@ function jQuery(window, noGlobal) {
                     }
                   }
                 })
-              : function(elem, context, xml) {
+              : function (elem, context, xml) {
                   input[0] = elem;
                   matcher(input, null, xml, results);
                   // Don't keep the element (issue #299)
@@ -1882,15 +1883,15 @@ function jQuery(window, noGlobal) {
                 };
           }),
 
-          has: markFunction(function(selector) {
-            return function(elem) {
+          has: markFunction(function (selector) {
+            return function (elem) {
               return Sizzle(selector, elem).length > 0;
             };
           }),
 
-          contains: markFunction(function(text) {
+          contains: markFunction(function (text) {
             text = text.replace(runescape, funescape);
-            return function(elem) {
+            return function (elem) {
               return (elem.textContent || elem.innerText || getText(elem)).indexOf(text) > -1;
             };
           }),
@@ -1902,18 +1903,16 @@ function jQuery(window, noGlobal) {
           // The matching of C against the element's language value is performed case-insensitively.
           // The identifier C does not have to be a valid language name."
           // http://www.w3.org/TR/selectors/#lang-pseudo
-          lang: markFunction(function(lang) {
+          lang: markFunction(function (lang) {
             // lang value must be a valid identifier
             if (!ridentifier.test(lang || '')) {
               Sizzle.error('unsupported lang: ' + lang);
             }
             lang = lang.replace(runescape, funescape).toLowerCase();
-            return function(elem) {
+            return function (elem) {
               var elemLang;
               do {
-                if (
-                  (elemLang = documentIsHTML ? elem.lang : elem.getAttribute('xml:lang') || elem.getAttribute('lang'))
-                ) {
+                if ((elemLang = documentIsHTML ? elem.lang : elem.getAttribute('xml:lang') || elem.getAttribute('lang'))) {
                   elemLang = elemLang.toLowerCase();
                   return elemLang === lang || elemLang.indexOf(lang + '-') === 0;
                 }
@@ -1923,16 +1922,16 @@ function jQuery(window, noGlobal) {
           }),
 
           // Miscellaneous
-          target: function(elem) {
+          target: function (elem) {
             var hash = window.location && window.location.hash;
             return hash && hash.slice(1) === elem.id;
           },
 
-          root: function(elem) {
+          root: function (elem) {
             return elem === docElem;
           },
 
-          focus: function(elem) {
+          focus: function (elem) {
             return (
               elem === document.activeElement &&
               (!document.hasFocus || document.hasFocus()) &&
@@ -1941,22 +1940,22 @@ function jQuery(window, noGlobal) {
           },
 
           // Boolean properties
-          enabled: function(elem) {
+          enabled: function (elem) {
             return elem.disabled === false;
           },
 
-          disabled: function(elem) {
+          disabled: function (elem) {
             return elem.disabled === true;
           },
 
-          checked: function(elem) {
+          checked: function (elem) {
             // In CSS3, :checked should return both checked and selected elements
             // http://www.w3.org/TR/2011/REC-css3-selectors-20110929/#checked
             var nodeName = elem.nodeName.toLowerCase();
             return (nodeName === 'input' && !!elem.checked) || (nodeName === 'option' && !!elem.selected);
           },
 
-          selected: function(elem) {
+          selected: function (elem) {
             // Accessing this property makes selected-by-default
             // options in Safari work properly
             if (elem.parentNode) {
@@ -1967,7 +1966,7 @@ function jQuery(window, noGlobal) {
           },
 
           // Contents
-          empty: function(elem) {
+          empty: function (elem) {
             // http://www.w3.org/TR/selectors/#empty-pseudo
             // :empty is negated by element (1) or content nodes (text: 3; cdata: 4; entity ref: 5),
             //   but not by others (comment: 8; processing instruction: 7; etc.)
@@ -1980,25 +1979,25 @@ function jQuery(window, noGlobal) {
             return true;
           },
 
-          parent: function(elem) {
+          parent: function (elem) {
             return !Expr.pseudos['empty'](elem);
           },
 
           // Element/input types
-          header: function(elem) {
+          header: function (elem) {
             return rheader.test(elem.nodeName);
           },
 
-          input: function(elem) {
+          input: function (elem) {
             return rinputs.test(elem.nodeName);
           },
 
-          button: function(elem) {
+          button: function (elem) {
             var name = elem.nodeName.toLowerCase();
             return (name === 'input' && elem.type === 'button') || name === 'button';
           },
 
-          text: function(elem) {
+          text: function (elem) {
             var attr;
             return (
               elem.nodeName.toLowerCase() === 'input' &&
@@ -2010,19 +2009,19 @@ function jQuery(window, noGlobal) {
           },
 
           // Position-in-collection
-          first: createPositionalPseudo(function() {
+          first: createPositionalPseudo(function () {
             return [0];
           }),
 
-          last: createPositionalPseudo(function(matchIndexes, length) {
+          last: createPositionalPseudo(function (matchIndexes, length) {
             return [length - 1];
           }),
 
-          eq: createPositionalPseudo(function(matchIndexes, length, argument) {
+          eq: createPositionalPseudo(function (matchIndexes, length, argument) {
             return [argument < 0 ? argument + length : argument];
           }),
 
-          even: createPositionalPseudo(function(matchIndexes, length) {
+          even: createPositionalPseudo(function (matchIndexes, length) {
             var i = 0;
             for (; i < length; i += 2) {
               matchIndexes.push(i);
@@ -2030,7 +2029,7 @@ function jQuery(window, noGlobal) {
             return matchIndexes;
           }),
 
-          odd: createPositionalPseudo(function(matchIndexes, length) {
+          odd: createPositionalPseudo(function (matchIndexes, length) {
             var i = 1;
             for (; i < length; i += 2) {
               matchIndexes.push(i);
@@ -2038,7 +2037,7 @@ function jQuery(window, noGlobal) {
             return matchIndexes;
           }),
 
-          lt: createPositionalPseudo(function(matchIndexes, length, argument) {
+          lt: createPositionalPseudo(function (matchIndexes, length, argument) {
             var i = argument < 0 ? argument + length : argument;
             for (; --i >= 0; ) {
               matchIndexes.push(i);
@@ -2046,7 +2045,7 @@ function jQuery(window, noGlobal) {
             return matchIndexes;
           }),
 
-          gt: createPositionalPseudo(function(matchIndexes, length, argument) {
+          gt: createPositionalPseudo(function (matchIndexes, length, argument) {
             var i = argument < 0 ? argument + length : argument;
             for (; ++i < length; ) {
               matchIndexes.push(i);
@@ -2072,7 +2071,7 @@ function jQuery(window, noGlobal) {
       setFilters.prototype = Expr.filters = Expr.pseudos;
       Expr.setFilters = new setFilters();
 
-      tokenize = Sizzle.tokenize = function(selector, parseOnly) {
+      tokenize = Sizzle.tokenize = function (selector, parseOnly) {
         var matched,
           match,
           tokens,
@@ -2137,9 +2136,9 @@ function jQuery(window, noGlobal) {
         return parseOnly
           ? soFar.length
           : soFar
-            ? Sizzle.error(selector)
-            : // Cache the tokens
-              tokenCache(selector, groups).slice(0);
+          ? Sizzle.error(selector)
+          : // Cache the tokens
+            tokenCache(selector, groups).slice(0);
       };
 
       function toSelector(tokens) {
@@ -2159,7 +2158,7 @@ function jQuery(window, noGlobal) {
 
         return combinator.first
           ? // Check against closest ancestor/preceding element
-            function(elem, context, xml) {
+            function (elem, context, xml) {
               while ((elem = elem[dir])) {
                 if (elem.nodeType === 1 || checkNonElements) {
                   return matcher(elem, context, xml);
@@ -2167,7 +2166,7 @@ function jQuery(window, noGlobal) {
               }
             }
           : // Check against all ancestor/preceding elements
-            function(elem, context, xml) {
+            function (elem, context, xml) {
               var oldCache,
                 outerCache,
                 newCache = [dirruns, doneName];
@@ -2205,7 +2204,7 @@ function jQuery(window, noGlobal) {
 
       function elementMatcher(matchers) {
         return matchers.length > 1
-          ? function(elem, context, xml) {
+          ? function (elem, context, xml) {
               var i = matchers.length;
               while (i--) {
                 if (!matchers[i](elem, context, xml)) {
@@ -2254,7 +2253,7 @@ function jQuery(window, noGlobal) {
         if (postFinder && !postFinder[expando]) {
           postFinder = setMatcher(postFinder, postSelector);
         }
-        return markFunction(function(seed, results, context, xml) {
+        return markFunction(function (seed, results, context, xml) {
           var temp,
             i,
             elem,
@@ -2319,9 +2318,7 @@ function jQuery(window, noGlobal) {
 
             // Add elements to results, through postFinder if defined
           } else {
-            matcherOut = condense(
-              matcherOut === results ? matcherOut.splice(preexisting, matcherOut.length) : matcherOut
-            );
+            matcherOut = condense(matcherOut === results ? matcherOut.splice(preexisting, matcherOut.length) : matcherOut);
             if (postFinder) {
               postFinder(null, results, matcherOut, xml);
             } else {
@@ -2341,26 +2338,24 @@ function jQuery(window, noGlobal) {
           i = leadingRelative ? 1 : 0,
           // The foundational matcher ensures that elements are reachable from top-level context(s)
           matchContext = addCombinator(
-            function(elem) {
+            function (elem) {
               return elem === checkContext;
             },
             implicitRelative,
             true
           ),
           matchAnyContext = addCombinator(
-            function(elem) {
+            function (elem) {
               return indexOf(checkContext, elem) > -1;
             },
             implicitRelative,
             true
           ),
           matchers = [
-            function(elem, context, xml) {
+            function (elem, context, xml) {
               var ret =
                 (!leadingRelative && (xml || context !== outermostContext)) ||
-                ((checkContext = context).nodeType
-                  ? matchContext(elem, context, xml)
-                  : matchAnyContext(elem, context, xml));
+                ((checkContext = context).nodeType ? matchContext(elem, context, xml) : matchAnyContext(elem, context, xml));
               // Avoid hanging onto element (issue #299)
               checkContext = null;
               return ret;
@@ -2405,7 +2400,7 @@ function jQuery(window, noGlobal) {
       function matcherFromGroupMatchers(elementMatchers, setMatchers) {
         var bySet = setMatchers.length > 0,
           byElement = elementMatchers.length > 0,
-          superMatcher = function(seed, context, xml, results, outermost) {
+          superMatcher = function (seed, context, xml, results, outermost) {
             var elem,
               j,
               matcher,
@@ -2499,7 +2494,7 @@ function jQuery(window, noGlobal) {
         return bySet ? markFunction(superMatcher) : superMatcher;
       }
 
-      compile = Sizzle.compile = function(selector, match /* Internal Use Only */) {
+      compile = Sizzle.compile = function (selector, match /* Internal Use Only */) {
         var i,
           setMatchers = [],
           elementMatchers = [],
@@ -2538,7 +2533,7 @@ function jQuery(window, noGlobal) {
        * @param {Array} [results]
        * @param {Array} [seed] A set of elements to match against
        */
-      select = Sizzle.select = function(selector, context, results, seed) {
+      select = Sizzle.select = function (selector, context, results, seed) {
         var i,
           tokens,
           token,
@@ -2619,11 +2614,7 @@ function jQuery(window, noGlobal) {
       // One-time assignments
 
       // Sort stability
-      support.sortStable =
-        expando
-          .split('')
-          .sort(sortOrder)
-          .join('') === expando;
+      support.sortStable = expando.split('').sort(sortOrder).join('') === expando;
 
       // Support: Chrome 14-35+
       // Always assume duplicates if they aren't passed to the comparison function
@@ -2634,7 +2625,7 @@ function jQuery(window, noGlobal) {
 
       // Support: Webkit<537.32 - Safari 6.0.3/Chrome 25 (fixed in Chrome 27)
       // Detached nodes confoundingly follow *each other*
-      support.sortDetached = assert(function(div1) {
+      support.sortDetached = assert(function (div1) {
         // Should return 1, but returns 4 (following)
         return div1.compareDocumentPosition(document.createElement('div')) & 1;
       });
@@ -2643,12 +2634,12 @@ function jQuery(window, noGlobal) {
       // Prevent attribute/property "interpolation"
       // http://msdn.microsoft.com/en-us/library/ms536429%28VS.85%29.aspx
       if (
-        !assert(function(div) {
+        !assert(function (div) {
           div.innerHTML = "<a href='#'></a>";
           return div.firstChild.getAttribute('href') === '#';
         })
       ) {
-        addHandle('type|href|height|width', function(elem, name, isXML) {
+        addHandle('type|href|height|width', function (elem, name, isXML) {
           if (!isXML) {
             return elem.getAttribute(name, name.toLowerCase() === 'type' ? 1 : 2);
           }
@@ -2659,13 +2650,13 @@ function jQuery(window, noGlobal) {
       // Use defaultValue in place of getAttribute("value")
       if (
         !support.attributes ||
-        !assert(function(div) {
+        !assert(function (div) {
           div.innerHTML = '<input/>';
           div.firstChild.setAttribute('value', '');
           return div.firstChild.getAttribute('value') === '';
         })
       ) {
-        addHandle('value', function(elem, name, isXML) {
+        addHandle('value', function (elem, name, isXML) {
           if (!isXML && elem.nodeName.toLowerCase() === 'input') {
             return elem.defaultValue;
           }
@@ -2675,16 +2666,18 @@ function jQuery(window, noGlobal) {
       // Support: IE<9
       // Use getAttributeNode to fetch booleans when getAttribute lies
       if (
-        !assert(function(div) {
+        !assert(function (div) {
           return div.getAttribute('disabled') == null;
         })
       ) {
-        addHandle(booleans, function(elem, name, isXML) {
+        addHandle(booleans, function (elem, name, isXML) {
           var val;
           if (!isXML) {
             return elem[name] === true
               ? name.toLowerCase()
-              : (val = elem.getAttributeNode(name)) && val.specified ? val.value : null;
+              : (val = elem.getAttributeNode(name)) && val.specified
+              ? val.value
+              : null;
           }
         });
       }
@@ -2709,14 +2702,14 @@ function jQuery(window, noGlobal) {
   // Implement the identical functionality for filter and not
   function winnow(elements, qualifier, not) {
     if (jQuery.isFunction(qualifier)) {
-      return jQuery.grep(elements, function(elem, i) {
+      return jQuery.grep(elements, function (elem, i) {
         /* jshint -W018 */
         return !!qualifier.call(elem, i, elem) !== not;
       });
     }
 
     if (qualifier.nodeType) {
-      return jQuery.grep(elements, function(elem) {
+      return jQuery.grep(elements, function (elem) {
         return (elem === qualifier) !== not;
       });
     }
@@ -2729,12 +2722,12 @@ function jQuery(window, noGlobal) {
       qualifier = jQuery.filter(qualifier, elements);
     }
 
-    return jQuery.grep(elements, function(elem) {
+    return jQuery.grep(elements, function (elem) {
       return jQuery.inArray(elem, qualifier) >= 0 !== not;
     });
   }
 
-  jQuery.filter = function(expr, elems, not) {
+  jQuery.filter = function (expr, elems, not) {
     var elem = elems[0];
 
     if (not) {
@@ -2742,17 +2735,19 @@ function jQuery(window, noGlobal) {
     }
 
     return elems.length === 1 && elem.nodeType === 1
-      ? jQuery.find.matchesSelector(elem, expr) ? [elem] : []
+      ? jQuery.find.matchesSelector(elem, expr)
+        ? [elem]
+        : []
       : jQuery.find.matches(
           expr,
-          jQuery.grep(elems, function(elem) {
+          jQuery.grep(elems, function (elem) {
             return elem.nodeType === 1;
           })
         );
   };
 
   jQuery.fn.extend({
-    find: function(selector) {
+    find: function (selector) {
       var i,
         ret = [],
         self = this,
@@ -2760,7 +2755,7 @@ function jQuery(window, noGlobal) {
 
       if (typeof selector !== 'string') {
         return this.pushStack(
-          jQuery(selector).filter(function() {
+          jQuery(selector).filter(function () {
             for (i = 0; i < len; i++) {
               if (jQuery.contains(self[i], this)) {
                 return true;
@@ -2779,13 +2774,13 @@ function jQuery(window, noGlobal) {
       ret.selector = this.selector ? this.selector + ' ' + selector : selector;
       return ret;
     },
-    filter: function(selector) {
+    filter: function (selector) {
       return this.pushStack(winnow(this, selector || [], false));
     },
-    not: function(selector) {
+    not: function (selector) {
       return this.pushStack(winnow(this, selector || [], true));
     },
-    is: function(selector) {
+    is: function (selector) {
       return !!winnow(
         this,
 
@@ -2807,7 +2802,7 @@ function jQuery(window, noGlobal) {
     // Prioritize #id over <tag> to avoid XSS via location.hash (#9521)
     // Strict HTML recognition (#11290: must start with <)
     rquickExpr = /^(?:\s*(<[\w\W]+>)[^>]*|#([\w-]*))$/,
-    init = (jQuery.fn.init = function(selector, context) {
+    init = (jQuery.fn.init = function (selector, context) {
       var match, elem;
 
       // HANDLE: $(""), $(null), $(undefined), $(false)
@@ -2834,11 +2829,7 @@ function jQuery(window, noGlobal) {
             // Intentionally let the error be thrown if parseHTML is not present
             jQuery.merge(
               this,
-              jQuery.parseHTML(
-                match[1],
-                context && context.nodeType ? context.ownerDocument || context : document,
-                true
-              )
+              jQuery.parseHTML(match[1], context && context.nodeType ? context.ownerDocument || context : document, true)
             );
 
             // HANDLE: $(html, props)
@@ -2929,7 +2920,7 @@ function jQuery(window, noGlobal) {
     };
 
   jQuery.extend({
-    dir: function(elem, dir, until) {
+    dir: function (elem, dir, until) {
       var matched = [],
         cur = elem[dir];
 
@@ -2942,7 +2933,7 @@ function jQuery(window, noGlobal) {
       return matched;
     },
 
-    sibling: function(n, elem) {
+    sibling: function (n, elem) {
       var r = [];
 
       for (; n; n = n.nextSibling) {
@@ -2956,12 +2947,12 @@ function jQuery(window, noGlobal) {
   });
 
   jQuery.fn.extend({
-    has: function(target) {
+    has: function (target) {
       var i,
         targets = jQuery(target, this),
         len = targets.length;
 
-      return this.filter(function() {
+      return this.filter(function () {
         for (i = 0; i < len; i++) {
           if (jQuery.contains(this, targets[i])) {
             return true;
@@ -2970,15 +2961,12 @@ function jQuery(window, noGlobal) {
       });
     },
 
-    closest: function(selectors, context) {
+    closest: function (selectors, context) {
       var cur,
         i = 0,
         l = this.length,
         matched = [],
-        pos =
-          rneedsContext.test(selectors) || typeof selectors !== 'string'
-            ? jQuery(selectors, context || this.context)
-            : 0;
+        pos = rneedsContext.test(selectors) || typeof selectors !== 'string' ? jQuery(selectors, context || this.context) : 0;
 
       for (; i < l; i++) {
         for (cur = this[i]; cur && cur !== context; cur = cur.parentNode) {
@@ -3001,7 +2989,7 @@ function jQuery(window, noGlobal) {
 
     // Determine the position of an element within
     // the matched set of elements
-    index: function(elem) {
+    index: function (elem) {
       // No argument, return index in parent
       if (!elem) {
         return this[0] && this[0].parentNode ? this.first().prevAll().length : -1;
@@ -3020,11 +3008,11 @@ function jQuery(window, noGlobal) {
       );
     },
 
-    add: function(selector, context) {
+    add: function (selector, context) {
       return this.pushStack(jQuery.unique(jQuery.merge(this.get(), jQuery(selector, context))));
     },
 
-    addBack: function(selector) {
+    addBack: function (selector) {
       return this.add(selector == null ? this.prevObject : this.prevObject.filter(selector));
     }
   });
@@ -3039,48 +3027,48 @@ function jQuery(window, noGlobal) {
 
   jQuery.each(
     {
-      parent: function(elem) {
+      parent: function (elem) {
         var parent = elem.parentNode;
         return parent && parent.nodeType !== 11 ? parent : null;
       },
-      parents: function(elem) {
+      parents: function (elem) {
         return jQuery.dir(elem, 'parentNode');
       },
-      parentsUntil: function(elem, i, until) {
+      parentsUntil: function (elem, i, until) {
         return jQuery.dir(elem, 'parentNode', until);
       },
-      next: function(elem) {
+      next: function (elem) {
         return sibling(elem, 'nextSibling');
       },
-      prev: function(elem) {
+      prev: function (elem) {
         return sibling(elem, 'previousSibling');
       },
-      nextAll: function(elem) {
+      nextAll: function (elem) {
         return jQuery.dir(elem, 'nextSibling');
       },
-      prevAll: function(elem) {
+      prevAll: function (elem) {
         return jQuery.dir(elem, 'previousSibling');
       },
-      nextUntil: function(elem, i, until) {
+      nextUntil: function (elem, i, until) {
         return jQuery.dir(elem, 'nextSibling', until);
       },
-      prevUntil: function(elem, i, until) {
+      prevUntil: function (elem, i, until) {
         return jQuery.dir(elem, 'previousSibling', until);
       },
-      siblings: function(elem) {
+      siblings: function (elem) {
         return jQuery.sibling((elem.parentNode || {}).firstChild, elem);
       },
-      children: function(elem) {
+      children: function (elem) {
         return jQuery.sibling(elem.firstChild);
       },
-      contents: function(elem) {
+      contents: function (elem) {
         return jQuery.nodeName(elem, 'iframe')
           ? elem.contentDocument || elem.contentWindow.document
           : jQuery.merge([], elem.childNodes);
       }
     },
-    function(name, fn) {
-      jQuery.fn[name] = function(until, selector) {
+    function (name, fn) {
+      jQuery.fn[name] = function (until, selector) {
         var ret = jQuery.map(this, fn, until);
 
         if (name.slice(-5) !== 'Until') {
@@ -3115,7 +3103,7 @@ function jQuery(window, noGlobal) {
   // Convert String-formatted options into Object-formatted ones and store in cache
   function createOptions(options) {
     var object = (optionsCache[options] = {});
-    jQuery.each(options.match(rnotwhite) || [], function(_, flag) {
+    jQuery.each(options.match(rnotwhite) || [], function (_, flag) {
       object[flag] = true;
     });
     return object;
@@ -3143,11 +3131,10 @@ function jQuery(window, noGlobal) {
    *	stopOnFalse:	interrupt callings when a callback returns false
    *
    */
-  jQuery.Callbacks = function(options) {
+  jQuery.Callbacks = function (options) {
     // Convert options from String-formatted to Object-formatted if needed
     // (we check in cache first)
-    options =
-      typeof options === 'string' ? optionsCache[options] || createOptions(options) : jQuery.extend({}, options);
+    options = typeof options === 'string' ? optionsCache[options] || createOptions(options) : jQuery.extend({}, options);
 
     var // Flag to know if list is currently firing
       firing,
@@ -3166,7 +3153,7 @@ function jQuery(window, noGlobal) {
       // Stack of fire calls for repeatable lists
       stack = !options.once && [],
       // Fire callbacks
-      fire = function(data) {
+      fire = function (data) {
         memory = options.memory && data;
         fired = true;
         firingIndex = firingStart || 0;
@@ -3195,12 +3182,12 @@ function jQuery(window, noGlobal) {
       // Actual Callbacks object
       self = {
         // Add a callback or a collection of callbacks to the list
-        add: function() {
+        add: function () {
           if (list) {
             // First, we save the current length
             var start = list.length;
             (function add(args) {
-              jQuery.each(args, function(_, arg) {
+              jQuery.each(args, function (_, arg) {
                 var type = jQuery.type(arg);
                 if (type === 'function') {
                   if (!options.unique || !self.has(arg)) {
@@ -3226,9 +3213,9 @@ function jQuery(window, noGlobal) {
           return this;
         },
         // Remove a callback from the list
-        remove: function() {
+        remove: function () {
           if (list) {
-            jQuery.each(arguments, function(_, arg) {
+            jQuery.each(arguments, function (_, arg) {
               var index;
               while ((index = jQuery.inArray(arg, list, index)) > -1) {
                 list.splice(index, 1);
@@ -3248,26 +3235,26 @@ function jQuery(window, noGlobal) {
         },
         // Check if a given callback is in the list.
         // If no argument is given, return whether or not list has callbacks attached.
-        has: function(fn) {
+        has: function (fn) {
           return fn ? jQuery.inArray(fn, list) > -1 : !!(list && list.length);
         },
         // Remove all callbacks from the list
-        empty: function() {
+        empty: function () {
           list = [];
           firingLength = 0;
           return this;
         },
         // Have the list do nothing anymore
-        disable: function() {
+        disable: function () {
           list = stack = memory = undefined;
           return this;
         },
         // Is it disabled?
-        disabled: function() {
+        disabled: function () {
           return !list;
         },
         // Lock the list in its current state
-        lock: function() {
+        lock: function () {
           stack = undefined;
           if (!memory) {
             self.disable();
@@ -3275,11 +3262,11 @@ function jQuery(window, noGlobal) {
           return this;
         },
         // Is it locked?
-        locked: function() {
+        locked: function () {
           return !stack;
         },
         // Call all callbacks with the given context and arguments
-        fireWith: function(context, args) {
+        fireWith: function (context, args) {
           if (list && (!fired || stack)) {
             args = args || [];
             args = [context, args.slice ? args.slice() : args];
@@ -3292,12 +3279,12 @@ function jQuery(window, noGlobal) {
           return this;
         },
         // Call all the callbacks with the given arguments
-        fire: function() {
+        fire: function () {
           self.fireWith(this, arguments);
           return this;
         },
         // To know if the callbacks have already been called at least once
-        fired: function() {
+        fired: function () {
           return !!fired;
         }
       };
@@ -3306,7 +3293,7 @@ function jQuery(window, noGlobal) {
   };
 
   jQuery.extend({
-    Deferred: function(func) {
+    Deferred: function (func) {
       var tuples = [
           // action, add listener, listener list, final state
           ['resolve', 'done', jQuery.Callbacks('once memory'), 'resolved'],
@@ -3315,33 +3302,26 @@ function jQuery(window, noGlobal) {
         ],
         state = 'pending',
         promise = {
-          state: function() {
+          state: function () {
             return state;
           },
-          always: function() {
+          always: function () {
             deferred.done(arguments).fail(arguments);
             return this;
           },
-          then: function(/* fnDone, fnFail, fnProgress */) {
+          then: function (/* fnDone, fnFail, fnProgress */) {
             var fns = arguments;
             return jQuery
-              .Deferred(function(newDefer) {
-                jQuery.each(tuples, function(i, tuple) {
+              .Deferred(function (newDefer) {
+                jQuery.each(tuples, function (i, tuple) {
                   var fn = jQuery.isFunction(fns[i]) && fns[i];
                   // deferred[ done | fail | progress ] for forwarding actions to newDefer
-                  deferred[tuple[1]](function() {
+                  deferred[tuple[1]](function () {
                     var returned = fn && fn.apply(this, arguments);
                     if (returned && jQuery.isFunction(returned.promise)) {
-                      returned
-                        .promise()
-                        .done(newDefer.resolve)
-                        .fail(newDefer.reject)
-                        .progress(newDefer.notify);
+                      returned.promise().done(newDefer.resolve).fail(newDefer.reject).progress(newDefer.notify);
                     } else {
-                      newDefer[tuple[0] + 'With'](
-                        this === promise ? newDefer.promise() : this,
-                        fn ? [returned] : arguments
-                      );
+                      newDefer[tuple[0] + 'With'](this === promise ? newDefer.promise() : this, fn ? [returned] : arguments);
                     }
                   });
                 });
@@ -3351,7 +3331,7 @@ function jQuery(window, noGlobal) {
           },
           // Get a promise for this deferred
           // If obj is provided, the promise aspect is added to the object
-          promise: function(obj) {
+          promise: function (obj) {
             return obj != null ? jQuery.extend(obj, promise) : promise;
           }
         },
@@ -3361,7 +3341,7 @@ function jQuery(window, noGlobal) {
       promise.pipe = promise.then;
 
       // Add list-specific methods
-      jQuery.each(tuples, function(i, tuple) {
+      jQuery.each(tuples, function (i, tuple) {
         var list = tuple[2],
           stateString = tuple[3];
 
@@ -3371,7 +3351,7 @@ function jQuery(window, noGlobal) {
         // Handle state
         if (stateString) {
           list.add(
-            function() {
+            function () {
               // state = [ resolved | rejected ]
               state = stateString;
 
@@ -3383,7 +3363,7 @@ function jQuery(window, noGlobal) {
         }
 
         // deferred[ resolve | reject | notify ]
-        deferred[tuple[0]] = function() {
+        deferred[tuple[0]] = function () {
           deferred[tuple[0] + 'With'](this === deferred ? promise : this, arguments);
           return this;
         };
@@ -3403,7 +3383,7 @@ function jQuery(window, noGlobal) {
     },
 
     // Deferred helper
-    when: function(subordinate /* , ..., subordinateN */) {
+    when: function (subordinate /* , ..., subordinateN */) {
       var i = 0,
         resolveValues = slice.call(arguments),
         length = resolveValues.length,
@@ -3412,8 +3392,8 @@ function jQuery(window, noGlobal) {
         // the master Deferred. If resolveValues consist of only a single Deferred, just use that.
         deferred = remaining === 1 ? subordinate : jQuery.Deferred(),
         // Update function for both resolve and progress values
-        updateFunc = function(i, contexts, values) {
-          return function(value) {
+        updateFunc = function (i, contexts, values) {
+          return function (value) {
             contexts[i] = this;
             values[i] = arguments.length > 1 ? slice.call(arguments) : value;
             if (values === progressValues) {
@@ -3457,7 +3437,7 @@ function jQuery(window, noGlobal) {
   // The deferred used on DOM ready
   var readyList;
 
-  jQuery.fn.ready = function(fn) {
+  jQuery.fn.ready = function (fn) {
     // Add the callback
     jQuery.ready.promise().done(fn);
 
@@ -3473,7 +3453,7 @@ function jQuery(window, noGlobal) {
     readyWait: 1,
 
     // Hold (or release) the ready event
-    holdReady: function(hold) {
+    holdReady: function (hold) {
       if (hold) {
         jQuery.readyWait++;
       } else {
@@ -3482,7 +3462,7 @@ function jQuery(window, noGlobal) {
     },
 
     // Handle when the DOM is ready
-    ready: function(wait) {
+    ready: function (wait) {
       // Abort if there are pending holds or we're already ready
       if (wait === true ? --jQuery.readyWait : jQuery.isReady) {
         return;
@@ -3536,7 +3516,7 @@ function jQuery(window, noGlobal) {
     }
   }
 
-  jQuery.ready.promise = function(obj) {
+  jQuery.ready.promise = function (obj) {
     if (!readyList) {
       readyList = jQuery.Deferred();
 
@@ -3610,7 +3590,7 @@ function jQuery(window, noGlobal) {
   support.inlineBlockNeedsLayout = false;
 
   // Execute ASAP in case we need to set body.style.zoom
-  jQuery(function() {
+  jQuery(function () {
     // Minified: var a,b,c,d
     var val, div, body, container;
 
@@ -3645,7 +3625,7 @@ function jQuery(window, noGlobal) {
     body.removeChild(container);
   });
 
-  (function() {
+  (function () {
     var div = document.createElement('div');
 
     // Execute the test only if not already executed in another module.
@@ -3666,7 +3646,7 @@ function jQuery(window, noGlobal) {
   /**
    * Determines whether an object can have data
    */
-  jQuery.acceptData = function(elem) {
+  jQuery.acceptData = function (elem) {
     var noData = jQuery.noData[(elem.nodeName + ' ').toLowerCase()],
       nodeType = +elem.nodeType || 1;
 
@@ -3694,11 +3674,15 @@ function jQuery(window, noGlobal) {
             data === 'true'
               ? true
               : data === 'false'
-                ? false
-                : data === 'null'
-                  ? null
-                  : // Only convert to a number if it doesn't change the string
-                    +data + '' === data ? +data : rbrace.test(data) ? jQuery.parseJSON(data) : data;
+              ? false
+              : data === 'null'
+              ? null
+              : // Only convert to a number if it doesn't change the string
+              +data + '' === data
+              ? +data
+              : rbrace.test(data)
+              ? jQuery.parseJSON(data)
+              : data;
         } catch (e) {}
 
         // Make sure we set the data so it isn't changed later
@@ -3910,31 +3894,31 @@ function jQuery(window, noGlobal) {
       'object ': 'clsid:D27CDB6E-AE6D-11cf-96B8-444553540000'
     },
 
-    hasData: function(elem) {
+    hasData: function (elem) {
       elem = elem.nodeType ? jQuery.cache[elem[jQuery.expando]] : elem[jQuery.expando];
       return !!elem && !isEmptyDataObject(elem);
     },
 
-    data: function(elem, name, data) {
+    data: function (elem, name, data) {
       return internalData(elem, name, data);
     },
 
-    removeData: function(elem, name) {
+    removeData: function (elem, name) {
       return internalRemoveData(elem, name);
     },
 
     // For internal use only.
-    _data: function(elem, name, data) {
+    _data: function (elem, name, data) {
       return internalData(elem, name, data, true);
     },
 
-    _removeData: function(elem, name) {
+    _removeData: function (elem, name) {
       return internalRemoveData(elem, name, true);
     }
   });
 
   jQuery.fn.extend({
-    data: function(key, value) {
+    data: function (key, value) {
       var i,
         name,
         data,
@@ -3971,30 +3955,32 @@ function jQuery(window, noGlobal) {
 
       // Sets multiple values
       if (typeof key === 'object') {
-        return this.each(function() {
+        return this.each(function () {
           jQuery.data(this, key);
         });
       }
 
       return arguments.length > 1
         ? // Sets one value
-          this.each(function() {
+          this.each(function () {
             jQuery.data(this, key, value);
           })
         : // Gets one value
-          // Try to fetch any internally stored data first
-          elem ? dataAttr(elem, key, jQuery.data(elem, key)) : undefined;
+        // Try to fetch any internally stored data first
+        elem
+        ? dataAttr(elem, key, jQuery.data(elem, key))
+        : undefined;
     },
 
-    removeData: function(key) {
-      return this.each(function() {
+    removeData: function (key) {
+      return this.each(function () {
         jQuery.removeData(this, key);
       });
     }
   });
 
   jQuery.extend({
-    queue: function(elem, type, data) {
+    queue: function (elem, type, data) {
       var queue;
 
       if (elem) {
@@ -4013,14 +3999,14 @@ function jQuery(window, noGlobal) {
       }
     },
 
-    dequeue: function(elem, type) {
+    dequeue: function (elem, type) {
       type = type || 'fx';
 
       var queue = jQuery.queue(elem, type),
         startLength = queue.length,
         fn = queue.shift(),
         hooks = jQuery._queueHooks(elem, type),
-        next = function() {
+        next = function () {
           jQuery.dequeue(elem, type);
         };
 
@@ -4048,12 +4034,12 @@ function jQuery(window, noGlobal) {
     },
 
     // not intended for public consumption - generates a queueHooks object, or returns the current one
-    _queueHooks: function(elem, type) {
+    _queueHooks: function (elem, type) {
       var key = type + 'queueHooks';
       return (
         jQuery._data(elem, key) ||
         jQuery._data(elem, key, {
-          empty: jQuery.Callbacks('once memory').add(function() {
+          empty: jQuery.Callbacks('once memory').add(function () {
             jQuery._removeData(elem, type + 'queue');
             jQuery._removeData(elem, key);
           })
@@ -4063,7 +4049,7 @@ function jQuery(window, noGlobal) {
   });
 
   jQuery.fn.extend({
-    queue: function(type, data) {
+    queue: function (type, data) {
       var setter = 2;
 
       if (typeof type !== 'string') {
@@ -4078,7 +4064,7 @@ function jQuery(window, noGlobal) {
 
       return data === undefined
         ? this
-        : this.each(function() {
+        : this.each(function () {
             var queue = jQuery.queue(this, type, data);
 
             // ensure a hooks for this queue
@@ -4089,23 +4075,23 @@ function jQuery(window, noGlobal) {
             }
           });
     },
-    dequeue: function(type) {
-      return this.each(function() {
+    dequeue: function (type) {
+      return this.each(function () {
         jQuery.dequeue(this, type);
       });
     },
-    clearQueue: function(type) {
+    clearQueue: function (type) {
       return this.queue(type || 'fx', []);
     },
     // Get a promise resolved when queues of a certain type
     // are emptied (fx is the type by default)
-    promise: function(type, obj) {
+    promise: function (type, obj) {
       var tmp,
         count = 1,
         defer = jQuery.Deferred(),
         elements = this,
         i = this.length,
-        resolve = function() {
+        resolve = function () {
           if (!--count) {
             defer.resolveWith(elements, [elements]);
           }
@@ -4132,7 +4118,7 @@ function jQuery(window, noGlobal) {
 
   var cssExpand = ['Top', 'Right', 'Bottom', 'Left'];
 
-  var isHidden = function(elem, el) {
+  var isHidden = function (elem, el) {
     // isHidden might be called from jQuery#filter function;
     // in that case, element will be second argument
     elem = el || elem;
@@ -4141,7 +4127,7 @@ function jQuery(window, noGlobal) {
 
   // Multifunctional method to get and set values of a collection
   // The value/s can optionally be executed if it's a function
-  var access = (jQuery.access = function(elems, fn, key, value, chainable, emptyGet, raw) {
+  var access = (jQuery.access = function (elems, fn, key, value, chainable, emptyGet, raw) {
     var i = 0,
       length = elems.length,
       bulk = key == null;
@@ -4170,7 +4156,7 @@ function jQuery(window, noGlobal) {
           // ...except when executing function values
         } else {
           bulk = fn;
-          fn = function(elem, key, value) {
+          fn = function (elem, key, value) {
             return bulk.call(jQuery(elem), value);
           };
         }
@@ -4186,11 +4172,15 @@ function jQuery(window, noGlobal) {
     return chainable
       ? elems
       : // Gets
-        bulk ? fn.call(elems) : length ? fn(elems[0], key) : emptyGet;
+      bulk
+      ? fn.call(elems)
+      : length
+      ? fn(elems[0], key)
+      : emptyGet;
   });
   var rcheckableType = /^(?:checkbox|radio)$/i;
 
-  (function() {
+  (function () {
     // Minified: var a,b,c
     var input = document.createElement('input'),
       div = document.createElement('div'),
@@ -4239,7 +4229,7 @@ function jQuery(window, noGlobal) {
     // IE9-10 clones events bound via attachEvent, but they don't trigger with .click()
     support.noCloneEvent = true;
     if (div.attachEvent) {
-      div.attachEvent('onclick', function() {
+      div.attachEvent('onclick', function () {
         support.noCloneEvent = false;
       });
 
@@ -4258,7 +4248,7 @@ function jQuery(window, noGlobal) {
     }
   })();
 
-  (function() {
+  (function () {
     var i,
       eventName,
       div = document.createElement('div');
@@ -4305,7 +4295,7 @@ function jQuery(window, noGlobal) {
   jQuery.event = {
     global: {},
 
-    add: function(elem, types, handler, data, selector) {
+    add: function (elem, types, handler, data, selector) {
       var tmp,
         events,
         t,
@@ -4341,7 +4331,7 @@ function jQuery(window, noGlobal) {
         events = elemData.events = {};
       }
       if (!(eventHandle = elemData.handle)) {
-        eventHandle = elemData.handle = function(e) {
+        eventHandle = elemData.handle = function (e) {
           // Discard the second event of a jQuery.event.trigger() and
           // when an event is called after a page has unloaded
           return typeof jQuery !== strundefined && (!e || jQuery.event.triggered !== e.type)
@@ -4429,7 +4419,7 @@ function jQuery(window, noGlobal) {
     },
 
     // Detach an event or set of events from an element
-    remove: function(elem, types, handler, selector, mappedTypes) {
+    remove: function (elem, types, handler, selector, mappedTypes) {
       var j,
         handleObj,
         tmp,
@@ -4511,7 +4501,7 @@ function jQuery(window, noGlobal) {
       }
     },
 
-    trigger: function(event, data, elem, onlyHandlers) {
+    trigger: function (event, data, elem, onlyHandlers) {
       var handle,
         ontype,
         cur,
@@ -4549,9 +4539,7 @@ function jQuery(window, noGlobal) {
       // Trigger bitmask: & 1 for native handlers; & 2 for jQuery (always true)
       event.isTrigger = onlyHandlers ? 2 : 3;
       event.namespace = namespaces.join('.');
-      event.namespace_re = event.namespace
-        ? new RegExp('(^|\\.)' + namespaces.join('\\.(?:.*\\.|)') + '(\\.|$)')
-        : null;
+      event.namespace_re = event.namespace ? new RegExp('(^|\\.)' + namespaces.join('\\.(?:.*\\.|)') + '(\\.|$)') : null;
 
       // Clean up the event in case it is being reused
       event.result = undefined;
@@ -4642,7 +4630,7 @@ function jQuery(window, noGlobal) {
       return event.result;
     },
 
-    dispatch: function(event) {
+    dispatch: function (event) {
       // Make a writable jQuery.Event from the native event object
       event = jQuery.event.fix(event);
 
@@ -4681,10 +4669,7 @@ function jQuery(window, noGlobal) {
             event.handleObj = handleObj;
             event.data = handleObj.data;
 
-            ret = ((jQuery.event.special[handleObj.origType] || {}).handle || handleObj.handler).apply(
-              matched.elem,
-              args
-            );
+            ret = ((jQuery.event.special[handleObj.origType] || {}).handle || handleObj.handler).apply(matched.elem, args);
 
             if (ret !== undefined) {
               if ((event.result = ret) === false) {
@@ -4704,7 +4689,7 @@ function jQuery(window, noGlobal) {
       return event.result;
     },
 
-    handlers: function(event, handlers) {
+    handlers: function (event, handlers) {
       var sel,
         handleObj,
         matches,
@@ -4755,7 +4740,7 @@ function jQuery(window, noGlobal) {
       return handlerQueue;
     },
 
-    fix: function(event) {
+    fix: function (event) {
       if (event[jQuery.expando]) {
         return event;
       }
@@ -4769,9 +4754,7 @@ function jQuery(window, noGlobal) {
         fixHook = this.fixHooks[type];
 
       if (!fixHook) {
-        this.fixHooks[type] = fixHook = rmouseEvent.test(type)
-          ? this.mouseHooks
-          : rkeyEvent.test(type) ? this.keyHooks : {};
+        this.fixHooks[type] = fixHook = rmouseEvent.test(type) ? this.mouseHooks : rkeyEvent.test(type) ? this.keyHooks : {};
       }
       copy = fixHook.props ? this.props.concat(fixHook.props) : this.props;
 
@@ -4811,7 +4794,7 @@ function jQuery(window, noGlobal) {
 
     keyHooks: {
       props: 'char charCode key keyCode'.split(' '),
-      filter: function(event, original) {
+      filter: function (event, original) {
         // Add which for key events
         if (event.which == null) {
           event.which = original.charCode != null ? original.charCode : original.keyCode;
@@ -4822,10 +4805,8 @@ function jQuery(window, noGlobal) {
     },
 
     mouseHooks: {
-      props: 'button buttons clientX clientY fromElement offsetX offsetY pageX pageY screenX screenY toElement'.split(
-        ' '
-      ),
-      filter: function(event, original) {
+      props: 'button buttons clientX clientY fromElement offsetX offsetY pageX pageY screenX screenY toElement'.split(' '),
+      filter: function (event, original) {
         var body,
           eventDoc,
           doc,
@@ -4870,7 +4851,7 @@ function jQuery(window, noGlobal) {
       },
       focus: {
         // Fire native event if possible so blur/focus sequence is correct
-        trigger: function() {
+        trigger: function () {
           if (this !== safeActiveElement() && this.focus) {
             try {
               this.focus();
@@ -4885,7 +4866,7 @@ function jQuery(window, noGlobal) {
         delegateType: 'focusin'
       },
       blur: {
-        trigger: function() {
+        trigger: function () {
           if (this === safeActiveElement() && this.blur) {
             this.blur();
             return false;
@@ -4895,7 +4876,7 @@ function jQuery(window, noGlobal) {
       },
       click: {
         // For checkbox, fire native event so checked state will be right
-        trigger: function() {
+        trigger: function () {
           if (jQuery.nodeName(this, 'input') && this.type === 'checkbox' && this.click) {
             this.click();
             return false;
@@ -4903,13 +4884,13 @@ function jQuery(window, noGlobal) {
         },
 
         // For cross-browser consistency, don't fire native .click() on links
-        _default: function(event) {
+        _default: function (event) {
           return jQuery.nodeName(event.target, 'a');
         }
       },
 
       beforeunload: {
-        postDispatch: function(event) {
+        postDispatch: function (event) {
           // Support: Firefox 20+
           // Firefox doesn't alert if the returnValue field is not set.
           if (event.result !== undefined && event.originalEvent) {
@@ -4919,7 +4900,7 @@ function jQuery(window, noGlobal) {
       }
     },
 
-    simulate: function(type, elem, event, bubble) {
+    simulate: function (type, elem, event, bubble) {
       // Piggyback on a donor event to simulate a different one.
       // Fake originalEvent to avoid donor's stopPropagation, but if the
       // simulated event prevents default then we do the same on the donor.
@@ -4940,12 +4921,12 @@ function jQuery(window, noGlobal) {
   };
 
   jQuery.removeEvent = document.removeEventListener
-    ? function(elem, type, handle) {
+    ? function (elem, type, handle) {
         if (elem.removeEventListener) {
           elem.removeEventListener(type, handle, false);
         }
       }
-    : function(elem, type, handle) {
+    : function (elem, type, handle) {
         var name = 'on' + type;
 
         if (elem.detachEvent) {
@@ -4959,7 +4940,7 @@ function jQuery(window, noGlobal) {
         }
       };
 
-  jQuery.Event = function(src, props) {
+  jQuery.Event = function (src, props) {
     // Allow instantiation without the 'new' keyword
     if (!(this instanceof jQuery.Event)) {
       return new jQuery.Event(src, props);
@@ -5004,7 +4985,7 @@ function jQuery(window, noGlobal) {
     isPropagationStopped: returnFalse,
     isImmediatePropagationStopped: returnFalse,
 
-    preventDefault: function() {
+    preventDefault: function () {
       var e = this.originalEvent;
 
       this.isDefaultPrevented = returnTrue;
@@ -5022,7 +5003,7 @@ function jQuery(window, noGlobal) {
         e.returnValue = false;
       }
     },
-    stopPropagation: function() {
+    stopPropagation: function () {
       var e = this.originalEvent;
 
       this.isPropagationStopped = returnTrue;
@@ -5038,7 +5019,7 @@ function jQuery(window, noGlobal) {
       // Set the cancelBubble property of the original event to true
       e.cancelBubble = true;
     },
-    stopImmediatePropagation: function() {
+    stopImmediatePropagation: function () {
       var e = this.originalEvent;
 
       this.isImmediatePropagationStopped = returnTrue;
@@ -5059,12 +5040,12 @@ function jQuery(window, noGlobal) {
       pointerenter: 'pointerover',
       pointerleave: 'pointerout'
     },
-    function(orig, fix) {
+    function (orig, fix) {
       jQuery.event.special[orig] = {
         delegateType: fix,
         bindType: fix,
 
-        handle: function(event) {
+        handle: function (event) {
           var ret,
             target = this,
             related = event.relatedTarget,
@@ -5086,19 +5067,19 @@ function jQuery(window, noGlobal) {
   // IE submit delegation
   if (!support.submitBubbles) {
     jQuery.event.special.submit = {
-      setup: function() {
+      setup: function () {
         // Only need this for delegated form submit events
         if (jQuery.nodeName(this, 'form')) {
           return false;
         }
 
         // Lazy-add a submit handler when a descendant form may potentially be submitted
-        jQuery.event.add(this, 'click._submit keypress._submit', function(e) {
+        jQuery.event.add(this, 'click._submit keypress._submit', function (e) {
           // Node name check avoids a VML-related crash in IE (#9807)
           var elem = e.target,
             form = jQuery.nodeName(elem, 'input') || jQuery.nodeName(elem, 'button') ? elem.form : undefined;
           if (form && !jQuery._data(form, 'submitBubbles')) {
-            jQuery.event.add(form, 'submit._submit', function(event) {
+            jQuery.event.add(form, 'submit._submit', function (event) {
               event._submit_bubble = true;
             });
             jQuery._data(form, 'submitBubbles', true);
@@ -5107,7 +5088,7 @@ function jQuery(window, noGlobal) {
         // return undefined since we don't need an event listener
       },
 
-      postDispatch: function(event) {
+      postDispatch: function (event) {
         // If form was submitted by the user, bubble the event up the tree
         if (event._submit_bubble) {
           delete event._submit_bubble;
@@ -5117,7 +5098,7 @@ function jQuery(window, noGlobal) {
         }
       },
 
-      teardown: function() {
+      teardown: function () {
         // Only need this for delegated form submit events
         if (jQuery.nodeName(this, 'form')) {
           return false;
@@ -5132,18 +5113,18 @@ function jQuery(window, noGlobal) {
   // IE change delegation and checkbox/radio fix
   if (!support.changeBubbles) {
     jQuery.event.special.change = {
-      setup: function() {
+      setup: function () {
         if (rformElems.test(this.nodeName)) {
           // IE doesn't fire change on a check/radio until blur; trigger it on click
           // after a propertychange. Eat the blur-change in special.change.handle.
           // This still fires onchange a second time for check/radio after blur.
           if (this.type === 'checkbox' || this.type === 'radio') {
-            jQuery.event.add(this, 'propertychange._change', function(event) {
+            jQuery.event.add(this, 'propertychange._change', function (event) {
               if (event.originalEvent.propertyName === 'checked') {
                 this._just_changed = true;
               }
             });
-            jQuery.event.add(this, 'click._change', function(event) {
+            jQuery.event.add(this, 'click._change', function (event) {
               if (this._just_changed && !event.isTrigger) {
                 this._just_changed = false;
               }
@@ -5154,11 +5135,11 @@ function jQuery(window, noGlobal) {
           return false;
         }
         // Delegated event; lazy-add a change handler on descendant inputs
-        jQuery.event.add(this, 'beforeactivate._change', function(e) {
+        jQuery.event.add(this, 'beforeactivate._change', function (e) {
           var elem = e.target;
 
           if (rformElems.test(elem.nodeName) && !jQuery._data(elem, 'changeBubbles')) {
-            jQuery.event.add(elem, 'change._change', function(event) {
+            jQuery.event.add(elem, 'change._change', function (event) {
               if (this.parentNode && !event.isSimulated && !event.isTrigger) {
                 jQuery.event.simulate('change', this.parentNode, event, true);
               }
@@ -5168,21 +5149,16 @@ function jQuery(window, noGlobal) {
         });
       },
 
-      handle: function(event) {
+      handle: function (event) {
         var elem = event.target;
 
         // Swallow native change events from checkbox/radio, we already triggered them above
-        if (
-          this !== elem ||
-          event.isSimulated ||
-          event.isTrigger ||
-          (elem.type !== 'radio' && elem.type !== 'checkbox')
-        ) {
+        if (this !== elem || event.isSimulated || event.isTrigger || (elem.type !== 'radio' && elem.type !== 'checkbox')) {
           return event.handleObj.handler.apply(this, arguments);
         }
       },
 
-      teardown: function() {
+      teardown: function () {
         jQuery.event.remove(this, '._change');
 
         return !rformElems.test(this.nodeName);
@@ -5192,14 +5168,14 @@ function jQuery(window, noGlobal) {
 
   // Create "bubbling" focus and blur events
   if (!support.focusinBubbles) {
-    jQuery.each({ focus: 'focusin', blur: 'focusout' }, function(orig, fix) {
+    jQuery.each({ focus: 'focusin', blur: 'focusout' }, function (orig, fix) {
       // Attach a single capturing handler on the document while someone wants focusin/focusout
-      var handler = function(event) {
+      var handler = function (event) {
         jQuery.event.simulate(fix, event.target, jQuery.event.fix(event), true);
       };
 
       jQuery.event.special[fix] = {
-        setup: function() {
+        setup: function () {
           var doc = this.ownerDocument || this,
             attaches = jQuery._data(doc, fix);
 
@@ -5208,7 +5184,7 @@ function jQuery(window, noGlobal) {
           }
           jQuery._data(doc, fix, (attaches || 0) + 1);
         },
-        teardown: function() {
+        teardown: function () {
           var doc = this.ownerDocument || this,
             attaches = jQuery._data(doc, fix) - 1;
 
@@ -5224,7 +5200,7 @@ function jQuery(window, noGlobal) {
   }
 
   jQuery.fn.extend({
-    on: function(types, selector, data, fn, /*INTERNAL*/ one) {
+    on: function (types, selector, data, fn, /*INTERNAL*/ one) {
       var type, origFn;
 
       // Types can be a map of types/handlers
@@ -5265,7 +5241,7 @@ function jQuery(window, noGlobal) {
 
       if (one === 1) {
         origFn = fn;
-        fn = function(event) {
+        fn = function (event) {
           // Can use an empty set, since event contains the info
           jQuery().off(event);
           return origFn.apply(this, arguments);
@@ -5273,14 +5249,14 @@ function jQuery(window, noGlobal) {
         // Use same guid so caller can remove using origFn
         fn.guid = origFn.guid || (origFn.guid = jQuery.guid++);
       }
-      return this.each(function() {
+      return this.each(function () {
         jQuery.event.add(this, types, fn, data, selector);
       });
     },
-    one: function(types, selector, data, fn) {
+    one: function (types, selector, data, fn) {
       return this.on(types, selector, data, fn, 1);
     },
-    off: function(types, selector, fn) {
+    off: function (types, selector, fn) {
       var handleObj, type;
       if (types && types.preventDefault && types.handleObj) {
         // ( event )  dispatched jQuery.Event
@@ -5307,17 +5283,17 @@ function jQuery(window, noGlobal) {
       if (fn === false) {
         fn = returnFalse;
       }
-      return this.each(function() {
+      return this.each(function () {
         jQuery.event.remove(this, types, fn, selector);
       });
     },
 
-    trigger: function(type, data) {
-      return this.each(function() {
+    trigger: function (type, data) {
+      return this.each(function () {
         jQuery.event.trigger(type, data, this);
       });
     },
-    triggerHandler: function(type, data) {
+    triggerHandler: function (type, data) {
       var elem = this[0];
       if (elem) {
         return jQuery.event.trigger(type, data, elem, true);
@@ -5382,7 +5358,9 @@ function jQuery(window, noGlobal) {
       found =
         typeof context.getElementsByTagName !== strundefined
           ? context.getElementsByTagName(tag || '*')
-          : typeof context.querySelectorAll !== strundefined ? context.querySelectorAll(tag || '*') : undefined;
+          : typeof context.querySelectorAll !== strundefined
+          ? context.querySelectorAll(tag || '*')
+          : undefined;
 
     if (!found) {
       for (found = [], elems = context.childNodes || context; (elem = elems[i]) != null; i++) {
@@ -5407,8 +5385,7 @@ function jQuery(window, noGlobal) {
   // Support: IE<8
   // Manipulating tables requires a tbody
   function manipulationTarget(elem, content) {
-    return jQuery.nodeName(elem, 'table') &&
-      jQuery.nodeName(content.nodeType !== 11 ? content : content.firstChild, 'tr')
+    return jQuery.nodeName(elem, 'table') && jQuery.nodeName(content.nodeType !== 11 ? content : content.firstChild, 'tr')
       ? elem.getElementsByTagName('tbody')[0] || elem.appendChild(elem.ownerDocument.createElement('tbody'))
       : elem;
   }
@@ -5505,7 +5482,7 @@ function jQuery(window, noGlobal) {
       // element in IE9, the outerHTML strategy above is not sufficient.
       // If the src has innerHTML and the destination does not,
       // copy the src.innerHTML into the dest.innerHTML. #10324
-      if (support.html5Clone && (src.innerHTML && !jQuery.trim(dest.innerHTML))) {
+      if (support.html5Clone && src.innerHTML && !jQuery.trim(dest.innerHTML)) {
         dest.innerHTML = src.innerHTML;
       }
     } else if (nodeName === 'input' && rcheckableType.test(src.type)) {
@@ -5534,7 +5511,7 @@ function jQuery(window, noGlobal) {
   }
 
   jQuery.extend({
-    clone: function(elem, dataAndEvents, deepDataAndEvents) {
+    clone: function (elem, dataAndEvents, deepDataAndEvents) {
       var destElements,
         node,
         clone,
@@ -5595,7 +5572,7 @@ function jQuery(window, noGlobal) {
       return clone;
     },
 
-    buildFragment: function(elems, context, scripts, selection) {
+    buildFragment: function (elems, context, scripts, selection) {
       var j,
         elem,
         contains,
@@ -5649,7 +5626,9 @@ function jQuery(window, noGlobal) {
                 tag === 'table' && !rtbody.test(elem)
                   ? tmp.firstChild
                   : // String was a bare <thead> or <tfoot>
-                    wrap[1] === '<table>' && !rtbody.test(elem) ? tmp : 0;
+                  wrap[1] === '<table>' && !rtbody.test(elem)
+                  ? tmp
+                  : 0;
 
               j = elem && elem.childNodes.length;
               while (j--) {
@@ -5720,7 +5699,7 @@ function jQuery(window, noGlobal) {
       return safe;
     },
 
-    cleanData: function(elems, /* internal */ acceptData) {
+    cleanData: function (elems, /* internal */ acceptData) {
       var elem,
         type,
         id,
@@ -5773,10 +5752,10 @@ function jQuery(window, noGlobal) {
   });
 
   jQuery.fn.extend({
-    text: function(value) {
+    text: function (value) {
       return access(
         this,
-        function(value) {
+        function (value) {
           return value === undefined
             ? jQuery.text(this)
             : this.empty().append(((this[0] && this[0].ownerDocument) || document).createTextNode(value));
@@ -5787,8 +5766,8 @@ function jQuery(window, noGlobal) {
       );
     },
 
-    append: function() {
-      return this.domManip(arguments, function(elem) {
+    append: function () {
+      return this.domManip(arguments, function (elem) {
         if (this.nodeType === 1 || this.nodeType === 11 || this.nodeType === 9) {
           var target = manipulationTarget(this, elem);
           target.appendChild(elem);
@@ -5796,8 +5775,8 @@ function jQuery(window, noGlobal) {
       });
     },
 
-    prepend: function() {
-      return this.domManip(arguments, function(elem) {
+    prepend: function () {
+      return this.domManip(arguments, function (elem) {
         if (this.nodeType === 1 || this.nodeType === 11 || this.nodeType === 9) {
           var target = manipulationTarget(this, elem);
           target.insertBefore(elem, target.firstChild);
@@ -5805,23 +5784,23 @@ function jQuery(window, noGlobal) {
       });
     },
 
-    before: function() {
-      return this.domManip(arguments, function(elem) {
+    before: function () {
+      return this.domManip(arguments, function (elem) {
         if (this.parentNode) {
           this.parentNode.insertBefore(elem, this);
         }
       });
     },
 
-    after: function() {
-      return this.domManip(arguments, function(elem) {
+    after: function () {
+      return this.domManip(arguments, function (elem) {
         if (this.parentNode) {
           this.parentNode.insertBefore(elem, this.nextSibling);
         }
       });
     },
 
-    remove: function(selector, keepData /* Internal Use Only */) {
+    remove: function (selector, keepData /* Internal Use Only */) {
       var elem,
         elems = selector ? jQuery.filter(selector, this) : this,
         i = 0;
@@ -5842,7 +5821,7 @@ function jQuery(window, noGlobal) {
       return this;
     },
 
-    empty: function() {
+    empty: function () {
       var elem,
         i = 0;
 
@@ -5867,19 +5846,19 @@ function jQuery(window, noGlobal) {
       return this;
     },
 
-    clone: function(dataAndEvents, deepDataAndEvents) {
+    clone: function (dataAndEvents, deepDataAndEvents) {
       dataAndEvents = dataAndEvents == null ? false : dataAndEvents;
       deepDataAndEvents = deepDataAndEvents == null ? dataAndEvents : deepDataAndEvents;
 
-      return this.map(function() {
+      return this.map(function () {
         return jQuery.clone(this, dataAndEvents, deepDataAndEvents);
       });
     },
 
-    html: function(value) {
+    html: function (value) {
       return access(
         this,
-        function(value) {
+        function (value) {
           var elem = this[0] || {},
             i = 0,
             l = this.length;
@@ -5924,11 +5903,11 @@ function jQuery(window, noGlobal) {
       );
     },
 
-    replaceWith: function() {
+    replaceWith: function () {
       var arg = arguments[0];
 
       // Make the changes, replacing each context element with the new content
-      this.domManip(arguments, function(elem) {
+      this.domManip(arguments, function (elem) {
         arg = this.parentNode;
 
         jQuery.cleanData(getAll(this));
@@ -5942,11 +5921,11 @@ function jQuery(window, noGlobal) {
       return arg && (arg.length || arg.nodeType) ? this : this.remove();
     },
 
-    detach: function(selector) {
+    detach: function (selector) {
       return this.remove(selector, true);
     },
 
-    domManip: function(args, callback) {
+    domManip: function (args, callback) {
       // Flatten any nested arrays
       args = concat.apply([], args);
 
@@ -5965,7 +5944,7 @@ function jQuery(window, noGlobal) {
 
       // We can't cloneNode fragments that contain checked, in WebKit
       if (isFunction || (l > 1 && typeof value === 'string' && !support.checkClone && rchecked.test(value))) {
-        return this.each(function(index) {
+        return this.each(function (index) {
           var self = set.eq(index);
           if (isFunction) {
             args[0] = value.call(this, index, self.html());
@@ -6012,11 +5991,7 @@ function jQuery(window, noGlobal) {
             // Evaluate executable scripts on first document insertion
             for (i = 0; i < hasScripts; i++) {
               node = scripts[i];
-              if (
-                rscriptType.test(node.type || '') &&
-                !jQuery._data(node, 'globalEval') &&
-                jQuery.contains(doc, node)
-              ) {
+              if (rscriptType.test(node.type || '') && !jQuery._data(node, 'globalEval') && jQuery.contains(doc, node)) {
                 if (node.src) {
                   // Optional AJAX dependency, but won't run scripts if not present
                   if (jQuery._evalUrl) {
@@ -6046,8 +6021,8 @@ function jQuery(window, noGlobal) {
       insertAfter: 'after',
       replaceAll: 'replaceWith'
     },
-    function(name, original) {
-      jQuery.fn[name] = function(selector) {
+    function (name, original) {
+      jQuery.fn[name] = function (selector) {
         var elems,
           i = 0,
           ret = [],
@@ -6128,10 +6103,10 @@ function jQuery(window, noGlobal) {
     return display;
   }
 
-  (function() {
+  (function () {
     var shrinkWrapBlocksVal;
 
-    support.shrinkWrapBlocks = function() {
+    support.shrinkWrapBlocks = function () {
       if (shrinkWrapBlocksVal != null) {
         return shrinkWrapBlocksVal;
       }
@@ -6182,7 +6157,7 @@ function jQuery(window, noGlobal) {
     rposition = /^(top|right|bottom|left)$/;
 
   if (window.getComputedStyle) {
-    getStyles = function(elem) {
+    getStyles = function (elem) {
       // Support: IE<=11+, Firefox<=30+ (#15098, #14150)
       // IE throws on elements created in popups
       // FF meanwhile throws on frame elements through "defaultView.getComputedStyle"
@@ -6193,7 +6168,7 @@ function jQuery(window, noGlobal) {
       return window.getComputedStyle(elem, null);
     };
 
-    curCSS = function(elem, name, computed) {
+    curCSS = function (elem, name, computed) {
       var width,
         minWidth,
         maxWidth,
@@ -6236,11 +6211,11 @@ function jQuery(window, noGlobal) {
       return ret === undefined ? ret : ret + '';
     };
   } else if (document.documentElement.currentStyle) {
-    getStyles = function(elem) {
+    getStyles = function (elem) {
       return elem.currentStyle;
     };
 
-    curCSS = function(elem, name, computed) {
+    curCSS = function (elem, name, computed) {
       var left,
         rs,
         rsLeft,
@@ -6292,7 +6267,7 @@ function jQuery(window, noGlobal) {
   function addGetHookIf(conditionFn, hookFn) {
     // Define the hook, we'll check on the first run if it's really needed.
     return {
-      get: function() {
+      get: function () {
         var condition = conditionFn();
 
         if (condition == null) {
@@ -6316,7 +6291,7 @@ function jQuery(window, noGlobal) {
     };
   }
 
-  (function() {
+  (function () {
     // Minified: var b,c,d,e,f,g, h,i
     var div, style, a, pixelPositionVal, boxSizingReliableVal, reliableHiddenOffsetsVal, reliableMarginRightVal;
 
@@ -6350,21 +6325,21 @@ function jQuery(window, noGlobal) {
     support.boxSizing = style.boxSizing === '' || style.MozBoxSizing === '' || style.WebkitBoxSizing === '';
 
     jQuery.extend(support, {
-      reliableHiddenOffsets: function() {
+      reliableHiddenOffsets: function () {
         if (reliableHiddenOffsetsVal == null) {
           computeStyleTests();
         }
         return reliableHiddenOffsetsVal;
       },
 
-      boxSizingReliable: function() {
+      boxSizingReliable: function () {
         if (boxSizingReliableVal == null) {
           computeStyleTests();
         }
         return boxSizingReliableVal;
       },
 
-      pixelPosition: function() {
+      pixelPosition: function () {
         if (pixelPositionVal == null) {
           computeStyleTests();
         }
@@ -6372,7 +6347,7 @@ function jQuery(window, noGlobal) {
       },
 
       // Support: Android 2.3
-      reliableMarginRight: function() {
+      reliableMarginRight: function () {
         if (reliableMarginRightVal == null) {
           computeStyleTests();
         }
@@ -6455,7 +6430,7 @@ function jQuery(window, noGlobal) {
   })();
 
   // A method for quickly swapping in/out CSS properties to get correct calculations.
-  jQuery.swap = function(elem, options, callback, args) {
+  jQuery.swap = function (elem, options, callback, args) {
     var ret,
       name,
       old = {};
@@ -6579,7 +6554,9 @@ function jQuery(window, noGlobal) {
           ? // If we already have the right measurement, avoid augmentation
             4
           : // Otherwise initialize for horizontal or vertical properties
-            name === 'width' ? 1 : 0,
+          name === 'width'
+          ? 1
+          : 0,
       val = 0;
 
     for (; i < 4; i += 2) {
@@ -6644,9 +6621,7 @@ function jQuery(window, noGlobal) {
 
     // use the active box-sizing model to add/subtract irrelevant styles
     return (
-      val +
-      augmentWidthOrHeight(elem, name, extra || (isBorderBox ? 'border' : 'content'), valueIsBorderBox, styles) +
-      'px'
+      val + augmentWidthOrHeight(elem, name, extra || (isBorderBox ? 'border' : 'content'), valueIsBorderBox, styles) + 'px'
     );
   }
 
@@ -6655,7 +6630,7 @@ function jQuery(window, noGlobal) {
     // behavior of getting and setting a style property
     cssHooks: {
       opacity: {
-        get: function(elem, computed) {
+        get: function (elem, computed) {
           if (computed) {
             // We should always get a number back from opacity
             var ret = curCSS(elem, 'opacity');
@@ -6689,7 +6664,7 @@ function jQuery(window, noGlobal) {
     },
 
     // Get and set the style property on a DOM Node
-    style: function(elem, name, value, extra) {
+    style: function (elem, name, value, extra) {
       // Don't set styles on text and comment nodes
       if (!elem || elem.nodeType === 3 || elem.nodeType === 8 || !elem.style) {
         return;
@@ -6754,7 +6729,7 @@ function jQuery(window, noGlobal) {
       }
     },
 
-    css: function(elem, name, extra, styles) {
+    css: function (elem, name, extra, styles) {
       var num,
         val,
         hooks,
@@ -6791,21 +6766,21 @@ function jQuery(window, noGlobal) {
     }
   });
 
-  jQuery.each(['height', 'width'], function(i, name) {
+  jQuery.each(['height', 'width'], function (i, name) {
     jQuery.cssHooks[name] = {
-      get: function(elem, computed, extra) {
+      get: function (elem, computed, extra) {
         if (computed) {
           // certain elements can have dimension info if we invisibly show them
           // however, it must have a current display style that would benefit from this
           return rdisplayswap.test(jQuery.css(elem, 'display')) && elem.offsetWidth === 0
-            ? jQuery.swap(elem, cssShow, function() {
+            ? jQuery.swap(elem, cssShow, function () {
                 return getWidthOrHeight(elem, name, extra);
               })
             : getWidthOrHeight(elem, name, extra);
         }
       },
 
-      set: function(elem, value, extra) {
+      set: function (elem, value, extra) {
         var styles = extra && getStyles(elem);
         return setPositiveNumber(
           elem,
@@ -6826,14 +6801,16 @@ function jQuery(window, noGlobal) {
 
   if (!support.opacity) {
     jQuery.cssHooks.opacity = {
-      get: function(elem, computed) {
+      get: function (elem, computed) {
         // IE uses filters for opacity
         return ropacity.test((computed && elem.currentStyle ? elem.currentStyle.filter : elem.style.filter) || '')
           ? 0.01 * parseFloat(RegExp.$1) + ''
-          : computed ? '1' : '';
+          : computed
+          ? '1'
+          : '';
       },
 
-      set: function(elem, value) {
+      set: function (elem, value) {
         var style = elem.style,
           currentStyle = elem.currentStyle,
           opacity = jQuery.isNumeric(value) ? 'alpha(opacity=' + value * 100 + ')' : '',
@@ -6863,7 +6840,7 @@ function jQuery(window, noGlobal) {
     };
   }
 
-  jQuery.cssHooks.marginRight = addGetHookIf(support.reliableMarginRight, function(elem, computed) {
+  jQuery.cssHooks.marginRight = addGetHookIf(support.reliableMarginRight, function (elem, computed) {
     if (computed) {
       // WebKit Bug 13343 - getComputedStyle returns wrong value for margin-right
       // Work around by temporarily setting element display to inline-block
@@ -6878,9 +6855,9 @@ function jQuery(window, noGlobal) {
       padding: '',
       border: 'Width'
     },
-    function(prefix, suffix) {
+    function (prefix, suffix) {
       jQuery.cssHooks[prefix + suffix] = {
-        expand: function(value) {
+        expand: function (value) {
           var i = 0,
             expanded = {},
             // assumes a single number if not a string
@@ -6901,10 +6878,10 @@ function jQuery(window, noGlobal) {
   );
 
   jQuery.fn.extend({
-    css: function(name, value) {
+    css: function (name, value) {
       return access(
         this,
-        function(elem, name, value) {
+        function (elem, name, value) {
           var styles,
             len,
             map = {},
@@ -6928,18 +6905,18 @@ function jQuery(window, noGlobal) {
         arguments.length > 1
       );
     },
-    show: function() {
+    show: function () {
       return showHide(this, true);
     },
-    hide: function() {
+    hide: function () {
       return showHide(this);
     },
-    toggle: function(state) {
+    toggle: function (state) {
       if (typeof state === 'boolean') {
         return state ? this.show() : this.hide();
       }
 
-      return this.each(function() {
+      return this.each(function () {
         if (isHidden(this)) {
           jQuery(this).show();
         } else {
@@ -6957,7 +6934,7 @@ function jQuery(window, noGlobal) {
 
   Tween.prototype = {
     constructor: Tween,
-    init: function(elem, options, prop, end, easing, unit) {
+    init: function (elem, options, prop, end, easing, unit) {
       this.elem = elem;
       this.prop = prop;
       this.easing = easing || 'swing';
@@ -6966,23 +6943,17 @@ function jQuery(window, noGlobal) {
       this.end = end;
       this.unit = unit || (jQuery.cssNumber[prop] ? '' : 'px');
     },
-    cur: function() {
+    cur: function () {
       var hooks = Tween.propHooks[this.prop];
 
       return hooks && hooks.get ? hooks.get(this) : Tween.propHooks._default.get(this);
     },
-    run: function(percent) {
+    run: function (percent) {
       var eased,
         hooks = Tween.propHooks[this.prop];
 
       if (this.options.duration) {
-        this.pos = eased = jQuery.easing[this.easing](
-          percent,
-          this.options.duration * percent,
-          0,
-          1,
-          this.options.duration
-        );
+        this.pos = eased = jQuery.easing[this.easing](percent, this.options.duration * percent, 0, 1, this.options.duration);
       } else {
         this.pos = eased = percent;
       }
@@ -7005,7 +6976,7 @@ function jQuery(window, noGlobal) {
 
   Tween.propHooks = {
     _default: {
-      get: function(tween) {
+      get: function (tween) {
         var result;
 
         if (tween.elem[tween.prop] != null && (!tween.elem.style || tween.elem.style[tween.prop] == null)) {
@@ -7020,15 +6991,12 @@ function jQuery(window, noGlobal) {
         // Empty strings, null, undefined and "auto" are converted to 0.
         return !result || result === 'auto' ? 0 : result;
       },
-      set: function(tween) {
+      set: function (tween) {
         // use step hook for back compat - use cssHook if its there - use .style if its
         // available and use plain properties where available
         if (jQuery.fx.step[tween.prop]) {
           jQuery.fx.step[tween.prop](tween);
-        } else if (
-          tween.elem.style &&
-          (tween.elem.style[jQuery.cssProps[tween.prop]] != null || jQuery.cssHooks[tween.prop])
-        ) {
+        } else if (tween.elem.style && (tween.elem.style[jQuery.cssProps[tween.prop]] != null || jQuery.cssHooks[tween.prop])) {
           jQuery.style(tween.elem, tween.prop, tween.now + tween.unit);
         } else {
           tween.elem[tween.prop] = tween.now;
@@ -7041,7 +7009,7 @@ function jQuery(window, noGlobal) {
   // Panic based approach to setting things on disconnected nodes
 
   Tween.propHooks.scrollTop = Tween.propHooks.scrollLeft = {
-    set: function(tween) {
+    set: function (tween) {
       if (tween.elem.nodeType && tween.elem.parentNode) {
         tween.elem[tween.prop] = tween.now;
       }
@@ -7049,10 +7017,10 @@ function jQuery(window, noGlobal) {
   };
 
   jQuery.easing = {
-    linear: function(p) {
+    linear: function (p) {
       return p;
     },
-    swing: function(p) {
+    swing: function (p) {
       return 0.5 - Math.cos(p * Math.PI) / 2;
     }
   };
@@ -7070,7 +7038,7 @@ function jQuery(window, noGlobal) {
     animationPrefilters = [defaultPrefilter],
     tweeners = {
       '*': [
-        function(prop, value) {
+        function (prop, value) {
           var tween = this.createTween(prop, value),
             target = tween.cur(),
             parts = rfxnum.exec(value),
@@ -7119,7 +7087,7 @@ function jQuery(window, noGlobal) {
 
   // Animations created synchronously will run synchronously
   function createFxNow() {
-    setTimeout(function() {
+    setTimeout(function () {
       fxNow = undefined;
     });
     return (fxNow = jQuery.now());
@@ -7181,7 +7149,7 @@ function jQuery(window, noGlobal) {
       if (hooks.unqueued == null) {
         hooks.unqueued = 0;
         oldfire = hooks.empty.fire;
-        hooks.empty.fire = function() {
+        hooks.empty.fire = function () {
           if (!hooks.unqueued) {
             oldfire();
           }
@@ -7189,10 +7157,10 @@ function jQuery(window, noGlobal) {
       }
       hooks.unqueued++;
 
-      anim.always(function() {
+      anim.always(function () {
         // doing this makes sure that the complete handler will be called
         // before this completes
-        anim.always(function() {
+        anim.always(function () {
           hooks.unqueued--;
           if (!jQuery.queue(elem, 'fx').length) {
             hooks.empty.fire();
@@ -7230,7 +7198,7 @@ function jQuery(window, noGlobal) {
     if (opts.overflow) {
       style.overflow = 'hidden';
       if (!support.shrinkWrapBlocks()) {
-        anim.always(function() {
+        anim.always(function () {
           style.overflow = opts.overflow[0];
           style.overflowX = opts.overflow[1];
           style.overflowY = opts.overflow[2];
@@ -7276,11 +7244,11 @@ function jQuery(window, noGlobal) {
       if (hidden) {
         jQuery(elem).show();
       } else {
-        anim.done(function() {
+        anim.done(function () {
           jQuery(elem).hide();
         });
       }
-      anim.done(function() {
+      anim.done(function () {
         var prop;
         jQuery._removeData(elem, 'fxshow');
         for (prop in orig) {
@@ -7347,11 +7315,11 @@ function jQuery(window, noGlobal) {
       stopped,
       index = 0,
       length = animationPrefilters.length,
-      deferred = jQuery.Deferred().always(function() {
+      deferred = jQuery.Deferred().always(function () {
         // don't match elem in the :animated selector
         delete tick.elem;
       }),
-      tick = function() {
+      tick = function () {
         if (stopped) {
           return false;
         }
@@ -7385,7 +7353,7 @@ function jQuery(window, noGlobal) {
         startTime: fxNow || createFxNow(),
         duration: options.duration,
         tweens: [],
-        createTween: function(prop, end) {
+        createTween: function (prop, end) {
           var tween = jQuery.Tween(
             elem,
             animation.opts,
@@ -7396,7 +7364,7 @@ function jQuery(window, noGlobal) {
           animation.tweens.push(tween);
           return tween;
         },
-        stop: function(gotoEnd) {
+        stop: function (gotoEnd) {
           var index = 0,
             // if we are going to the end, we want to run all the tweens
             // otherwise we skip this part
@@ -7453,7 +7421,7 @@ function jQuery(window, noGlobal) {
   }
 
   jQuery.Animation = jQuery.extend(Animation, {
-    tweener: function(props, callback) {
+    tweener: function (props, callback) {
       if (jQuery.isFunction(props)) {
         callback = props;
         props = ['*'];
@@ -7472,7 +7440,7 @@ function jQuery(window, noGlobal) {
       }
     },
 
-    prefilter: function(callback, prepend) {
+    prefilter: function (callback, prepend) {
       if (prepend) {
         animationPrefilters.unshift(callback);
       } else {
@@ -7481,7 +7449,7 @@ function jQuery(window, noGlobal) {
     }
   });
 
-  jQuery.speed = function(speed, easing, fn) {
+  jQuery.speed = function (speed, easing, fn) {
     var opt =
       speed && typeof speed === 'object'
         ? jQuery.extend({}, speed)
@@ -7494,8 +7462,10 @@ function jQuery(window, noGlobal) {
     opt.duration = jQuery.fx.off
       ? 0
       : typeof opt.duration === 'number'
-        ? opt.duration
-        : opt.duration in jQuery.fx.speeds ? jQuery.fx.speeds[opt.duration] : jQuery.fx.speeds._default;
+      ? opt.duration
+      : opt.duration in jQuery.fx.speeds
+      ? jQuery.fx.speeds[opt.duration]
+      : jQuery.fx.speeds._default;
 
     // normalize opt.queue - true/undefined/null -> "fx"
     if (opt.queue == null || opt.queue === true) {
@@ -7505,7 +7475,7 @@ function jQuery(window, noGlobal) {
     // Queueing
     opt.old = opt.complete;
 
-    opt.complete = function() {
+    opt.complete = function () {
       if (jQuery.isFunction(opt.old)) {
         opt.old.call(this);
       }
@@ -7519,7 +7489,7 @@ function jQuery(window, noGlobal) {
   };
 
   jQuery.fn.extend({
-    fadeTo: function(speed, to, easing, callback) {
+    fadeTo: function (speed, to, easing, callback) {
       // show any hidden elements after setting opacity to 0
       return (
         this.filter(isHidden)
@@ -7530,10 +7500,10 @@ function jQuery(window, noGlobal) {
           .animate({ opacity: to }, speed, easing, callback)
       );
     },
-    animate: function(prop, speed, easing, callback) {
+    animate: function (prop, speed, easing, callback) {
       var empty = jQuery.isEmptyObject(prop),
         optall = jQuery.speed(speed, easing, callback),
-        doAnimation = function() {
+        doAnimation = function () {
           // Operate on a copy of prop so per-property easing won't be lost
           var anim = Animation(this, jQuery.extend({}, prop), optall);
 
@@ -7546,8 +7516,8 @@ function jQuery(window, noGlobal) {
 
       return empty || optall.queue === false ? this.each(doAnimation) : this.queue(optall.queue, doAnimation);
     },
-    stop: function(type, clearQueue, gotoEnd) {
-      var stopQueue = function(hooks) {
+    stop: function (type, clearQueue, gotoEnd) {
+      var stopQueue = function (hooks) {
         var stop = hooks.stop;
         delete hooks.stop;
         stop(gotoEnd);
@@ -7562,7 +7532,7 @@ function jQuery(window, noGlobal) {
         this.queue(type || 'fx', []);
       }
 
-      return this.each(function() {
+      return this.each(function () {
         var dequeue = true,
           index = type != null && type + 'queueHooks',
           timers = jQuery.timers,
@@ -7596,11 +7566,11 @@ function jQuery(window, noGlobal) {
         }
       });
     },
-    finish: function(type) {
+    finish: function (type) {
       if (type !== false) {
         type = type || 'fx';
       }
-      return this.each(function() {
+      return this.each(function () {
         var index,
           data = jQuery._data(this),
           queue = data[type + 'queue'],
@@ -7639,9 +7609,9 @@ function jQuery(window, noGlobal) {
     }
   });
 
-  jQuery.each(['toggle', 'show', 'hide'], function(i, name) {
+  jQuery.each(['toggle', 'show', 'hide'], function (i, name) {
     var cssFn = jQuery.fn[name];
-    jQuery.fn[name] = function(speed, easing, callback) {
+    jQuery.fn[name] = function (speed, easing, callback) {
       return speed == null || typeof speed === 'boolean'
         ? cssFn.apply(this, arguments)
         : this.animate(genFx(name, true), speed, easing, callback);
@@ -7658,15 +7628,15 @@ function jQuery(window, noGlobal) {
       fadeOut: { opacity: 'hide' },
       fadeToggle: { opacity: 'toggle' }
     },
-    function(name, props) {
-      jQuery.fn[name] = function(speed, easing, callback) {
+    function (name, props) {
+      jQuery.fn[name] = function (speed, easing, callback) {
         return this.animate(props, speed, easing, callback);
       };
     }
   );
 
   jQuery.timers = [];
-  jQuery.fx.tick = function() {
+  jQuery.fx.tick = function () {
     var timer,
       timers = jQuery.timers,
       i = 0;
@@ -7687,7 +7657,7 @@ function jQuery(window, noGlobal) {
     fxNow = undefined;
   };
 
-  jQuery.fx.timer = function(timer) {
+  jQuery.fx.timer = function (timer) {
     jQuery.timers.push(timer);
     if (timer()) {
       jQuery.fx.start();
@@ -7698,13 +7668,13 @@ function jQuery(window, noGlobal) {
 
   jQuery.fx.interval = 13;
 
-  jQuery.fx.start = function() {
+  jQuery.fx.start = function () {
     if (!timerId) {
       timerId = setInterval(jQuery.fx.tick, jQuery.fx.interval);
     }
   };
 
-  jQuery.fx.stop = function() {
+  jQuery.fx.stop = function () {
     clearInterval(timerId);
     timerId = null;
   };
@@ -7718,19 +7688,19 @@ function jQuery(window, noGlobal) {
 
   // Based off of the plugin by Clint Helfers, with permission.
   // http://blindsignals.com/index.php/2009/07/jquery-delay/
-  jQuery.fn.delay = function(time, type) {
+  jQuery.fn.delay = function (time, type) {
     time = jQuery.fx ? jQuery.fx.speeds[time] || time : time;
     type = type || 'fx';
 
-    return this.queue(type, function(next, hooks) {
+    return this.queue(type, function (next, hooks) {
       var timeout = setTimeout(next, time);
-      hooks.stop = function() {
+      hooks.stop = function () {
         clearTimeout(timeout);
       };
     });
   };
 
-  (function() {
+  (function () {
     // Minified: var a,b,c,d,e
     var input, div, select, a, opt;
 
@@ -7788,7 +7758,7 @@ function jQuery(window, noGlobal) {
   var rreturn = /\r/g;
 
   jQuery.fn.extend({
-    val: function(value) {
+    val: function (value) {
       var hooks,
         ret,
         isFunction,
@@ -7808,7 +7778,9 @@ function jQuery(window, noGlobal) {
             ? // handle most common string cases
               ret.replace(rreturn, '')
             : // handle cases where value is null/undef or number
-              ret == null ? '' : ret;
+            ret == null
+            ? ''
+            : ret;
         }
 
         return;
@@ -7816,7 +7788,7 @@ function jQuery(window, noGlobal) {
 
       isFunction = jQuery.isFunction(value);
 
-      return this.each(function(i) {
+      return this.each(function (i) {
         var val;
 
         if (this.nodeType !== 1) {
@@ -7835,7 +7807,7 @@ function jQuery(window, noGlobal) {
         } else if (typeof val === 'number') {
           val += '';
         } else if (jQuery.isArray(val)) {
-          val = jQuery.map(val, function(value) {
+          val = jQuery.map(val, function (value) {
             return value == null ? '' : value + '';
           });
         }
@@ -7853,7 +7825,7 @@ function jQuery(window, noGlobal) {
   jQuery.extend({
     valHooks: {
       option: {
-        get: function(elem) {
+        get: function (elem) {
           var val = jQuery.find.attr(elem, 'value');
           return val != null
             ? val
@@ -7863,7 +7835,7 @@ function jQuery(window, noGlobal) {
         }
       },
       select: {
-        get: function(elem) {
+        get: function (elem) {
           var value,
             option,
             options = elem.options,
@@ -7900,7 +7872,7 @@ function jQuery(window, noGlobal) {
           return values;
         },
 
-        set: function(elem, value) {
+        set: function (elem, value) {
           var optionSet,
             option,
             options = elem.options,
@@ -7938,16 +7910,16 @@ function jQuery(window, noGlobal) {
   });
 
   // Radios and checkboxes getter/setter
-  jQuery.each(['radio', 'checkbox'], function() {
+  jQuery.each(['radio', 'checkbox'], function () {
     jQuery.valHooks[this] = {
-      set: function(elem, value) {
+      set: function (elem, value) {
         if (jQuery.isArray(value)) {
           return (elem.checked = jQuery.inArray(jQuery(elem).val(), value) >= 0);
         }
       }
     };
     if (!support.checkOn) {
-      jQuery.valHooks[this].get = function(elem) {
+      jQuery.valHooks[this].get = function (elem) {
         // Support: Webkit
         // "" is returned instead of "on" if a value isn't specified
         return elem.getAttribute('value') === null ? 'on' : elem.value;
@@ -7963,19 +7935,19 @@ function jQuery(window, noGlobal) {
     getSetInput = support.input;
 
   jQuery.fn.extend({
-    attr: function(name, value) {
+    attr: function (name, value) {
       return access(this, jQuery.attr, name, value, arguments.length > 1);
     },
 
-    removeAttr: function(name) {
-      return this.each(function() {
+    removeAttr: function (name) {
+      return this.each(function () {
         jQuery.removeAttr(this, name);
       });
     }
   });
 
   jQuery.extend({
-    attr: function(elem, name, value) {
+    attr: function (elem, name, value) {
       var hooks,
         ret,
         nType = elem.nodeType;
@@ -8016,7 +7988,7 @@ function jQuery(window, noGlobal) {
       }
     },
 
-    removeAttr: function(elem, value) {
+    removeAttr: function (elem, value) {
       var name,
         propName,
         i = 0,
@@ -8049,7 +8021,7 @@ function jQuery(window, noGlobal) {
 
     attrHooks: {
       type: {
-        set: function(elem, value) {
+        set: function (elem, value) {
           if (!support.radioValue && value === 'radio' && jQuery.nodeName(elem, 'input')) {
             // Setting the type on a radio button after the value resets the value in IE6-9
             // Reset value to default in case type is set after value during creation
@@ -8067,7 +8039,7 @@ function jQuery(window, noGlobal) {
 
   // Hook for boolean attributes
   boolHook = {
-    set: function(elem, value, name) {
+    set: function (elem, value, name) {
       if (value === false) {
         // Remove boolean attributes when set to false
         jQuery.removeAttr(elem, name);
@@ -8085,12 +8057,12 @@ function jQuery(window, noGlobal) {
   };
 
   // Retrieve booleans specially
-  jQuery.each(jQuery.expr.match.bool.source.match(/\w+/g), function(i, name) {
+  jQuery.each(jQuery.expr.match.bool.source.match(/\w+/g), function (i, name) {
     var getter = attrHandle[name] || jQuery.find.attr;
 
     attrHandle[name] =
       (getSetInput && getSetAttribute) || !ruseDefault.test(name)
-        ? function(elem, name, isXML) {
+        ? function (elem, name, isXML) {
             var ret, handle;
             if (!isXML) {
               // Avoid an infinite loop by temporarily removing this function from the getter
@@ -8101,7 +8073,7 @@ function jQuery(window, noGlobal) {
             }
             return ret;
           }
-        : function(elem, name, isXML) {
+        : function (elem, name, isXML) {
             if (!isXML) {
               return elem[jQuery.camelCase('default-' + name)] ? name.toLowerCase() : null;
             }
@@ -8111,7 +8083,7 @@ function jQuery(window, noGlobal) {
   // fix oldIE attroperties
   if (!getSetInput || !getSetAttribute) {
     jQuery.attrHooks.value = {
-      set: function(elem, value, name) {
+      set: function (elem, value, name) {
         if (jQuery.nodeName(elem, 'input')) {
           // Does not return so that setAttribute is also used
           elem.defaultValue = value;
@@ -8128,7 +8100,7 @@ function jQuery(window, noGlobal) {
     // Use this for any attribute in IE6/7
     // This fixes almost every IE6/7 issue
     nodeHook = {
-      set: function(elem, value, name) {
+      set: function (elem, value, name) {
         // Set the existing or create a new attribute node
         var ret = elem.getAttributeNode(name);
         if (!ret) {
@@ -8145,7 +8117,7 @@ function jQuery(window, noGlobal) {
     };
 
     // Some attributes are constructed with empty-string values when not defined
-    attrHandle.id = attrHandle.name = attrHandle.coords = function(elem, name, isXML) {
+    attrHandle.id = attrHandle.name = attrHandle.coords = function (elem, name, isXML) {
       var ret;
       if (!isXML) {
         return (ret = elem.getAttributeNode(name)) && ret.value !== '' ? ret.value : null;
@@ -8154,7 +8126,7 @@ function jQuery(window, noGlobal) {
 
     // Fixing value retrieval on a button requires this module
     jQuery.valHooks.button = {
-      get: function(elem, name) {
+      get: function (elem, name) {
         var ret = elem.getAttributeNode(name);
         if (ret && ret.specified) {
           return ret.value;
@@ -8166,16 +8138,16 @@ function jQuery(window, noGlobal) {
     // Set contenteditable to false on removals(#10429)
     // Setting to empty string throws an error as an invalid value
     jQuery.attrHooks.contenteditable = {
-      set: function(elem, value, name) {
+      set: function (elem, value, name) {
         nodeHook.set(elem, value === '' ? false : value, name);
       }
     };
 
     // Set width and height to auto instead of 0 on empty string( Bug #8150 )
     // This is for removals
-    jQuery.each(['width', 'height'], function(i, name) {
+    jQuery.each(['width', 'height'], function (i, name) {
       jQuery.attrHooks[name] = {
-        set: function(elem, value) {
+        set: function (elem, value) {
           if (value === '') {
             elem.setAttribute(name, 'auto');
             return value;
@@ -8187,13 +8159,13 @@ function jQuery(window, noGlobal) {
 
   if (!support.style) {
     jQuery.attrHooks.style = {
-      get: function(elem) {
+      get: function (elem) {
         // Return undefined in the case of empty string
         // Note: IE uppercases css property names, but if we were to .toLowerCase()
         // .cssText, that would destroy case senstitivity in URL's, like in "background"
         return elem.style.cssText || undefined;
       },
-      set: function(elem, value) {
+      set: function (elem, value) {
         return (elem.style.cssText = value + '');
       }
     };
@@ -8203,13 +8175,13 @@ function jQuery(window, noGlobal) {
     rclickable = /^(?:a|area)$/i;
 
   jQuery.fn.extend({
-    prop: function(name, value) {
+    prop: function (name, value) {
       return access(this, jQuery.prop, name, value, arguments.length > 1);
     },
 
-    removeProp: function(name) {
+    removeProp: function (name) {
       name = jQuery.propFix[name] || name;
-      return this.each(function() {
+      return this.each(function () {
         // try/catch handles cases where IE balks (such as removing a property on window)
         try {
           this[name] = undefined;
@@ -8221,11 +8193,11 @@ function jQuery(window, noGlobal) {
 
   jQuery.extend({
     propFix: {
-      'for': 'htmlFor',
-      'class': 'className'
+      for: 'htmlFor',
+      class: 'className'
     },
 
-    prop: function(elem, name, value) {
+    prop: function (elem, name, value) {
       var ret,
         hooks,
         notxml,
@@ -8245,9 +8217,7 @@ function jQuery(window, noGlobal) {
       }
 
       if (value !== undefined) {
-        return hooks && 'set' in hooks && (ret = hooks.set(elem, value, name)) !== undefined
-          ? ret
-          : (elem[name] = value);
+        return hooks && 'set' in hooks && (ret = hooks.set(elem, value, name)) !== undefined ? ret : (elem[name] = value);
       } else {
         return hooks && 'get' in hooks && (ret = hooks.get(elem, name)) !== null ? ret : elem[name];
       }
@@ -8255,7 +8225,7 @@ function jQuery(window, noGlobal) {
 
     propHooks: {
       tabIndex: {
-        get: function(elem) {
+        get: function (elem) {
           // elem.tabIndex doesn't always return the correct value when it hasn't been explicitly set
           // http://fluidproject.org/blog/2008/01/09/getting-setting-and-removing-tabindex-values-with-javascript/
           // Use proper attribute retrieval(#12072)
@@ -8263,7 +8233,9 @@ function jQuery(window, noGlobal) {
 
           return tabindex
             ? parseInt(tabindex, 10)
-            : rfocusable.test(elem.nodeName) || (rclickable.test(elem.nodeName) && elem.href) ? 0 : -1;
+            : rfocusable.test(elem.nodeName) || (rclickable.test(elem.nodeName) && elem.href)
+            ? 0
+            : -1;
         }
       }
     }
@@ -8273,9 +8245,9 @@ function jQuery(window, noGlobal) {
   // http://msdn.microsoft.com/en-us/library/ms536429%28VS.85%29.aspx
   if (!support.hrefNormalized) {
     // href/src property should get the full normalized URL (#10299/#12915)
-    jQuery.each(['href', 'src'], function(i, name) {
+    jQuery.each(['href', 'src'], function (i, name) {
       jQuery.propHooks[name] = {
-        get: function(elem) {
+        get: function (elem) {
           return elem.getAttribute(name, 4);
         }
       };
@@ -8287,7 +8259,7 @@ function jQuery(window, noGlobal) {
   // Accessing the parent's selectedIndex property fixes it
   if (!support.optSelected) {
     jQuery.propHooks.selected = {
-      get: function(elem) {
+      get: function (elem) {
         var parent = elem.parentNode;
 
         if (parent) {
@@ -8316,7 +8288,7 @@ function jQuery(window, noGlobal) {
       'frameBorder',
       'contentEditable'
     ],
-    function() {
+    function () {
       jQuery.propFix[this.toLowerCase()] = this;
     }
   );
@@ -8329,7 +8301,7 @@ function jQuery(window, noGlobal) {
   var rclass = /[\t\r\n\f]/g;
 
   jQuery.fn.extend({
-    addClass: function(value) {
+    addClass: function (value) {
       var classes,
         elem,
         cur,
@@ -8341,7 +8313,7 @@ function jQuery(window, noGlobal) {
         proceed = typeof value === 'string' && value;
 
       if (jQuery.isFunction(value)) {
-        return this.each(function(j) {
+        return this.each(function (j) {
           jQuery(this).addClass(value.call(this, j, this.className));
         });
       }
@@ -8374,7 +8346,7 @@ function jQuery(window, noGlobal) {
       return this;
     },
 
-    removeClass: function(value) {
+    removeClass: function (value) {
       var classes,
         elem,
         cur,
@@ -8386,7 +8358,7 @@ function jQuery(window, noGlobal) {
         proceed = arguments.length === 0 || (typeof value === 'string' && value);
 
       if (jQuery.isFunction(value)) {
-        return this.each(function(j) {
+        return this.each(function (j) {
           jQuery(this).removeClass(value.call(this, j, this.className));
         });
       }
@@ -8419,7 +8391,7 @@ function jQuery(window, noGlobal) {
       return this;
     },
 
-    toggleClass: function(value, stateVal) {
+    toggleClass: function (value, stateVal) {
       var type = typeof value;
 
       if (typeof stateVal === 'boolean' && type === 'string') {
@@ -8427,12 +8399,12 @@ function jQuery(window, noGlobal) {
       }
 
       if (jQuery.isFunction(value)) {
-        return this.each(function(i) {
+        return this.each(function (i) {
           jQuery(this).toggleClass(value.call(this, i, this.className, stateVal), stateVal);
         });
       }
 
-      return this.each(function() {
+      return this.each(function () {
         if (type === 'string') {
           // toggle individual class names
           var className,
@@ -8465,7 +8437,7 @@ function jQuery(window, noGlobal) {
       });
     },
 
-    hasClass: function(selector) {
+    hasClass: function (selector) {
       var className = ' ' + selector + ' ',
         i = 0,
         l = this.length;
@@ -8482,34 +8454,35 @@ function jQuery(window, noGlobal) {
   // Return jQuery for attributes-only inclusion
 
   jQuery.each(
-    ('blur focus focusin focusout load resize scroll unload click dblclick ' +
+    (
+      'blur focus focusin focusout load resize scroll unload click dblclick ' +
       'mousedown mouseup mousemove mouseover mouseout mouseenter mouseleave ' +
       'change select submit keydown keypress keyup error contextmenu'
     ).split(' '),
-    function(i, name) {
+    function (i, name) {
       // Handle event binding
-      jQuery.fn[name] = function(data, fn) {
+      jQuery.fn[name] = function (data, fn) {
         return arguments.length > 0 ? this.on(name, null, data, fn) : this.trigger(name);
       };
     }
   );
 
   jQuery.fn.extend({
-    hover: function(fnOver, fnOut) {
+    hover: function (fnOver, fnOut) {
       return this.mouseenter(fnOver).mouseleave(fnOut || fnOver);
     },
 
-    bind: function(types, data, fn) {
+    bind: function (types, data, fn) {
       return this.on(types, null, data, fn);
     },
-    unbind: function(types, fn) {
+    unbind: function (types, fn) {
       return this.off(types, null, fn);
     },
 
-    delegate: function(selector, types, data, fn) {
+    delegate: function (selector, types, data, fn) {
       return this.on(types, selector, data, fn);
     },
-    undelegate: function(selector, types, fn) {
+    undelegate: function (selector, types, fn) {
       // ( namespace ) or ( selector, types [, fn] )
       return arguments.length === 1 ? this.off(selector, '**') : this.off(types, selector || '**', fn);
     }
@@ -8521,7 +8494,7 @@ function jQuery(window, noGlobal) {
 
   var rvalidtokens = /(,)|(\[|{)|(}|])|"(?:[^"\\\r\n]|\\["\\\/bfnrt]|\\u[\da-fA-F]{4})*"\s*:?|true|false|null|-?(?!0\d)\d+(?:\.\d+|)(?:[eE][+-]?\d+|)/g;
 
-  jQuery.parseJSON = function(data) {
+  jQuery.parseJSON = function (data) {
     // Attempt to parse using the native JSON parser first
     if (window.JSON && window.JSON.parse) {
       // Support: Android 2.3
@@ -8537,7 +8510,7 @@ function jQuery(window, noGlobal) {
     // after removing valid tokens
     return str &&
       !jQuery.trim(
-        str.replace(rvalidtokens, function(token, comma, open, close) {
+        str.replace(rvalidtokens, function (token, comma, open, close) {
           // Force termination if we see a misplaced comma
           if (requireNonComma && comma) {
             depth = 0;
@@ -8566,7 +8539,7 @@ function jQuery(window, noGlobal) {
   };
 
   // Cross-browser xml parsing
-  jQuery.parseXML = function(data) {
+  jQuery.parseXML = function (data) {
     var xml, tmp;
     if (!data || typeof data !== 'string') {
       return null;
@@ -8603,20 +8576,20 @@ function jQuery(window, noGlobal) {
     rprotocol = /^\/\//,
     rurl = /^([\w.+-]+:)(?:\/\/(?:[^\/?#]*@|)([^\/?#:]*)(?::(\d+)|)|)/,
     /* Prefilters
-   * 1) They are useful to introduce custom dataTypes (see ajax/jsonp.js for an example)
-   * 2) These are called:
-   *    - BEFORE asking for a transport
-   *    - AFTER param serialization (s.data is a string if s.processData is true)
-   * 3) key is the dataType
-   * 4) the catchall symbol "*" can be used
-   * 5) execution will start with transport dataType and THEN continue down to "*" if needed
-   */
+     * 1) They are useful to introduce custom dataTypes (see ajax/jsonp.js for an example)
+     * 2) These are called:
+     *    - BEFORE asking for a transport
+     *    - AFTER param serialization (s.data is a string if s.processData is true)
+     * 3) key is the dataType
+     * 4) the catchall symbol "*" can be used
+     * 5) execution will start with transport dataType and THEN continue down to "*" if needed
+     */
     prefilters = {},
     /* Transports bindings
-   * 1) key is the dataType
-   * 2) the catchall symbol "*" can be used
-   * 3) selection will start with transport dataType and THEN go to "*" if needed
-   */
+     * 1) key is the dataType
+     * 2) the catchall symbol "*" can be used
+     * 3) selection will start with transport dataType and THEN go to "*" if needed
+     */
     transports = {},
     // Avoid comment-prolog char sequence (#10098); must appease lint and evade compression
     allTypes = '*/'.concat('*');
@@ -8639,7 +8612,7 @@ function jQuery(window, noGlobal) {
   // Base "constructor" for jQuery.ajaxPrefilter and jQuery.ajaxTransport
   function addToPrefiltersOrTransports(structure) {
     // dataTypeExpression is optional and defaults to "*"
-    return function(dataTypeExpression, func) {
+    return function (dataTypeExpression, func) {
       if (typeof dataTypeExpression !== 'string') {
         func = dataTypeExpression;
         dataTypeExpression = '*';
@@ -8674,7 +8647,7 @@ function jQuery(window, noGlobal) {
     function inspect(dataType) {
       var selected;
       inspected[dataType] = true;
-      jQuery.each(structure[dataType] || [], function(_, prefilterOrFactory) {
+      jQuery.each(structure[dataType] || [], function (_, prefilterOrFactory) {
         var dataTypeOrTransport = prefilterOrFactory(options, originalOptions, jqXHR);
         if (typeof dataTypeOrTransport === 'string' && !seekingTransport && !inspected[dataTypeOrTransport]) {
           options.dataTypes.unshift(dataTypeOrTransport);
@@ -8936,7 +8909,7 @@ function jQuery(window, noGlobal) {
     // Creates a full fledged settings object into target
     // with both ajaxSettings and settings fields.
     // If target is omitted, writes into ajaxSettings.
-    ajaxSetup: function(target, settings) {
+    ajaxSetup: function (target, settings) {
       return settings
         ? // Building a settings object
           ajaxExtend(ajaxExtend(target, jQuery.ajaxSettings), settings)
@@ -8948,7 +8921,7 @@ function jQuery(window, noGlobal) {
     ajaxTransport: addToPrefiltersOrTransports(transports),
 
     // Main method
-    ajax: function(url, options) {
+    ajax: function (url, options) {
       // If url is an object, simulate pre-1.5 signature
       if (typeof url === 'object') {
         options = url;
@@ -8997,7 +8970,7 @@ function jQuery(window, noGlobal) {
           readyState: 0,
 
           // Builds headers hashtable if needed
-          getResponseHeader: function(key) {
+          getResponseHeader: function (key) {
             var match;
             if (state === 2) {
               if (!responseHeaders) {
@@ -9012,12 +8985,12 @@ function jQuery(window, noGlobal) {
           },
 
           // Raw string
-          getAllResponseHeaders: function() {
+          getAllResponseHeaders: function () {
             return state === 2 ? responseHeadersString : null;
           },
 
           // Caches the header
-          setRequestHeader: function(name, value) {
+          setRequestHeader: function (name, value) {
             var lname = name.toLowerCase();
             if (!state) {
               name = requestHeadersNames[lname] = requestHeadersNames[lname] || name;
@@ -9027,7 +9000,7 @@ function jQuery(window, noGlobal) {
           },
 
           // Overrides response content-type header
-          overrideMimeType: function(type) {
+          overrideMimeType: function (type) {
             if (!state) {
               s.mimeType = type;
             }
@@ -9035,7 +9008,7 @@ function jQuery(window, noGlobal) {
           },
 
           // Status-dependent callbacks
-          statusCode: function(map) {
+          statusCode: function (map) {
             var code;
             if (map) {
               if (state < 2) {
@@ -9052,7 +9025,7 @@ function jQuery(window, noGlobal) {
           },
 
           // Cancel the request
-          abort: function(statusText) {
+          abort: function (statusText) {
             var finalText = statusText || strAbort;
             if (transport) {
               transport.abort(finalText);
@@ -9202,7 +9175,7 @@ function jQuery(window, noGlobal) {
         }
         // Timeout
         if (s.async && s.timeout > 0) {
-          timeoutTimer = setTimeout(function() {
+          timeoutTimer = setTimeout(function () {
             jqXHR.abort('timeout');
           }, s.timeout);
         }
@@ -9339,17 +9312,17 @@ function jQuery(window, noGlobal) {
       return jqXHR;
     },
 
-    getJSON: function(url, data, callback) {
+    getJSON: function (url, data, callback) {
       return jQuery.get(url, data, callback, 'json');
     },
 
-    getScript: function(url, callback) {
+    getScript: function (url, callback) {
       return jQuery.get(url, undefined, callback, 'script');
     }
   });
 
-  jQuery.each(['get', 'post'], function(i, method) {
-    jQuery[method] = function(url, data, callback, type) {
+  jQuery.each(['get', 'post'], function (i, method) {
+    jQuery[method] = function (url, data, callback, type) {
       // shift arguments if data argument was omitted
       if (jQuery.isFunction(data)) {
         type = type || callback;
@@ -9367,7 +9340,7 @@ function jQuery(window, noGlobal) {
     };
   });
 
-  jQuery._evalUrl = function(url) {
+  jQuery._evalUrl = function (url) {
     return jQuery.ajax({
       url: url,
       type: 'GET',
@@ -9379,25 +9352,23 @@ function jQuery(window, noGlobal) {
   };
 
   jQuery.fn.extend({
-    wrapAll: function(html) {
+    wrapAll: function (html) {
       if (jQuery.isFunction(html)) {
-        return this.each(function(i) {
+        return this.each(function (i) {
           jQuery(this).wrapAll(html.call(this, i));
         });
       }
 
       if (this[0]) {
         // The elements to wrap the target around
-        var wrap = jQuery(html, this[0].ownerDocument)
-          .eq(0)
-          .clone(true);
+        var wrap = jQuery(html, this[0].ownerDocument).eq(0).clone(true);
 
         if (this[0].parentNode) {
           wrap.insertBefore(this[0]);
         }
 
         wrap
-          .map(function() {
+          .map(function () {
             var elem = this;
 
             while (elem.firstChild && elem.firstChild.nodeType === 1) {
@@ -9412,14 +9383,14 @@ function jQuery(window, noGlobal) {
       return this;
     },
 
-    wrapInner: function(html) {
+    wrapInner: function (html) {
       if (jQuery.isFunction(html)) {
-        return this.each(function(i) {
+        return this.each(function (i) {
           jQuery(this).wrapInner(html.call(this, i));
         });
       }
 
-      return this.each(function() {
+      return this.each(function () {
         var self = jQuery(this),
           contents = self.contents();
 
@@ -9431,17 +9402,17 @@ function jQuery(window, noGlobal) {
       });
     },
 
-    wrap: function(html) {
+    wrap: function (html) {
       var isFunction = jQuery.isFunction(html);
 
-      return this.each(function(i) {
+      return this.each(function (i) {
         jQuery(this).wrapAll(isFunction ? html.call(this, i) : html);
       });
     },
 
-    unwrap: function() {
+    unwrap: function () {
       return this.parent()
-        .each(function() {
+        .each(function () {
           if (!jQuery.nodeName(this, 'body')) {
             jQuery(this).replaceWith(this.childNodes);
           }
@@ -9450,17 +9421,16 @@ function jQuery(window, noGlobal) {
     }
   });
 
-  jQuery.expr.filters.hidden = function(elem) {
+  jQuery.expr.filters.hidden = function (elem) {
     // Support: Opera <= 12.12
     // Opera reports offsetWidths and offsetHeights less than zero on some elements
     return (
       (elem.offsetWidth <= 0 && elem.offsetHeight <= 0) ||
-      (!support.reliableHiddenOffsets() &&
-        ((elem.style && elem.style.display) || jQuery.css(elem, 'display')) === 'none')
+      (!support.reliableHiddenOffsets() && ((elem.style && elem.style.display) || jQuery.css(elem, 'display')) === 'none')
     );
   };
 
-  jQuery.expr.filters.visible = function(elem) {
+  jQuery.expr.filters.visible = function (elem) {
     return !jQuery.expr.filters.hidden(elem);
   };
 
@@ -9475,7 +9445,7 @@ function jQuery(window, noGlobal) {
 
     if (jQuery.isArray(obj)) {
       // Serialize array item.
-      jQuery.each(obj, function(i, v) {
+      jQuery.each(obj, function (i, v) {
         if (traditional || rbracket.test(prefix)) {
           // Treat each array item as a scalar.
           add(prefix, v);
@@ -9497,10 +9467,10 @@ function jQuery(window, noGlobal) {
 
   // Serialize an array of form elements or a set of
   // key/values into a query string
-  jQuery.param = function(a, traditional) {
+  jQuery.param = function (a, traditional) {
     var prefix,
       s = [],
-      add = function(key, value) {
+      add = function (key, value) {
         // If value is a function, invoke it and return its value
         value = jQuery.isFunction(value) ? value() : value == null ? '' : value;
         s[s.length] = encodeURIComponent(key) + '=' + encodeURIComponent(value);
@@ -9514,7 +9484,7 @@ function jQuery(window, noGlobal) {
     // If an array was passed in, assume that it is an array of form elements.
     if (jQuery.isArray(a) || (a.jquery && !jQuery.isPlainObject(a))) {
       // Serialize the form elements
-      jQuery.each(a, function() {
+      jQuery.each(a, function () {
         add(this.name, this.value);
       });
     } else {
@@ -9530,16 +9500,16 @@ function jQuery(window, noGlobal) {
   };
 
   jQuery.fn.extend({
-    serialize: function() {
+    serialize: function () {
       return jQuery.param(this.serializeArray());
     },
-    serializeArray: function() {
-      return this.map(function() {
+    serializeArray: function () {
+      return this.map(function () {
         // Can add propHook for "elements" to filter or add form elements
         var elements = jQuery.prop(this, 'elements');
         return elements ? jQuery.makeArray(elements) : this;
       })
-        .filter(function() {
+        .filter(function () {
           var type = this.type;
           // Use .is(":disabled") so that fieldset[disabled] works
           return (
@@ -9550,16 +9520,16 @@ function jQuery(window, noGlobal) {
             (this.checked || !rcheckableType.test(type))
           );
         })
-        .map(function(i, elem) {
+        .map(function (i, elem) {
           var val = jQuery(this).val();
 
           return val == null
             ? null
             : jQuery.isArray(val)
-              ? jQuery.map(val, function(val) {
-                  return { name: elem.name, value: val.replace(rCRLF, '\r\n') };
-                })
-              : { name: elem.name, value: val.replace(rCRLF, '\r\n') };
+            ? jQuery.map(val, function (val) {
+                return { name: elem.name, value: val.replace(rCRLF, '\r\n') };
+              })
+            : { name: elem.name, value: val.replace(rCRLF, '\r\n') };
         })
         .get();
     }
@@ -9570,7 +9540,7 @@ function jQuery(window, noGlobal) {
   jQuery.ajaxSettings.xhr =
     window.ActiveXObject !== undefined
       ? // Support: IE6+
-        function() {
+        function () {
           // XHR cannot access local files, always use ActiveX for that case
           return (
             (!this.isLocal &&
@@ -9596,7 +9566,7 @@ function jQuery(window, noGlobal) {
   // Open requests must be manually aborted on unload (#5280)
   // See https://support.microsoft.com/kb/2856746 for more info
   if (window.attachEvent) {
-    window.attachEvent('onunload', function() {
+    window.attachEvent('onunload', function () {
       for (var key in xhrCallbacks) {
         xhrCallbacks[key](undefined, true);
       }
@@ -9609,13 +9579,13 @@ function jQuery(window, noGlobal) {
 
   // Create transport if the browser can provide an xhr
   if (xhrSupported) {
-    jQuery.ajaxTransport(function(options) {
+    jQuery.ajaxTransport(function (options) {
       // Cross domain only allowed if supported through XMLHttpRequest
       if (!options.crossDomain || support.cors) {
         var callback;
 
         return {
-          send: function(headers, complete) {
+          send: function (headers, complete) {
             var i,
               xhr = options.xhr(),
               id = ++xhrId;
@@ -9663,7 +9633,7 @@ function jQuery(window, noGlobal) {
             xhr.send((options.hasContent && options.data) || null);
 
             // Listener
-            callback = function(_, isAbort) {
+            callback = function (_, isAbort) {
               var status, statusText, responses;
 
               // Was never called and is aborted or complete
@@ -9731,7 +9701,7 @@ function jQuery(window, noGlobal) {
             }
           },
 
-          abort: function() {
+          abort: function () {
             if (callback) {
               callback(undefined, true);
             }
@@ -9763,7 +9733,7 @@ function jQuery(window, noGlobal) {
       script: /(?:java|ecma)script/
     },
     converters: {
-      'text script': function(text) {
+      'text script': function (text) {
         jQuery.globalEval(text);
         return text;
       }
@@ -9771,7 +9741,7 @@ function jQuery(window, noGlobal) {
   });
 
   // Handle cache's special case and global
-  jQuery.ajaxPrefilter('script', function(s) {
+  jQuery.ajaxPrefilter('script', function (s) {
     if (s.cache === undefined) {
       s.cache = false;
     }
@@ -9782,14 +9752,14 @@ function jQuery(window, noGlobal) {
   });
 
   // Bind script tag hack transport
-  jQuery.ajaxTransport('script', function(s) {
+  jQuery.ajaxTransport('script', function (s) {
     // This transport only deals with cross domain requests
     if (s.crossDomain) {
       var script,
         head = document.head || jQuery('head')[0] || document.documentElement;
 
       return {
-        send: function(_, callback) {
+        send: function (_, callback) {
           script = document.createElement('script');
 
           script.async = true;
@@ -9801,7 +9771,7 @@ function jQuery(window, noGlobal) {
           script.src = s.url;
 
           // Attach handlers for all browsers
-          script.onload = script.onreadystatechange = function(_, isAbort) {
+          script.onload = script.onreadystatechange = function (_, isAbort) {
             if (isAbort || !script.readyState || /loaded|complete/.test(script.readyState)) {
               // Handle memory leak in IE
               script.onload = script.onreadystatechange = null;
@@ -9826,7 +9796,7 @@ function jQuery(window, noGlobal) {
           head.insertBefore(script, head.firstChild);
         },
 
-        abort: function() {
+        abort: function () {
           if (script) {
             script.onload(undefined, true);
           }
@@ -9841,7 +9811,7 @@ function jQuery(window, noGlobal) {
   // Default jsonp settings
   jQuery.ajaxSetup({
     jsonp: 'callback',
-    jsonpCallback: function() {
+    jsonpCallback: function () {
       var callback = oldCallbacks.pop() || jQuery.expando + '_' + nonce++;
       this[callback] = true;
       return callback;
@@ -9849,7 +9819,7 @@ function jQuery(window, noGlobal) {
   });
 
   // Detect, normalize options and install callbacks for jsonp requests
-  jQuery.ajaxPrefilter('json jsonp', function(s, originalSettings, jqXHR) {
+  jQuery.ajaxPrefilter('json jsonp', function (s, originalSettings, jqXHR) {
     var callbackName,
       overwritten,
       responseContainer,
@@ -9875,7 +9845,7 @@ function jQuery(window, noGlobal) {
       }
 
       // Use data converter to retrieve json after script execution
-      s.converters['script json'] = function() {
+      s.converters['script json'] = function () {
         if (!responseContainer) {
           jQuery.error(callbackName + ' was not called');
         }
@@ -9887,12 +9857,12 @@ function jQuery(window, noGlobal) {
 
       // Install callback
       overwritten = window[callbackName];
-      window[callbackName] = function() {
+      window[callbackName] = function () {
         responseContainer = arguments;
       };
 
       // Clean-up function (fires after converters)
-      jqXHR.always(function() {
+      jqXHR.always(function () {
         // Restore preexisting value
         window[callbackName] = overwritten;
 
@@ -9921,7 +9891,7 @@ function jQuery(window, noGlobal) {
   // data: string of html
   // context (optional): If specified, the fragment will be created in this context, defaults to document
   // keepScripts (optional): If true, will include scripts passed in the html string
-  jQuery.parseHTML = function(data, context, keepScripts) {
+  jQuery.parseHTML = function (data, context, keepScripts) {
     if (!data || typeof data !== 'string') {
       return null;
     }
@@ -9954,7 +9924,7 @@ function jQuery(window, noGlobal) {
   /**
    * Load a url into a page
    */
-  jQuery.fn.load = function(url, params, callback) {
+  jQuery.fn.load = function (url, params, callback) {
     if (typeof url !== 'string' && _load) {
       return _load.apply(this, arguments);
     }
@@ -9992,7 +9962,7 @@ function jQuery(window, noGlobal) {
           dataType: 'html',
           data: params
         })
-        .done(function(responseText) {
+        .done(function (responseText) {
           // Save response for use in complete callback
           response = arguments;
 
@@ -10000,16 +9970,14 @@ function jQuery(window, noGlobal) {
             selector
               ? // If a selector was specified, locate the right elements in a dummy div
                 // Exclude scripts to avoid IE 'Permission Denied' errors
-                jQuery('<div>')
-                  .append(jQuery.parseHTML(responseText))
-                  .find(selector)
+                jQuery('<div>').append(jQuery.parseHTML(responseText)).find(selector)
               : // Otherwise use the full result
                 responseText
           );
         })
         .complete(
           callback &&
-            function(jqXHR, status) {
+            function (jqXHR, status) {
               self.each(callback, response || [jqXHR.responseText, status, jqXHR]);
             }
         );
@@ -10019,14 +9987,14 @@ function jQuery(window, noGlobal) {
   };
 
   // Attach a bunch of functions for handling common AJAX events
-  jQuery.each(['ajaxStart', 'ajaxStop', 'ajaxComplete', 'ajaxError', 'ajaxSuccess', 'ajaxSend'], function(i, type) {
-    jQuery.fn[type] = function(fn) {
+  jQuery.each(['ajaxStart', 'ajaxStop', 'ajaxComplete', 'ajaxError', 'ajaxSuccess', 'ajaxSend'], function (i, type) {
+    jQuery.fn[type] = function (fn) {
       return this.on(type, fn);
     };
   });
 
-  jQuery.expr.filters.animated = function(elem) {
-    return jQuery.grep(jQuery.timers, function(fn) {
+  jQuery.expr.filters.animated = function (elem) {
+    return jQuery.grep(jQuery.timers, function (fn) {
       return elem === fn.elem;
     }).length;
   };
@@ -10041,7 +10009,7 @@ function jQuery(window, noGlobal) {
   }
 
   jQuery.offset = {
-    setOffset: function(elem, options, i) {
+    setOffset: function (elem, options, i) {
       var curPosition,
         curLeft,
         curCSSTop,
@@ -10094,11 +10062,11 @@ function jQuery(window, noGlobal) {
   };
 
   jQuery.fn.extend({
-    offset: function(options) {
+    offset: function (options) {
       if (arguments.length) {
         return options === undefined
           ? this
-          : this.each(function(i) {
+          : this.each(function (i) {
               jQuery.offset.setOffset(this, options, i);
             });
       }
@@ -10132,7 +10100,7 @@ function jQuery(window, noGlobal) {
       };
     },
 
-    position: function() {
+    position: function () {
       if (!this[0]) {
         return;
       }
@@ -10170,14 +10138,11 @@ function jQuery(window, noGlobal) {
       };
     },
 
-    offsetParent: function() {
-      return this.map(function() {
+    offsetParent: function () {
+      return this.map(function () {
         var offsetParent = this.offsetParent || docElem;
 
-        while (
-          offsetParent &&
-          (!jQuery.nodeName(offsetParent, 'html') && jQuery.css(offsetParent, 'position') === 'static')
-        ) {
+        while (offsetParent && !jQuery.nodeName(offsetParent, 'html') && jQuery.css(offsetParent, 'position') === 'static') {
           offsetParent = offsetParent.offsetParent;
         }
         return offsetParent || docElem;
@@ -10186,13 +10151,13 @@ function jQuery(window, noGlobal) {
   });
 
   // Create scrollLeft and scrollTop methods
-  jQuery.each({ scrollLeft: 'pageXOffset', scrollTop: 'pageYOffset' }, function(method, prop) {
+  jQuery.each({ scrollLeft: 'pageXOffset', scrollTop: 'pageYOffset' }, function (method, prop) {
     var top = /Y/.test(prop);
 
-    jQuery.fn[method] = function(val) {
+    jQuery.fn[method] = function (val) {
       return access(
         this,
-        function(elem, method, val) {
+        function (elem, method, val) {
           var win = getWindow(elem);
 
           if (val === undefined) {
@@ -10217,8 +10182,8 @@ function jQuery(window, noGlobal) {
   // Webkit bug: https://bugs.webkit.org/show_bug.cgi?id=29084
   // getComputedStyle returns percent when specified for top/left/bottom/right
   // rather than make the css module depend on the offset module, we just check for it here
-  jQuery.each(['top', 'left'], function(i, prop) {
-    jQuery.cssHooks[prop] = addGetHookIf(support.pixelPosition, function(elem, computed) {
+  jQuery.each(['top', 'left'], function (i, prop) {
+    jQuery.cssHooks[prop] = addGetHookIf(support.pixelPosition, function (elem, computed) {
       if (computed) {
         computed = curCSS(elem, prop);
         // if curCSS returns percentage, fallback to offset
@@ -10228,16 +10193,16 @@ function jQuery(window, noGlobal) {
   });
 
   // Create innerHeight, innerWidth, height, width, outerHeight and outerWidth methods
-  jQuery.each({ Height: 'height', Width: 'width' }, function(name, type) {
-    jQuery.each({ padding: 'inner' + name, content: type, '': 'outer' + name }, function(defaultExtra, funcName) {
+  jQuery.each({ Height: 'height', Width: 'width' }, function (name, type) {
+    jQuery.each({ padding: 'inner' + name, content: type, '': 'outer' + name }, function (defaultExtra, funcName) {
       // margin is only for outerHeight, outerWidth
-      jQuery.fn[funcName] = function(margin, value) {
+      jQuery.fn[funcName] = function (margin, value) {
         var chainable = arguments.length && (defaultExtra || typeof margin !== 'boolean'),
           extra = defaultExtra || (margin === true || value === true ? 'margin' : 'border');
 
         return access(
           this,
-          function(elem, type, value) {
+          function (elem, type, value) {
             var doc;
 
             if (jQuery.isWindow(elem)) {
@@ -10278,7 +10243,7 @@ function jQuery(window, noGlobal) {
   });
 
   // The number of elements contained in the matched element set
-  jQuery.fn.size = function() {
+  jQuery.fn.size = function () {
     return this.length;
   };
 
@@ -10298,7 +10263,7 @@ function jQuery(window, noGlobal) {
   // https://github.com/jrburke/requirejs/wiki/Updating-existing-libraries#wiki-anon
 
   if (typeof define === 'function' && define.amd) {
-    define('jquery', [], function() {
+    define('jquery', [], function () {
       return jQuery;
     });
   }
@@ -10308,7 +10273,7 @@ function jQuery(window, noGlobal) {
     // Map over the $ in case of overwrite
     _$ = window.$;
 
-  jQuery.noConflict = function(deep) {
+  jQuery.noConflict = function (deep) {
     if (window.$ === jQuery) {
       window.$ = _$;
     }

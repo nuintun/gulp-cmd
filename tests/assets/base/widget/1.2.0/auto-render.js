@@ -2,12 +2,12 @@ var $ = require('jquery');
 var DATA_WIDGET_AUTO_RENDERED = 'data-widget-auto-rendered';
 
 // 自动渲染接口，子类可根据自己的初始化逻辑进行覆盖
-exports.autoRender = function(config) {
+exports.autoRender = function (config) {
   return new this(config).render();
 };
 
 // 根据 data-widget 属性，自动渲染所有开启了 data-api 的 widget 组件
-exports.autoRenderAll = function(root, callback) {
+exports.autoRenderAll = function (root, callback) {
   if (typeof root === 'function') {
     callback = root;
     root = null;
@@ -17,7 +17,7 @@ exports.autoRenderAll = function(root, callback) {
   var modules = [];
   var elements = [];
 
-  root.find('[data-widget]').each(function(i, element) {
+  root.find('[data-widget]').each(function (i, element) {
     if (!exports.isDataApiOff(element)) {
       modules.push(element.getAttribute('data-widget').toLowerCase());
       elements.push(element);
@@ -25,7 +25,7 @@ exports.autoRenderAll = function(root, callback) {
   });
 
   if (modules.length) {
-    seajs.use(modules, function() {
+    seajs.use(modules, function () {
       for (var i = 0; i < arguments.length; i++) {
         var SubWidget = arguments[i];
         var element = $(elements[i]);
@@ -58,7 +58,7 @@ exports.autoRenderAll = function(root, callback) {
 var isDefaultOff = $(document.body).attr('data-api') === 'off';
 
 // 是否没开启 data-api
-exports.isDataApiOff = function(element) {
+exports.isDataApiOff = function (element) {
   var elementDataApi = $(element).attr('data-api');
 
   // data-api 默认开启，关闭只有两种方式：

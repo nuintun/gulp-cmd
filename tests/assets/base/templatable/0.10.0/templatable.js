@@ -11,7 +11,7 @@ module.exports = {
   // template 对应的 DOM-like object
   templateObject: null,
   // 根据配置的模板和传入的数据，构建 this.element 和 templateElement
-  parseElementFromTemplate: function() {
+  parseElementFromTemplate: function () {
     // template 支持 id 选择器
     var t,
       template = this.get('template');
@@ -25,7 +25,7 @@ module.exports = {
     this.element = $(this.compile());
   },
   // 编译模板，混入数据，返回 html 结果
-  compile: function(template, model) {
+  compile: function (template, model) {
     template = template || this.get('template');
     model = model || this.get('model') || {};
 
@@ -82,7 +82,7 @@ module.exports = {
     return html;
   },
   // 刷新 selector 指定的局部区域
-  renderPartial: function(selector) {
+  renderPartial: function (selector) {
     if (this.templateObject) {
       var template = convertObjectToTemplate(this.templateObject, selector);
 
