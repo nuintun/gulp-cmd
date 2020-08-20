@@ -41,7 +41,7 @@
   },
   "devDependencies": {
     "gulp": "^4.0.2",
-    "rollup": "^2.16.1",
+    "rollup": "^2.26.4",
     "fs-extra": "9.0.1"
   },
   "homepage": "https://github.com/nuintun/gulp-cmd#readme"

@@ -5,8 +5,8 @@
  */
 
 export default {
-  moduleDidLoad: 'moduleDidLoad',
-  moduleDidParse: 'moduleDidParse',
-  moduleDidTransform: 'moduleDidTransform',
-  moduleDidComplete: 'moduleDidComplete'
+  moduleDidLoaded: 'moduleDidLoaded',
+  moduleDidParsed: 'moduleDidParsed',
+  moduleDidTransformed: 'moduleDidTransformed',
+  moduleDidCompleted: 'moduleDidCompleted'
 };
