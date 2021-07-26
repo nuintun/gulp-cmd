@@ -2,7 +2,7 @@
  * @module @nuintun/gulp-cmd
  * @author nuintun
  * @license MIT
- * @version 2.0.0
+ * @version 3.0.0
  * @description A gulp plugin for cmd transport and concat.
  * @see https://github.com/nuintun/gulp-cmd#readme
  */
@@ -130,19 +130,19 @@ const optionsSchemas = {
           name: {
             type: 'string'
           },
-          moduleDidLoad: {
+          moduleDidLoaded: {
             instanceof: 'Function',
             errorMessage: 'should be function'
           },
-          moduleDidParse: {
+          moduleDidParsed: {
             instanceof: 'Function',
             errorMessage: 'should be function'
           },
-          moduleDidTransform: {
+          moduleDidTransformed: {
             instanceof: 'Function',
             errorMessage: 'should be function'
           },
-          moduleWillBundle: {
+          moduleDidCompleted: {
             instanceof: 'Function',
             errorMessage: 'should be function'
           }
@@ -348,7 +348,7 @@ function moduleId(src, options) {
  */
 function resolveModuleId(src, options) {
   let id = null;
-  const base = options.base;
+  options.base;
 
   // Parse module id
   id = moduleId(src, options);

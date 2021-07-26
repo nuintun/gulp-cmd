@@ -108,7 +108,7 @@ gulp.task('default', function() {
 
 - plugins `Array[Object]`
 
-  自定义模块转换插件，有 `moduleDidLoad, moduleDidParse, moduleDidTransform, moduleWillBundle` 四个生命周期提供调用处理。
+  自定义模块转换插件，有 `moduleDidLoaded, moduleDidParsed, moduleDidTransformed, moduleDidCompleted` 四个生命周期提供调用处理。
 
 [npm-image]: http://img.shields.io/npm/v/@nuintun/gulp-cmd.svg?style=flat-square
 [npm-url]: https://www.npmjs.org/package/@nuintun/gulp-cmd

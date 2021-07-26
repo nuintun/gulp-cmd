@@ -9,7 +9,7 @@
 const gulp = require('gulp');
 const fs = require('fs-extra');
 const bundler = require('../index');
-const relative = require('path').relative;
+const { relative } = require('path');
 const through = require('@nuintun/through');
 
 const base = 'assets';
@@ -40,6 +40,7 @@ function hasArgv(argv) {
 }
 
 let uid = 0;
+
 const files = new Map();
 const useMap = hasArgv('--map');
 const combine = hasArgv('--combine');
@@ -64,7 +65,7 @@ const map = (path, resolved) => {
 };
 
 const css = {
-  onpath(prop, path, referer) {
+  onpath(_prop, path, referer) {
     if (/^(?:[a-z0-9.+-]+:)?\/\/|^data:\w+?\/\w+?[,;]/i.test(path)) {
       return path;
     }
@@ -83,16 +84,24 @@ const css = {
 const plugins = [
   {
     name: 'Adam',
-    moduleDidLoad(path, contents, options) {
+    moduleDidLoaded(_path, contents, _options) {
+      bundler.logger.log('[hook]', bundler.chalk.cyan('moduleDidLoaded'));
+
       return contents;
     },
-    moduleDidParse(path, contents, options) {
+    moduleDidParsed(_path, contents, _options) {
+      bundler.logger.log('[hook]', bundler.chalk.cyan('moduleDidParsed'));
+
       return contents;
     },
-    moduleDidTransform(path, contents, options) {
+    moduleDidTransformed(_path, contents, _options) {
+      bundler.logger.log('[hook]', bundler.chalk.cyan('moduleDidTransformed'));
+
       return contents;
     },
-    moduleWillBundle(path, contents, options) {
+    moduleDidCompleted(_path, contents, _options) {
+      bundler.logger.log('[hook]', bundler.chalk.cyan('moduleDidCompleted'));
+
       return contents;
     }
   }
@@ -114,17 +123,18 @@ function build() {
   fs.removeSync('manifest.json');
 
   return gulp
-    .src('assets/view/**/*.js', { base: 'assets' })
+    .src(combine ? 'assets/view/**/*.js' : 'assets/**/*.js', { base: 'assets' })
     .pipe(
-      through((vinyl, enc, next) => {
+      through((vinyl, _enc, next) => {
         bundler.logger.log('Building', bundler.chalk.green(unixify(vinyl.relative)));
+
         next(null, vinyl);
       })
     )
     .pipe(bundler({ base, alias, map, css, combine, plugins }))
     .pipe(
       through(
-        (vinyl, enc, next) => {
+        (vinyl, _enc, next) => {
           next(null, vinyl);
         },
         next => {

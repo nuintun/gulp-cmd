@@ -111,19 +111,19 @@ export default {
           name: {
             type: 'string'
           },
-          moduleDidLoad: {
+          moduleDidLoaded: {
             instanceof: 'Function',
             errorMessage: 'should be function'
           },
-          moduleDidParse: {
+          moduleDidParsed: {
             instanceof: 'Function',
             errorMessage: 'should be function'
           },
-          moduleDidTransform: {
+          moduleDidTransformed: {
             instanceof: 'Function',
             errorMessage: 'should be function'
           },
-          moduleWillBundle: {
+          moduleDidCompleted: {
             instanceof: 'Function',
             errorMessage: 'should be function'
           }

@@ -1,6 +1,6 @@
 {
   "name": "@nuintun/gulp-cmd",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "A gulp plugin for cmd transport and concat.",
   "author": {
     "name": "nuintun",
@@ -27,12 +27,12 @@
     "gulpplugin"
   ],
   "dependencies": {
-    "cmd-deps": "^3.1.0",
-    "micromatch": "^4.0.2",
-    "@nuintun/bundler": "^3.0.0",
+    "cmd-deps": "^3.2.0",
+    "micromatch": "^4.0.4",
+    "@nuintun/bundler": "^3.0.1",
     "@nuintun/through": "^1.1.1",
-    "@nuintun/css-deps": "^2.1.0",
-    "@nuintun/gulp-util": "^2.0.1"
+    "@nuintun/css-deps": "^2.2.0",
+    "@nuintun/gulp-util": "https://github.com/nuintun/gulp-util/archive/refs/heads/master.tar.gz"
   },
   "scripts": {
     "test": "gulp --cwd tests",
@@ -41,8 +41,8 @@
   },
   "devDependencies": {
     "gulp": "^4.0.2",
-    "rollup": "^2.26.4",
-    "fs-extra": "9.0.1"
+    "rollup": "^2.54.0",
+    "fs-extra": "10.0.0"
   },
   "homepage": "https://github.com/nuintun/gulp-cmd#readme"
 }
