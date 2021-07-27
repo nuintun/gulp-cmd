@@ -399,10 +399,10 @@ cloneable-readable@^1.0.0:
     process-nextick-args "^2.0.0"
     readable-stream "^2.3.5"
 
-cmd-deps@^3.2.0:
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/cmd-deps/-/cmd-deps-3.2.0.tgz#595967edaa835139bed0d27757e5b9c5d003d75c"
-  integrity sha512-ctJCbkLGHOLyw6l0qJc2l7inBc0wNWGG+RZlEgEs3PcQAcRhrlYerQ3LM/3hSyakCtYCg3ARx0SeG0ZwJ8N7ww==
+cmd-deps@^3.2.1:
+  version "3.2.1"
+  resolved "https://registry.yarnpkg.com/cmd-deps/-/cmd-deps-3.2.1.tgz#e5e2f5396b4e12f922338d8719af346c7427287e"
+  integrity sha512-xQbnQs/3fwabbI5tfRvWkYXIxsozqCj+drt2MCV1l4BisO9iYekkRi7ngG9ns2DVzO33XGmU1SDsKJExwT6q7w==
   dependencies:
     acorn "^8.4.1"
     acorn-walk "8.1.1"
