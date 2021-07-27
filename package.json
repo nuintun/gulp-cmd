@@ -27,12 +27,12 @@
     "gulpplugin"
   ],
   "dependencies": {
-    "cmd-deps": "^3.2.1",
+    "cmd-deps": "^3.2.2",
     "micromatch": "^4.0.4",
-    "@nuintun/bundler": "^3.0.1",
+    "@nuintun/bundler": "^3.0.2",
     "@nuintun/through": "^1.1.1",
-    "@nuintun/css-deps": "^2.2.0",
-    "@nuintun/gulp-util": "https://github.com/nuintun/gulp-util/archive/refs/heads/master.tar.gz"
+    "@nuintun/css-deps": "^2.2.1",
+    "@nuintun/gulp-util": "^3.0.0"
   },
   "scripts": {
     "test": "gulp --cwd tests",
